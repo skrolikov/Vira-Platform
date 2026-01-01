@@ -54,12 +54,20 @@ Scope `@vira-ui` должен существовать в npm. Есть два �
 
 #### 2.2. Настройка NPM Token для CI
 
+**КРИТИЧЕСКИ ВАЖНО:** Для CI/CD нужен **Automation Token**, а не обычный токен!
+
 В GitHub репозитории:
 1. Перейдите в Settings → Secrets and variables → Actions
 2. Добавьте `NPM_TOKEN` с вашим npm токеном
-3. Токен можно получить на https://www.npmjs.com/settings/YOUR_USERNAME/tokens
-4. **Важно:** Токен должен иметь права на публикацию (Automation или Publish)
-5. Если используете организацию, убедитесь, что токен имеет доступ к организации
+3. **Создайте Automation Token:**
+   - Перейдите на https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+   - Нажмите "Generate New Token"
+   - Выберите тип **"Automation"** (НЕ "Publish"!)
+   - Automation токены не требуют 2FA и работают в CI/CD
+4. **Важно:** 
+   - Automation токен не требует одноразового пароля (OTP)
+   - Если используете организацию, убедитесь, что токен имеет доступ к организации
+   - Обычные токены (Publish) требуют 2FA и не работают в CI/CD
 
 ### 3. Первый релиз
 
