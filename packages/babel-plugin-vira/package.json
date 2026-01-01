@@ -1,0 +1,44 @@
+{
+  "name": "@vira-ui/babel-plugin",
+  "version": "1.0.0",
+  "description": "Babel plugin for ViraJS JSX transformation",
+  "author": "Vira Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vira-ui/vira-ui"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "pnpm build",
+    "prepack": "pnpm build"
+  },
+  "keywords": [
+    "babel-plugin",
+    "vira",
+    "jsx",
+    "transformer",
+    "babel",
+    "react",
+    "framework"
+  ],
+  "peerDependencies": {
+    "@babel/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/types": "^7.23.0",
+    "@types/babel__core": "^7.20.0",
+    "typescript": "^5.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
+

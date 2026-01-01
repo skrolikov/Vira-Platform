@@ -1,0 +1,33 @@
+{
+  "name": "vira-ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Vira UI - Monorepo for Vira Framework packages",
+  "author": "Vira Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skrolikov/vira-ui.git"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build",
+    "dev": "pnpm -r --filter './packages/*' dev",
+    "lint": "pnpm -r --filter './packages/*' lint",
+    "test": "pnpm -r --filter './packages/*' test",
+    "clean": "pnpm -r --filter './packages/*' exec rm -rf dist node_modules",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish",
+    "typecheck": "pnpm -r --filter './packages/*' exec tsc --noEmit"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
+

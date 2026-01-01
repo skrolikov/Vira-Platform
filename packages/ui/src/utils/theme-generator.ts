@@ -1,0 +1,285 @@
+import { foundationTokens } from "../tokens/foundation";
+
+// Тип для темы (может быть частичным, недостающие значения берутся из foundation)
+export interface Theme {
+  color?: Record<string, any>;
+  radius?: Record<string, string>;
+  shadow?: Record<string, string>;
+  spacing?: Record<string | number, string>;
+  space?: Record<string | number, string>; // Альтернативное название для spacing
+  typography?: {
+    fontSize?: Record<string, string>;
+    fontWeight?: Record<string, string>;
+    // Или может быть плоская структура как в foundation
+    [key: string]: any;
+  };
+  presets?: Record<string, {
+    padding?: number | string;
+    radius?: string;
+    [key: string]: any;
+  }>;
+  [key: string]: any; // Для дополнительных свойств тем
+}
+
+// Генерирует CSS переменные из темы с fallback на foundation
+export function generateThemeCSSVariables(theme: Theme): string {
+  const rules: string[] = [];
+  const addedVars = new Set<string>(); // Отслеживаем уже добавленные переменные
+  
+  // Color variables
+  if (theme.color) {
+    Object.entries(theme.color).forEach(([key, value]) => {
+      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        // Вложенные объекты (например, text: { primary: ... })
+        Object.entries(value).forEach(([subKey, subValue]) => {
+          const varName = `--color-${key}-${subKey}`;
+          if (!addedVars.has(varName)) {
+            rules.push(`  ${varName}: ${subValue};`);
+            addedVars.add(varName);
+          }
+        });
+      } else {
+        const varName = `--color-${key}`;
+        if (!addedVars.has(varName)) {
+          rules.push(`  ${varName}: ${value};`);
+          addedVars.add(varName);
+        }
+      }
+    });
+  }
+  // Дополняем недостающие color из foundation
+  Object.entries(foundationTokens.color).forEach(([key, value]) => {
+    // Обрабатываем ключи с точками (например, "text.primary")
+    if (key.includes(".")) {
+      const parts = key.split(".");
+      const varName = `--color-${parts.join("-")}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    } else {
+      // Простые ключи
+      const varName = `--color-${key}`;
+      if (!addedVars.has(varName)) {
+        // Проверяем, не определен ли уже в теме
+        const existsInTheme = theme.color && (
+          key in theme.color || 
+          Object.keys(theme.color).some(k => k.startsWith(`${key}.`))
+        );
+        if (!existsInTheme) {
+          rules.push(`  ${varName}: ${value};`);
+          addedVars.add(varName);
+        }
+      }
+      // Также добавляем --color-bg для обратной совместимости
+      if (key === "bg" && !addedVars.has("--color-bg")) {
+        rules.push(`  --color-bg: ${value};`);
+        addedVars.add("--color-bg");
+      }
+    }
+  });
+  
+  // Radius variables
+  if (theme.radius) {
+    Object.entries(theme.radius).forEach(([key, value]) => {
+      const varName = `--radius-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  // Дополняем недостающие radius из foundation
+  Object.entries(foundationTokens.radius).forEach(([key, value]) => {
+    const varName = `--radius-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+  
+  // Shadow variables
+  if (theme.shadow) {
+    Object.entries(theme.shadow).forEach(([key, value]) => {
+      const varName = `--shadow-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  // Дополняем недостающие shadow из foundation
+  Object.entries(foundationTokens.shadow).forEach(([key, value]) => {
+    const varName = `--shadow-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+  
+  // Spacing variables (поддерживаем и space, и spacing)
+  const spacing = theme.spacing || theme.space;
+  if (spacing) {
+    Object.entries(spacing).forEach(([key, value]) => {
+      const varName = `--spacing-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  // Дополняем недостающие spacing из foundation
+  Object.entries(foundationTokens.spacing).forEach(([key, value]) => {
+    const varName = `--spacing-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+  
+  // Typography variables
+  if (theme.typography) {
+    // Если структура как в cyberpunk (fontSize и fontWeight отдельно)
+    if (theme.typography.fontSize) {
+      Object.entries(theme.typography.fontSize).forEach(([key, value]) => {
+        const varName1 = `--typography-fontSize-${key}`;
+        const varName2 = `--typography-${key}`;
+        if (!addedVars.has(varName1)) {
+          rules.push(`  ${varName1}: ${value};`);
+          addedVars.add(varName1);
+        }
+        if (!addedVars.has(varName2)) {
+          rules.push(`  ${varName2}: ${value};`);
+          addedVars.add(varName2);
+        }
+      });
+    }
+    if (theme.typography.fontWeight) {
+      Object.entries(theme.typography.fontWeight).forEach(([key, value]) => {
+        const varName1 = `--typography-fontWeight-${key}`;
+        const varName2 = `--typography-weight-${key}`;
+        if (!addedVars.has(varName1)) {
+          rules.push(`  ${varName1}: ${value};`);
+          addedVars.add(varName1);
+        }
+        if (!addedVars.has(varName2)) {
+          rules.push(`  ${varName2}: ${value};`);
+          addedVars.add(varName2);
+        }
+      });
+    }
+    
+    // Если структура как в foundation (плоская с weight объектом)
+    Object.entries(theme.typography).forEach(([key, value]) => {
+      if (key !== "fontSize" && key !== "fontWeight") {
+        if (typeof value === "string") {
+          const varName1 = `--typography-fontSize-${key}`;
+          const varName2 = `--typography-${key}`;
+          if (!addedVars.has(varName1)) {
+            rules.push(`  ${varName1}: ${value};`);
+            addedVars.add(varName1);
+          }
+          if (!addedVars.has(varName2)) {
+            rules.push(`  ${varName2}: ${value};`);
+            addedVars.add(varName2);
+          }
+        } else if (typeof value === "object" && value !== null) {
+          // weight object
+          Object.entries(value).forEach(([subKey, subValue]) => {
+            const varName1 = `--typography-fontWeight-${subKey}`;
+            const varName2 = `--typography-weight-${subKey}`;
+            if (!addedVars.has(varName1)) {
+              rules.push(`  ${varName1}: ${subValue};`);
+              addedVars.add(varName1);
+            }
+            if (!addedVars.has(varName2)) {
+              rules.push(`  ${varName2}: ${subValue};`);
+              addedVars.add(varName2);
+            }
+          });
+        }
+      }
+    });
+  }
+  // Дополняем недостающие typography из foundation
+  Object.entries(foundationTokens.typography).forEach(([key, value]) => {
+    if (typeof value === "string") {
+      // Проверяем, есть ли уже в теме
+      const existsInTheme = 
+        (theme.typography?.fontSize && key in theme.typography.fontSize) ||
+        (theme.typography && key in theme.typography && typeof theme.typography[key] === "string");
+      
+      if (!existsInTheme) {
+        const varName1 = `--typography-fontSize-${key}`;
+        const varName2 = `--typography-${key}`;
+        if (!addedVars.has(varName1)) {
+          rules.push(`  ${varName1}: ${value};`);
+          addedVars.add(varName1);
+        }
+        if (!addedVars.has(varName2)) {
+          rules.push(`  ${varName2}: ${value};`);
+          addedVars.add(varName2);
+        }
+      }
+    } else if (typeof value === "object" && value !== null) {
+      // weight object
+      Object.entries(value).forEach(([subKey, subValue]) => {
+        const existsInTheme = 
+          (theme.typography?.fontWeight && subKey in theme.typography.fontWeight) ||
+          (theme.typography?.weight && subKey in theme.typography.weight);
+        
+        if (!existsInTheme) {
+          const varName1 = `--typography-fontWeight-${subKey}`;
+          const varName2 = `--typography-weight-${subKey}`;
+          if (!addedVars.has(varName1)) {
+            rules.push(`  ${varName1}: ${subValue};`);
+            addedVars.add(varName1);
+          }
+          if (!addedVars.has(varName2)) {
+            rules.push(`  ${varName2}: ${subValue};`);
+            addedVars.add(varName2);
+          }
+        }
+      });
+    }
+  });
+  
+  // Генерируем CSS правила для переопределения пресетов в контексте темы
+  let presetRules: string[] = [];
+  if (theme.presets) {
+    Object.entries(theme.presets).forEach(([presetName, presetOverrides]) => {
+      const presetSelectors: string[] = [];
+      
+      // Генерируем селектор для пресета (например, .v-xxxxx[data-preset="glass"])
+      // Но так как мы не знаем хеши классов, используем CSS переменные
+      Object.entries(presetOverrides).forEach(([key, value]) => {
+        if (key === "padding" && typeof value === "number") {
+          // Преобразуем число в spacing токен
+          const spacingVar = `--preset-${presetName}-padding`;
+          if (!addedVars.has(spacingVar)) {
+            const spacingValue = foundationTokens.spacing[value as keyof typeof foundationTokens.spacing] || `${value * 4}px`;
+            presetRules.push(`  ${spacingVar}: ${spacingValue};`);
+            addedVars.add(spacingVar);
+          }
+        } else if (key === "radius" && typeof value === "string") {
+          // Преобразуем токен radius в значение
+          const radiusVar = `--preset-${presetName}-radius`;
+          if (!addedVars.has(radiusVar)) {
+            let radiusValue = value;
+            if (value.startsWith("radius.")) {
+              const radiusKey = value.replace("radius.", "");
+              radiusValue = theme.radius?.[radiusKey] || foundationTokens.radius[radiusKey as keyof typeof foundationTokens.radius] || value;
+            }
+            presetRules.push(`  ${radiusVar}: ${radiusValue};`);
+            addedVars.add(radiusVar);
+          }
+        }
+      });
+    });
+  }
+  
+  // Объединяем основные правила и правила для пресетов
+  const allRules = [...rules, ...presetRules];
+  return `:root {\n${allRules.join("\n")}\n}`;
+}
+

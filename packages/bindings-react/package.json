@@ -1,0 +1,54 @@
+{
+  "name": "@vira-ui/bindings-react",
+  "version": "1.1.0",
+  "description": "Vira Framework - React bindings with auto-binding for UI components",
+  "author": "Vira Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skrolikov/vira-ui"
+  },
+  "keywords": [
+    "vira",
+    "react",
+    "bindings",
+    "auto-binding",
+    "framework",
+    "components"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@vira-ui/core": "workspace:*",
+    "@vira-ui/ui": "workspace:*",
+    "react": "^18.2.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
+
