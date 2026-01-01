@@ -37,12 +37,29 @@ npm install -g pnpm@8.15.0
 pnpm install
 ```
 
-### 2. Настройка NPM Token для CI
+### 2. Настройка NPM для публикации
+
+#### 2.1. Создание scope в npm
+
+Scope `@vira-ui` должен существовать в npm. Есть два варианта:
+
+**Вариант A: Создать организацию в npm (рекомендуется)**
+1. Перейдите на https://www.npmjs.com/org/create
+2. Создайте организацию с именем `vira-ui`
+3. Добавьте себя как владельца
+
+**Вариант B: Использовать личный scope**
+Если вы не хотите создавать организацию, измените scope в `package.json` всех пакетов на ваш username:
+- Замените `@vira-ui/` на `@your-username/` во всех `package.json`
+
+#### 2.2. Настройка NPM Token для CI
 
 В GitHub репозитории:
 1. Перейдите в Settings → Secrets and variables → Actions
 2. Добавьте `NPM_TOKEN` с вашим npm токеном
 3. Токен можно получить на https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+4. **Важно:** Токен должен иметь права на публикацию (Automation или Publish)
+5. Если используете организацию, убедитесь, что токен имеет доступ к организации
 
 ### 3. Первый релиз
 

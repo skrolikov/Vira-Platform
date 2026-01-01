@@ -9,29 +9,32 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    name: Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: Setup Node.js & pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v2
         with:
           version: 8.15.0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
+      - name: Configure npm for publishing
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "@vira-ui:registry=https://registry.npmjs.org/" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -39,21 +42,10 @@ jobs:
       - name: Build packages
         run: pnpm build
 
-      - name: Create Release Pull Request or Publish
-        id: changesets
+      - name: Bump version & Publish
         uses: changesets/action@v1
         with:
-          publish: pnpm changeset publish
-          commit: 'chore: version packages'
-          title: 'chore: version packages'
-          version: pnpm changeset version
+          publish: npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish to npm
-        if: steps.changesets.outputs.published == 'true'
-        run: |
-          echo "Published packages to npm"
-          echo "Published: ${{ steps.changesets.outputs.published }}"
-          echo "Published packages: ${{ steps.changesets.outputs.publishedPackages }}"
