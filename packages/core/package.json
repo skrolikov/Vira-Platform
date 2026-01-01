@@ -1,6 +1,6 @@
 {
   "name": "@vira-ui/core",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "Vira Framework - Declarative UI framework layer over React",
   "author": "Vira Team",
   "license": "MIT",
