@@ -13,7 +13,7 @@ import { Popover } from "./Popover";
 import { Card } from "./Card";
 import { Avatar } from "./Avatar";
 import { Badge } from "./Badge";
-import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Menu, LogOut, X, ShoppingCart, SquareUser, Users, Package, Contact } from "lucide-react";
+import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Menu, LogOut, X, ShoppingCart, UserSquare2, Users, Package, Contact } from "lucide-react";
 import { useIsMobile } from "../utils/useMediaQuery";
 
 export type SearchEntityType = "all" | "orders" | "leads" | "customers" | "products" | "employees";
@@ -640,7 +640,7 @@ const DesktopSearch: React.FC<{
                         case "orders":
                           return <ShoppingCart size={14} style={{ color: "#3b82f6" }} />;
                         case "leads":
-                          return <SquareUser size={14} style={{ color: "#10b981" }} />;
+                          return <UserSquare2 size={14} style={{ color: "#10b981" }} />;
                         case "customers":
                           return <Users size={14} style={{ color: "#8b5cf6" }} />;
                         case "products":
