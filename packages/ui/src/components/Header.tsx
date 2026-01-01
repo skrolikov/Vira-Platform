@@ -13,7 +13,7 @@ import { Popover } from "./Popover";
 import { Card } from "./Card";
 import { Avatar } from "./Avatar";
 import { Badge } from "./Badge";
-import { Search, Bell, Settings, User, ChevronLeft, ChevronRight, Menu, LogOut, X, ShoppingCart, UserSquare2, Users, Package, Contact } from "lucide-react";
+import { Search, Bell, Settings, User, ChevronRight, Menu, LogOut, X, ShoppingCart, UserSquare2, Users, Package, Contact } from "lucide-react";
 import { useIsMobile } from "../utils/useMediaQuery";
 
 export type SearchEntityType = "all" | "orders" | "leads" | "customers" | "products" | "employees";

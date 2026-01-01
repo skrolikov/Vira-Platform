@@ -6,6 +6,7 @@ import {
   type ViraClient,
   type Message,
   type ViraConnectionPool,
+  type ViraPoolStatus,
 } from '@vira-ui/core';
 
 export interface UseViraStateOptions<T = any> {
@@ -320,7 +321,7 @@ export function useViraState<T = any, C extends string = string>(
       const unsubChannel = pool.subscribe(channel, handleMessage);
 
       // Track shared connection status
-      const unsubStatus = pool.onStatus((status) => {
+      const unsubStatus = pool.onStatus((status: ViraPoolStatus) => {
         setError(status.error);
         setIsConnected(status.connected);
 
@@ -395,7 +396,7 @@ export function useViraState<T = any, C extends string = string>(
       onError: handleError,
       session: sessionRef.current,
       authToken,
-      onSessionChange: (newSession) => {
+      onSessionChange: (newSession: string | null) => {
         sessionRef.current = newSession;
       },
     });
