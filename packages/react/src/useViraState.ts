@@ -165,10 +165,25 @@ export function useViraState<T = any, C extends string = string>(
     }
   }, [debugOption]);
 
+  // Create a stable key for handshakeData to avoid unnecessary pool recreation
+  // Use values from handshakeData instead of the object reference
+  const handshakeDataKey = useMemo(() => {
+    if (!handshakeDataOption) return '';
+    try {
+      return JSON.stringify(handshakeDataOption);
+    } catch {
+      return '';
+    }
+  }, [
+    handshakeDataOption?.company_id,
+    handshakeDataOption?.location_id,
+    handshakeDataOption?.employee_id,
+  ]);
+  
   const pool: ViraConnectionPool | null = useMemo(() => {
     if (disablePooling) return null;
     return getViraConnectionPool({ url: apiUrl, authToken, handshakeData: handshakeDataOption, debug });
-  }, [disablePooling, apiUrl, authToken, handshakeDataOption, debug]);
+  }, [disablePooling, apiUrl, authToken, handshakeDataKey, debug]);
 
 
 

@@ -259,7 +259,11 @@ function poolKey(url: string, authToken?: string, handshakeData?: Record<string,
 export function getViraConnectionPool(options: ViraPoolOptions): ViraConnectionPool {
   const key = poolKey(options.url, options.authToken, options.handshakeData);
   const existing = pools.get(key);
-  if (existing) return existing;
+  if (existing) {
+    // If pool exists but handshakeData changed, we need a new pool
+    // But since key includes handshakeData, different handshakeData = different key = new pool
+    return existing;
+  }
   const pool = new ViraConnectionPoolImpl(options);
   pools.set(key, pool);
   return pool;
