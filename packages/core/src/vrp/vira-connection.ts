@@ -217,6 +217,9 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
       // Include handshakeData if provided
       if (handshakeData && Object.keys(handshakeData).length > 0) {
         handshakeMsg.data = handshakeData;
+        log("handshake: including handshakeData", handshakeData);
+      } else {
+        log("handshake: no handshakeData provided");
       }
       
       newWs.send(JSON.stringify(handshakeMsg));
