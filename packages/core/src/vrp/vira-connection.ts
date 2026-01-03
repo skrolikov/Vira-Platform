@@ -215,10 +215,13 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
       };
       
       // Include handshakeData if provided
+      console.log('[VRP] handshakeData:', handshakeData);
       if (handshakeData && Object.keys(handshakeData).length > 0) {
         handshakeMsg.data = handshakeData;
+        console.log("[VRP] handshake: including handshakeData", handshakeData);
         log("handshake: including handshakeData", handshakeData);
       } else {
+        console.log("[VRP] handshake: no handshakeData provided");
         log("handshake: no handshakeData provided");
       }
       
