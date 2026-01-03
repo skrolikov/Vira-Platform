@@ -1,5 +1,11 @@
 # @vira-ui/core
 
+## 3.0.0
+
+### Major Changes
+
+- fix ViraConnection
+
 ## 2.0.0
 
 ### Major Changes

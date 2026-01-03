@@ -1,5 +1,13 @@
 # @vira-ui/react
 
+## 2.0.1
+
+### Patch Changes
+
+- Clean up useViraState - remove inventory-specific logic and make it universal
+- Updated dependencies
+  - @vira-ui/core@3.0.0
+
 ## 2.0.0
 
 ### Major Changes

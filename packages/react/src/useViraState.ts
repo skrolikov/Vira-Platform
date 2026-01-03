@@ -166,33 +166,6 @@ export function useViraState<T = any, C extends string = string>(
     return getViraConnectionPool({ url: apiUrl, authToken, debug });
   }, [disablePooling, apiUrl, authToken, debug]);
 
-  // ДОБАВИТЬ ЭТУ ФУНКЦИЮ:
-  const loadInitialData = useCallback(async () => {
-
-
-    // Если это канал товаров, ждем транспорт и запрашиваем данные
-    if (channel === 'inventoryitem:') {
-
-      // Ждем до 3 секунд пока транспорт будет готов
-      const maxRetries = 30;
-      let retries = 0;
-
-      const trySendRequest = () => {
-        if (transportRef.current && retries < maxRetries) {
-          transportRef.current.sendEvent('inventoryitem.list', {});
-          return;
-        } else if (retries >= maxRetries) {
-        } else {
-          retries++;
-          setTimeout(trySendRequest, 100);
-        }
-      };
-
-      trySendRequest();
-    } else {
-    }
-  }, [channel]);
-
 
 
 
@@ -200,65 +173,11 @@ export function useViraState<T = any, C extends string = string>(
     if (!channel) return;
 
     const handleMessage = (msg: Message) => {
-
       switch (msg.type) {
         case 'update':
         case 'event':
           if (msg.channel === channel) {
-            // НОВАЯ ЛОГИКА: Если это первое update с полными данными товаров
-            if (channel === 'inventoryitem:' && msg.data && typeof msg.data === 'object' &&
-              !msg.data.type && !msg.data.patch && !data) {
-              setData(msg.data as T);
-              return;
-            }
-
-            // Handle diff patches that come as update messages
-            if (msg.data && typeof msg.data === 'object' && msg.data.type === 'diff' && msg.data.patch) {
-
-              setData((prev) => {
-
-                if (!prev) {
-                  return msg.data.patch as T;
-                }
-
-                // Merge diff данных с существующими данными
-                if (typeof prev === 'object' && typeof msg.data.patch === 'object') {
-                  let newData = { ...(prev as any) };
-
-                  // Обновляем только элементы из diff patch
-                  for (const [itemId, itemData] of Object.entries(msg.data.patch)) {
-                    if (itemData && typeof itemData === 'object' && itemId !== 'type' && itemId !== 'patch') {
-                      newData[itemId] = itemData;
-                    }
-                  }
-
-                  return newData as T;
-                }
-
-                return prev;
-              });
-              return;
-            }
-
-            // Handle events that come as update messages (ignore service events)
-            if (msg.data && typeof msg.data === 'object' && msg.data.type === 'event') {
-              return;
-            }
-
-            // ПРОВЕРКА: Игнорируем другие служебные сообщения
-            if (msg.data && typeof msg.data === 'object' && msg.data.patch) {
-              return; // Выходим без обновления данных
-            }
-
-            // Обработка запроса начальных данных
-            if (msg.data && typeof msg.data === 'object' && msg.data.type === 'inventory_list') {
-              setData(msg.data.items as T);
-              return;
-            }
-
-
             setData((prev) => {
-
               if (!prev) {
                 return msg.data as T;
               }
@@ -278,41 +197,28 @@ export function useViraState<T = any, C extends string = string>(
           }
           break;
 
-
         case 'diff':
-          if (msg.channel === channel) {
-            // СПЕЦИАЛЬНАЯ ЛОГИКА для diff - только для товаров
+          if (msg.channel === channel && msg.patch) {
             setData((prev) => {
-
-              // Игнорируем служебные diff (с type: 'diff')
-              if (!prev || !msg.patch ||
-                (typeof msg.patch === 'object' && (msg.patch.type === 'diff' || msg.patch.type === 'event'))) {
-                return prev;
-              }
-
               if (!prev) {
-                return null; // Возвращаем null для соответствия типу T | null
+                return msg.patch as T;
               }
 
-              // Merge diff данных с существующими товарами
               if (typeof prev === 'object' && typeof msg.patch === 'object') {
-                let newData = { ...(prev as any) };
-
-                // Обновляем только товары из diff
-                for (const [itemId, itemData] of Object.entries(msg.patch)) {
-                  if (itemData && typeof itemData === 'object' && itemId !== 'type' && itemId !== 'patch') {
-                    newData[itemId] = itemData;
-                  }
+                let mergedData;
+                if (useDeepMerge) {
+                  mergedData = deepMerge(prev as Record<string, any>, msg.patch as Record<string, any>) as T;
+                } else {
+                  mergedData = { ...(prev as any), ...(msg.patch as any) };
                 }
-
-                return newData as T;
+                return mergedData;
               }
 
               return prev;
             });
           }
           break;
-      };
+      }
     };
 
     // --- Pooled mode (default) ---
@@ -328,7 +234,6 @@ export function useViraState<T = any, C extends string = string>(
         // Fire callbacks only on transitions
         if (status.connected && !wasConnectedRef.current) {
           wasConnectedRef.current = true;
-          loadInitialData();
           onOpen?.();
         }
         if (!status.connected && wasConnectedRef.current) {
@@ -371,7 +276,6 @@ export function useViraState<T = any, C extends string = string>(
       setError(null);
       if (!wasConnectedRef.current) {
         wasConnectedRef.current = true;
-        loadInitialData();
       }
       onOpen?.();
     };
