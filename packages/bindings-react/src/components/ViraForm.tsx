@@ -192,7 +192,6 @@ export const ViraForm: React.FC<ViraFormProps> = ({
   try {
     formService = useService(service);
   } catch (err) {
-    console.error(`Service "${service}" not found:`, err);
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -209,7 +208,6 @@ export const ViraForm: React.FC<ViraFormProps> = ({
           await onSubmit({});
         }
       } catch (err) {
-        console.error("Form submit error:", err);
       }
     }
 
@@ -218,7 +216,6 @@ export const ViraForm: React.FC<ViraFormProps> = ({
       try {
         await (formService as any).submit();
       } catch (err) {
-        console.error("Service submit error:", err);
       }
     }
   };

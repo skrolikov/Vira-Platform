@@ -113,7 +113,6 @@ export function action<T extends (...args: any[]) => Promise<any>>(
           // Логирование ошибки
           if (options.logToDevTools !== false) {
             const actionName = fn.name || "anonymous";
-            console.error(`[Action] ${actionName} failed`, errorObj);
           }
 
           // Error boundary обработка

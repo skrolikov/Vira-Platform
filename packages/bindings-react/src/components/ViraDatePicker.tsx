@@ -66,7 +66,6 @@ export const ViraDatePicker: React.FC<ViraDatePickerProps> = ({
     try {
       return resolveModel(model, viraContext);
     } catch (err) {
-      console.error("Failed to resolve model:", err);
       return null;
     }
   }, [model, viraContext]);
@@ -86,7 +85,6 @@ export const ViraDatePicker: React.FC<ViraDatePickerProps> = ({
         };
       }
     } catch (err) {
-      console.error("Failed to subscribe to service:", err);
     }
   }, [model, modelBinding]);
 

@@ -68,7 +68,6 @@ function flushUpdates(): void {
     try {
       update();
     } catch (error) {
-      console.error("Error in batched update:", error);
     }
   });
 }

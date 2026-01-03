@@ -26,6 +26,8 @@ export interface UseViraStateOptions<T = any> {
   apiUrl?: string;
   /** Auth token for handshake */
   authToken?: string;
+  /** Additional data to send in handshake (e.g., company_id, location_id) */
+  handshakeData?: Record<string, any>;
   /** Disable connection pooling (fallback to 1 WS per channel). Default: false */
   disablePooling?: boolean;
   /** Enable debug logs for VRP (console.debug). Default: env VITE_VRP_DEBUG === 'true' */
@@ -84,6 +86,7 @@ export function useViraState<T = any, C extends string = string>(
         'initial' in initialOrOptions ||
         'apiUrl' in initialOrOptions ||
         'authToken' in initialOrOptions ||
+        'handshakeData' in initialOrOptions ||
         'disablePooling' in initialOrOptions ||
         'debug' in initialOrOptions)
     ) {
@@ -102,6 +105,7 @@ export function useViraState<T = any, C extends string = string>(
     deepMerge: useDeepMerge = true,
     apiUrl: apiUrlOption,
     authToken: authTokenOption,
+    handshakeData: handshakeDataOption,
     disablePooling = false,
     debug: debugOption,
   } = options;
@@ -163,8 +167,8 @@ export function useViraState<T = any, C extends string = string>(
 
   const pool: ViraConnectionPool | null = useMemo(() => {
     if (disablePooling) return null;
-    return getViraConnectionPool({ url: apiUrl, authToken, debug });
-  }, [disablePooling, apiUrl, authToken, debug]);
+    return getViraConnectionPool({ url: apiUrl, authToken, handshakeData: handshakeDataOption, debug });
+  }, [disablePooling, apiUrl, authToken, handshakeDataOption, debug]);
 
 
 

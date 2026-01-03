@@ -47,8 +47,6 @@ export class ViraErrorBoundary extends Component<
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
-
-    console.error("ViraErrorBoundary caught an error:", error, errorInfo);
   }
 
   handleReset = (): void => {

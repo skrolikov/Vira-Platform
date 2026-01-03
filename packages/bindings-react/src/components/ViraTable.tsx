@@ -63,7 +63,6 @@ export const ViraTable: React.FC<ViraTableProps> = ({
         const service = viraContext.services.get(serviceName);
         
         if (!service) {
-          console.error(`Service "${serviceName}" not found`);
           return;
         }
 
@@ -79,7 +78,6 @@ export const ViraTable: React.FC<ViraTableProps> = ({
           console.warn(`Property "${propertyName}" in service "${serviceName}" is not an array`);
         }
       } catch (err) {
-        console.error("Failed to resolve source:", err);
       }
     };
 
@@ -101,7 +99,6 @@ export const ViraTable: React.FC<ViraTableProps> = ({
         };
       }
     } catch (err) {
-      console.error("Failed to subscribe to service:", err);
     }
   }, [source, viraContext]);
 

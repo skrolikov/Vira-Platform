@@ -104,13 +104,6 @@ program
     if (options.template) {
       template = options.template as TemplateType;
       if (!SUPPORTED_TEMPLATES.includes(template)) {
-        console.error(
-          chalk.red(
-            `Unknown template: ${template}. Use one of: ${SUPPORTED_TEMPLATES.join(
-              ", "
-            )}`
-          )
-        );
         process.exit(1);
       }
     } else {
@@ -170,13 +163,6 @@ program
     if (options.template) {
       template = options.template as TemplateType;
       if (!SUPPORTED_TEMPLATES.includes(template)) {
-        console.error(
-          chalk.red(
-            `Unknown template: ${template}. Use one of: ${SUPPORTED_TEMPLATES.join(
-              ", "
-            )}`
-          )
-        );
         process.exit(1);
       }
     } else {
