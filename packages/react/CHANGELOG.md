@@ -1,5 +1,16 @@
 # @vira-ui/react
 
+## 5.0.0
+
+### Major Changes
+
+- fix
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@8.0.0
+
 ## 4.0.1
 
 ### Patch Changes

@@ -174,14 +174,14 @@ export function useViraState<T = any, C extends string = string>(
     } catch {
       return '';
     }
-  }, [
-    handshakeDataOption?.company_id,
-    handshakeDataOption?.location_id,
-    handshakeDataOption?.employee_id,
-  ]);
+  }, [handshakeDataOption]);
+  
+  console.log('[useViraState] handshakeDataOption:', handshakeDataOption);
+  console.log('[useViraState] handshakeDataKey:', handshakeDataKey);
   
   const pool: ViraConnectionPool | null = useMemo(() => {
     if (disablePooling) return null;
+    console.log('[useViraState] Creating pool with handshakeData:', handshakeDataOption);
     return getViraConnectionPool({ url: apiUrl, authToken, handshakeData: handshakeDataOption, debug });
   }, [disablePooling, apiUrl, authToken, handshakeDataKey, debug]);
 

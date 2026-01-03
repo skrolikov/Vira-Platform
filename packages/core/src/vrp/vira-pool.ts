@@ -62,6 +62,7 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
     this.idleCloseMs = opts.idleCloseMs ?? 15000;
     this.reconnect = opts.reconnect;
     this.handshakeData = opts.handshakeData;
+    console.log('[ViraConnectionPoolImpl] constructor handshakeData:', this.handshakeData);
   }
 
   private log(...args: any[]) {
