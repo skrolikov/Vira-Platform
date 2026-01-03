@@ -1,6 +1,6 @@
 // Vira Reactive Protocol message types
 export type Message =
-  | { type: 'handshake'; client: string; version: string; authToken?: string; session?: string; ts: number }
+  | { type: 'handshake'; client: string; version: string; authToken?: string; session?: string; data?: any; ts: number }
   | { type: 'ack'; session: string; interval?: number; version?: string; ts?: number }
   | { type: 'sub'; channels: string[] }
   | { type: 'unsub'; channels: string[] }

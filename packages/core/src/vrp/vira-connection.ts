@@ -22,6 +22,8 @@ export interface ViraConnectionOptions {
   authToken?: string;
   debug?: boolean;
   reconnect?: ViraReconnectOptions;
+  /** Additional data to send in handshake (e.g., company_id, location_id) */
+  handshakeData?: Record<string, any>;
 }
 
 export interface ViraConnection {
@@ -68,6 +70,7 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
     authToken: authTokenOption,
     debug = false,
     reconnect,
+    handshakeData,
   } = options;
 
   const reconnectOpts: Required<ViraReconnectOptions> = {
@@ -202,16 +205,21 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
       log("open");
 
       // Send handshake first
-      newWs.send(
-        JSON.stringify({
-          type: "handshake",
-          client: "vira-react",
-          version: "0.1",
-          authToken: authTokenOption || "",
-          session: session || undefined,
-          ts: nowMs(),
-        })
-      );
+      const handshakeMsg: any = {
+        type: "handshake",
+        client: "vira-react",
+        version: "0.1",
+        authToken: authTokenOption || "",
+        session: session || undefined,
+        ts: nowMs(),
+      };
+      
+      // Include handshakeData if provided
+      if (handshakeData && Object.keys(handshakeData).length > 0) {
+        handshakeMsg.data = handshakeData;
+      }
+      
+      newWs.send(JSON.stringify(handshakeMsg));
 
       onConnect?.();
     };

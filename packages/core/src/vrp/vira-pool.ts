@@ -17,6 +17,8 @@ export interface ViraPoolOptions {
   /** Close underlying socket after this idle time when there are no listeners. Default: 15000ms */
   idleCloseMs?: number;
   reconnect?: ViraReconnectOptions;
+  /** Additional data to send in handshake (e.g., company_id, location_id) */
+  handshakeData?: Record<string, any>;
 }
 
 export interface ViraConnectionPool {
@@ -38,6 +40,7 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
   private debug: boolean;
   private readonly idleCloseMs: number;
   private readonly reconnect?: ViraReconnectOptions;
+  private readonly handshakeData?: Record<string, any>;
 
   private conn: ViraConnection | null = null;
   private session: string | null = null;
@@ -58,6 +61,7 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
     this.debug = Boolean(opts.debug);
     this.idleCloseMs = opts.idleCloseMs ?? 15000;
     this.reconnect = opts.reconnect;
+    this.handshakeData = opts.handshakeData;
   }
 
   private log(...args: any[]) {
@@ -87,6 +91,7 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
       session: this.session,
       debug: this.debug,
       reconnect: this.reconnect,
+      handshakeData: this.handshakeData,
       onConnect: () => {
         // Note: connect fires on WS open; "ready" happens after ack, but for UI it's fine.
         this.connected = true;
@@ -244,13 +249,15 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
 
 const pools = new Map<string, ViraConnectionPoolImpl>();
 
-function poolKey(url: string, authToken?: string) {
-  return `${url}::${authToken || ""}`;
+function poolKey(url: string, authToken?: string, handshakeData?: Record<string, any>) {
+  // Include handshakeData in key to ensure separate pools for different contexts
+  const dataKey = handshakeData ? JSON.stringify(handshakeData) : "";
+  return `${url}::${authToken || ""}::${dataKey}`;
 }
 
-/** Global singleton pool per (url, authToken). */
+/** Global singleton pool per (url, authToken, handshakeData). */
 export function getViraConnectionPool(options: ViraPoolOptions): ViraConnectionPool {
-  const key = poolKey(options.url, options.authToken);
+  const key = poolKey(options.url, options.authToken, options.handshakeData);
   const existing = pools.get(key);
   if (existing) return existing;
   const pool = new ViraConnectionPoolImpl(options);
