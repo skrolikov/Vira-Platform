@@ -200,7 +200,7 @@ export const toast = {
       id,
       message,
       type: "info",
-      duration: 50000,
+      duration: 5000,
       ...options,
     };
     toasts.push(newToast);

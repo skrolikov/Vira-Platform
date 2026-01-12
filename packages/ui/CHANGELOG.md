@@ -1,5 +1,11 @@
 # @vira-ui/ui
 
+## 9.0.0
+
+### Major Changes
+
+- chore: fix duration
+
 ## 8.0.0
 
 ### Major Changes
