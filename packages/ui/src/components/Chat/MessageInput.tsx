@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { X, Paperclip, MessageSquare, Send, Search } from 'lucide-react';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
 import { Badge } from '../Badge';
@@ -102,7 +103,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   }, [message, templates]);
 
   return (
-    <Flex direction="column" gap="sm" design={{ width: '100%' }}>
+    <Flex direction="column" gap={2} design={{ width: '100%' }}>
       {/* Reply preview */}
       {replyTo && (
         <Box
@@ -110,13 +111,13 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           design={{
             padding: 2,
             bg: 'color.bg.secondary',
-            borderRadius: '8px',
+            borderRadius: "radius.md",
             borderLeft: '3px solid',
             borderLeftColor: 'color.primary',
           }}
         >
           <Flex justify="space-between" align="center">
-            <Flex direction="column" gap="xs">
+            <Flex direction="column" gap={3}>
               <Text size="sm" design={{ fontWeight: '600', color: 'color.primary' }}>
                 Ответ на: {replyTo.senderName}
               </Text>
@@ -134,8 +135,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               </Text>
             </Flex>
             {onCancelReply && (
-              <Button preset="ghost" onClick={onCancelReply} design={{ flexShrink: 0 }}>
-                ✕
+              <Button preset="ghost" onClick={onCancelReply} design={{ flexShrink: 0, padding: '4px' }}>
+                <X size={16} />
               </Button>
             )}
           </Flex>
@@ -144,23 +145,24 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
       {/* Attachments preview */}
       {attachments.length > 0 && (
-        <Flex gap="xs" wrap design={{ padding: '8px 0' }}>
+        <Flex gap={3} wrap design={{ padding: '8px 0' }}>
           {attachments.map((file, idx) => (
-            <Flex key={idx} align="center" gap="xs">
-              <Badge preset="info">
-                📎 {file.name}
+            <Flex key={idx} align="center" gap={3}>
+              <Badge preset="info" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Paperclip size={12} />
+                {file.name}
               </Badge>
               <Button
                 preset="ghost"
                 onClick={() => handleRemoveAttachment(idx)}
                 design={{ 
-                  padding: 0,
+                  padding: '2px',
                   minWidth: 'auto',
                   width: '20px',
                   height: '20px',
                 }}
               >
-                ✕
+                <X size={12} />
               </Button>
             </Flex>
           ))}
@@ -168,7 +170,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       )}
 
       {/* Input area */}
-      <Flex gap="sm" align="flex-end">
+      <Flex gap={2} align="center">
         {/* Templates button */}
         {templates.length > 0 && (
           <Popover
@@ -186,10 +188,13 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                   boxShadow: 'shadow.lg',
                 }}
               >
-                <Text design={{ fontWeight: '600', marginBottom: 2 }} size="sm">
-                  💬 Быстрые ответы
-                </Text>
-                <Flex direction="column" gap="xs">
+                <Flex gap={2} align="center" design={{ marginBottom: 2 }}>
+                  <MessageSquare size={16} style={{ color: 'var(--color-primary)' }} />
+                  <Text design={{ fontWeight: '600' }} size="sm">
+                    Быстрые ответы
+                  </Text>
+                </Flex>
+                <Flex direction="column" gap={3}>
                   {templates.map(template => (
                     <Box
                       key={template.id}
@@ -201,7 +206,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                         bg: 'transparent',
                         cursor: 'pointer',
                         textAlign: 'left',
-                        borderRadius: '8px',
+                        borderRadius: "radius.md",
                         transition: 'all 0.2s ease',
                         width: '100%',
                         hover: {
@@ -210,8 +215,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                         },
                       }}
                     >
-                      <Flex direction="column" gap="xs">
-                        <Flex align="center" gap="xs" justify="space-between">
+                      <Flex direction="column" gap={3}>
+                        <Flex align="center" gap={3} justify="space-between">
                           <Text design={{ fontWeight: '600', color: 'color.text.primary' }} size="sm">
                             {template.name}
                           </Text>
@@ -244,10 +249,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               disabled={disabled}
               design={{ 
                 flexShrink: 0,
-                fontSize: '1.25rem',
+                padding: '8px',
               }}
             >
-              💬
+              <MessageSquare size={18} />
             </Button>
           </Popover>
         )}
@@ -257,12 +262,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           preset="ghost"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
-          design={{ 
-            flexShrink: 0,
-            fontSize: '1.25rem',
-          }}
         >
-          📎
+          <Paperclip size={18} />
         </Button>
         <input
           ref={fileInputRef}
@@ -281,25 +282,6 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           disabled={disabled}
           maxLength={maxLength}
           rows={1}
-          design={{
-            flex: 1,
-            resize: 'none',
-            minHeight: '44px',
-            maxHeight: '120px',
-            padding: '12px 16px',
-            bg: 'color.bg.secondary',
-            border: '2px solid',
-            borderColor: 'color.border.primary',
-            borderRadius: '24px',
-            fontSize: '14px',
-            lineHeight: '1.5',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            focus: {
-              borderColor: 'color.primary',
-              bg: 'color.bg.primary',
-              boxShadow: 'shadow.sm',
-            },
-          }}
         />
 
         {/* Send button */}
@@ -307,9 +289,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           preset="primary"
           onClick={handleSend}
           disabled={disabled || (!message.trim() && attachments.length === 0)}
-          design={{ flexShrink: 0 }}
         >
-          ➤
+          <Send size={18} />
         </Button>
       </Flex>
 

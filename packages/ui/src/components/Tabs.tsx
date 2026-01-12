@@ -91,7 +91,6 @@ export const Tabs: React.FC<TabsProps> = ({
 
   const containerDesign: DesignProps = mergeDesign({
     position: "relative",
-    marginBottom: 3,
     display: "flex",
     alignItems: "center",
     width: fullWidth ? "100%" : "auto",
@@ -100,8 +99,6 @@ export const Tabs: React.FC<TabsProps> = ({
     border: variant === "default" ? "1px solid" : "none",
     borderColor: "color.bg.tertiary",
     radius: variant === "default" ? "radius.lg" : "0",
-    minHeight: size === "sm" ? "44px" : size === "lg" ? "64px" : "52px",
-    padding: { base: 1, md: 2 },
     gap: 2,
   }, design);
 
@@ -131,6 +128,7 @@ export const Tabs: React.FC<TabsProps> = ({
   const getTabDesign = (tab: Tab, isActive: boolean): DesignProps => {
     const base: DesignProps = {
       padding: { base: 1, md: 2 },
+      margin: 2,
       gap: { base: 1, md: 2 },
       border: "none",
       bg: "transparent",
@@ -190,7 +188,7 @@ export const Tabs: React.FC<TabsProps> = ({
       {effectiveScrollable && showLeftScroll && <Button design={scrollButtonDesign} onClick={() => scroll("left")}>‹</Button>}
 
       <Flex design={{ flex: 1, overflowX: "auto", scrollBehavior: "smooth" }} ref={tabsRef}>
-        <Flex design={{ flexWrap: "nowrap", gap: 2 }}>
+        <Flex gap={0} design={{ flexWrap: "nowrap" }}>
           {tabs.map(tab => {
             const isActive = activeTab === tab.id;
 
@@ -210,7 +208,7 @@ export const Tabs: React.FC<TabsProps> = ({
                 aria-selected={isActive}
                 design={getTabDesign(tab, isActive)}
               >
-                {iconElement && <Flex design={{ marginRight: 1 }}>{iconElement}</Flex>}
+                {iconElement && <Flex>{iconElement}</Flex>}
                 <Text>{tab.label}</Text>
                 {(tab.count !== undefined || tab.countModel) && <Badge design={getCountDesign(tab, isActive)}>{tab.countModel ?? tab.count}</Badge>}
               </Button>

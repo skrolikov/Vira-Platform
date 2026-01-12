@@ -1,5 +1,77 @@
 # @vira-ui/bindings-react
 
+## 8.0.0
+
+### Major Changes
+
+- chore: fir release
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@14.0.0
+  - @vira-ui/ui@8.0.0
+
+## 7.0.0
+
+### Major Changes
+
+- chore: update
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@13.0.0
+  - @vira-ui/ui@7.0.0
+
+## 6.0.0
+
+### Major Changes
+
+- chore: fix
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@12.0.0
+  - @vira-ui/ui@6.0.0
+
+## 5.0.0
+
+### Major Changes
+
+- chore: fix
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@11.0.0
+  - @vira-ui/ui@5.0.0
+
+## 4.0.0
+
+### Major Changes
+
+- chore: fix
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@10.0.0
+  - @vira-ui/ui@4.0.0
+
+## 4.0.0
+
+### Major Changes
+
+- chore: update
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@9.0.0
+  - @vira-ui/ui@3.0.0
+
 ## 3.0.4
 
 ### Patch Changes

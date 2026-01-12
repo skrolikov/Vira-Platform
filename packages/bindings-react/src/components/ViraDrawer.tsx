@@ -156,18 +156,6 @@ export const ViraDrawer: React.FC<ViraDrawerProps> = ({
 
   if (!isOpen) return null;
 
-  const overlayDesign: DesignProps = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    bg: "rgba(0, 0, 0, 0.5)",
-    zIndex: 1000,
-    animation: "fadeIn 0.2s ease-out",
-    ...design,
-  };
-
   const drawerContentDesign: DesignProps = {
     position: "fixed",
     top: 0,
@@ -214,10 +202,6 @@ export const ViraDrawer: React.FC<ViraDrawerProps> = ({
     flexShrink: 0,
   };
 
-  const mergedOverlayDesign = mergeDesign(overlayDesign, design);
-  const overlayClass = getDesignClass(mergedOverlayDesign);
-  const finalClassName = applyDesignClass(className, overlayClass);
-
   return (
     <>
       <style>{`
@@ -251,8 +235,8 @@ export const ViraDrawer: React.FC<ViraDrawerProps> = ({
       `}</style>
       <div
         ref={drawerRef}
-        className={finalClassName}
-        data-design={JSON.stringify(mergedOverlayDesign)}
+        className={className}
+        data-design={JSON.stringify(design)}
         onClick={closeOnOverlayClick ? (e) => {
           if (e.target === e.currentTarget) {
             onClose();

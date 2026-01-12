@@ -42,17 +42,17 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   // Размеры
   const sizeStyles: Record<string, { container: DesignProps; input: DesignProps; icon: DesignProps }> = {
     sm: {
-      container: { padding: "8px 12px", minHeight: "36px" },
+      container: { padding: 2, minHeight: "36px" },
       input: { fontSize: "typography.fontSize.sm", padding: "0 8px" },
       icon: { width: "16px", height: "16px" },
     },
     md: {
-      container: { padding: "12px 16px", minHeight: "44px" },
+      container: { padding: 2, minHeight: "44px" },
       input: { fontSize: "typography.fontSize.md", padding: "0 12px" },
       icon: { width: "20px", height: "20px" },
     },
     lg: {
-      container: { padding: "16px 20px", minHeight: "52px" },
+      container: { padding: 2, minHeight: "52px" },
       input: { fontSize: "typography.fontSize.lg", padding: "0 16px" },
       icon: { width: "24px", height: "24px" },
     },

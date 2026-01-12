@@ -484,6 +484,7 @@ export type {
 } from "./vrp/vira-connection";
 export {
   getViraConnectionPool,
+  closeAllViraPools,
 } from "./vrp/vira-pool";
 export type {
   ViraConnectionPool,

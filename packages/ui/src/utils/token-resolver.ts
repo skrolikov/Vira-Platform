@@ -9,9 +9,9 @@ function findTokenRecursive(obj: any, path: string[]): string | null {
   if (path.length === 0) {
     return typeof obj === "string" ? obj : null;
   }
-  
+
   const [first, ...rest] = path;
-  
+
   // Прямое совпадение
   if (first in obj) {
     const value = obj[first];
@@ -22,7 +22,7 @@ function findTokenRecursive(obj: any, path: string[]): string | null {
       return findTokenRecursive(value, rest);
     }
   }
-  
+
   // Пробуем найти как ключ с точками (например, "blue.100")
   if (rest.length > 0) {
     const joinedKey = path.join(".");
@@ -30,7 +30,7 @@ function findTokenRecursive(obj: any, path: string[]): string | null {
       const value = obj[joinedKey];
       return typeof value === "string" ? value : null;
     }
-    
+
     // Пробуем частичный путь (например, для "blue.100" ищем "blue.100" как ключ)
     const partialKey = rest.join(".");
     if (partialKey in obj) {
@@ -38,7 +38,7 @@ function findTokenRecursive(obj: any, path: string[]): string | null {
       return typeof value === "string" ? value : null;
     }
   }
-  
+
   return null;
 }
 
@@ -49,7 +49,7 @@ export function resolveToken(path: string): string | null {
   if (path in foundationTokens.color) {
     return foundationTokens.color[path as keyof typeof foundationTokens.color] as string;
   }
-  
+
   // Если путь в формате "color.blue.100", пробуем найти "blue.100" в color
   if (path.startsWith("color.")) {
     const colorKey = path.replace("color.", "");
@@ -72,11 +72,11 @@ export function resolveToken(path: string): string | null {
       return value;
     }
   }
-  
+
   // Если не нашли точное совпадение, пробуем разобрать путь
   const parts = path.split(".");
   let current: any = foundationTokens;
-  
+
   for (const part of parts) {
     if (current && typeof current === "object" && part in current) {
       current = current[part];
@@ -93,25 +93,50 @@ export function resolveToken(path: string): string | null {
       break;
     }
   }
-  
+
   return typeof current === "string" ? current : null;
 }
 
-export function resolveDesignValue(value: string | number | undefined): string | null {
+// Функция для получения эффектов из темы
+export function resolveEffect(effectName: string): Record<string, any> | null {
+  // Пока что возвращаем null, так как эффекты из тем не поддерживаются в resolveToken
+  // Это временное решение, в будущем нужно будет интегрировать с системой тем
+  return null;
+}
+
+export function resolveDesignValue(value: string | number | undefined | Record<string, any>): string | null {
   if (value === undefined) return null;
-  
-  if (typeof value === "number") {
-    return `${value}px`;
-  }
-  
+
+  // Числа → px
+  if (typeof value === "number") return `${value}px`;
+
+  // Строки → токены или обычные значения
   if (typeof value === "string") {
     const tokenValue = resolveToken(value);
-    if (tokenValue) {
-      return tokenValue;
-    }
+    if (tokenValue) return tokenValue;
     return value;
   }
-  
+
+  // Объекты → эффекты
+  if (typeof value === "object" && value !== null) {
+    if ("effect" in value) {
+      switch (value.effect) {
+        case "glass":
+          return "backdrop-filter: blur(20px); background-color: rgba(255,255,255,0.1);";
+        case "blur":
+          return "backdrop-filter: blur(10px);";
+        default:
+          return null;
+      }
+    }
+
+    // Можем добавить hover/active/transform и другие эффекты
+    if ("hover" in value || "active" in value) {
+      // Тут лучше обрабатывать отдельно в generateStyle, возвращая объект стилей
+      return null;
+    }
+  }
+
   return null;
 }
 

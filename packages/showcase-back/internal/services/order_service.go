@@ -54,7 +54,7 @@ func (s *OrderService) Create(ctx context.Context, req models.CreateOrderRequest
 		Payload: order,
 	}
 	if err := kafka.PublishEvent("orders", event); err != nil {
-		log.Printf("⚠️ Failed to publish order.created event: %v", err)
+		log.Printf("Failed to publish order.created event: %v", err)
 	}
 
 	return order, nil
@@ -161,7 +161,7 @@ func (s *OrderService) Update(ctx context.Context, id uuid.UUID, req models.Upda
 		Payload: order,
 	}
 	if err := kafka.PublishEvent("orders", event); err != nil {
-		log.Printf("⚠️ Failed to publish order.updated event: %v", err)
+		log.Printf("Failed to publish order.updated event: %v", err)
 	}
 
 	return order, nil
@@ -203,7 +203,7 @@ func (s *OrderService) UpdateStatus(ctx context.Context, id uuid.UUID, status st
 		Payload: json.RawMessage(eventPayload),
 	}
 	if err := kafka.PublishEvent("orders", event); err != nil {
-		log.Printf("⚠️ Failed to publish order.status_changed event: %v", err)
+		log.Printf("Failed to publish order.status_changed event: %v", err)
 	}
 
 	return order, nil
@@ -240,7 +240,7 @@ func (s *OrderService) Delete(ctx context.Context, id uuid.UUID) error {
 		Payload: json.RawMessage(eventPayload),
 	}
 	if err := kafka.PublishEvent("orders", event); err != nil {
-		log.Printf("⚠️ Failed to publish order.deleted event: %v", err)
+		log.Printf("Failed to publish order.deleted event: %v", err)
 	}
 
 	return nil
@@ -271,7 +271,7 @@ func (s *OrderService) Restore(ctx context.Context, id uuid.UUID) (*models.Order
 		Payload: order,
 	}
 	if err := kafka.PublishEvent("orders", event); err != nil {
-		log.Printf("⚠️ Failed to publish order.restored event: %v", err)
+		log.Printf("Failed to publish order.restored event: %v", err)
 	}
 
 	return order, nil

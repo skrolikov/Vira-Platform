@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { getDesignClass, applyDesignClass } from "@vira-ui/ui";
-import { 
-  ViraComponentProps, 
-  useViraContext, 
-  parseModel 
+import {
+  ViraComponentProps,
+  useViraContext,
+  parseModel
 } from "@vira-ui/core";
 
 /**
@@ -37,14 +37,14 @@ export interface ViraTableProps extends ViraComponentProps {
   loading?: boolean;
 }
 
-export const ViraTable: React.FC<ViraTableProps> = ({ 
-  design, 
+export const ViraTable: React.FC<ViraTableProps> = ({
+  design,
   source,
   columns,
   data: externalData,
   className,
   loading: externalLoading,
-  ...props 
+  ...props
 }) => {
   const viraContext = useViraContext();
   const [, forceUpdate] = useState({});
@@ -61,7 +61,7 @@ export const ViraTable: React.FC<ViraTableProps> = ({
       try {
         const { service: serviceName, property: propertyName } = parseModel(source);
         const service = viraContext.services.get(serviceName);
-        
+
         if (!service) {
           return;
         }
@@ -70,12 +70,10 @@ export const ViraTable: React.FC<ViraTableProps> = ({
         const data = typeof (service as any)[propertyName] === "function"
           ? (service as any)[propertyName]()
           : (service as any)[propertyName];
-        
+
         if (Array.isArray(data)) {
           setInternalData([...data]); // Создаём копию для триггера
           forceUpdate({});
-        } else {
-          console.warn(`Property "${propertyName}" in service "${serviceName}" is not an array`);
         }
       } catch (err) {
       }
@@ -88,7 +86,7 @@ export const ViraTable: React.FC<ViraTableProps> = ({
     try {
       const { service: serviceName } = parseModel(source);
       const service = viraContext.services.get(serviceName);
-      
+
       if (service && (service as any).__reactive__ && (service as any).__subscribers__) {
         (service as any).__subscribers__.add(updateData);
 
@@ -114,13 +112,13 @@ export const ViraTable: React.FC<ViraTableProps> = ({
   const mergedDesign = design;
   const designClass = mergedDesign ? getDesignClass(mergedDesign) : "";
   const finalClassName = applyDesignClass(className, designClass);
-  
+
   if (isLoading) {
     return <div className={finalClassName}>Loading...</div>;
   }
 
   return (
-    <table 
+    <table
       className={finalClassName}
       {...(mergedDesign && { "data-design": JSON.stringify(mergedDesign) })}
       {...(source && { "data-source": source })}
@@ -145,7 +143,7 @@ export const ViraTable: React.FC<ViraTableProps> = ({
             <tr key={index}>
               {columns.map((column) => (
                 <td key={column.key}>
-                  {column.render 
+                  {column.render
                     ? column.render(row[column.key], row)
                     : row[column.key]
                   }

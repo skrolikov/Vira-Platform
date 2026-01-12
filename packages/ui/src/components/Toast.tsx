@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { DesignProps } from "../types";
-import { mergeDesign, getDesignClass, applyDesignClass } from "../utils/design-utils";
+import { mergeDesign, getDesignClass } from "../utils/design-utils";
 import { Card } from "./Card";
 import { Text } from "./Text";
 import { Button } from "./Button";
 import { Flex } from "./Flex";
 import { X, CheckCircle, AlertCircle, Info, XCircle } from "lucide-react";
+import { resolveToken } from "../utils/token-resolver";
+import { getCachedToken } from "../utils/token-cache";
 
 export type ToastType = "success" | "error" | "warning" | "info";
 
@@ -48,46 +50,40 @@ export const Toast: React.FC<ToastProps> = ({ toast, onClose, design }) => {
   };
 
   const colors = {
-    success: { bg: "#ecfdf5", border: "#10b981", icon: "#10b981" },
-    error: { bg: "#fef2f2", border: "#ef4444", icon: "#ef4444" },
-    warning: { bg: "#fffbeb", border: "#f59e0b", icon: "#f59e0b" },
-    info: { bg: "#eff6ff", border: "#3b82f6", icon: "#3b82f6" },
+    success: { border: "color.success", icon: "color.success" },
+    error: { border: "color.danger", icon: "color.danger" },
+    warning: { border: "color.warning", icon: "color.warning" },
+    info: { border: "color.primary", icon: "color.primary" },
   };
 
   const type = toast.type || "info";
   const Icon = icons[type];
   const colorScheme = colors[type];
 
-  const containerDesign: DesignProps = {
-    minWidth: "300px",
-    maxWidth: "500px",
-    padding: 4,
-    bg: colorScheme.bg,
-    border: `2px solid ${colorScheme.border}`,
-    borderRadius: "12px",
-    shadow: "shadow.lg",
-    marginBottom: 2,
-    ...design,
-  };
+  // Разрешаем токен цвета в реальное значение для иконки
+  const iconColor = getCachedToken(colorScheme.icon, resolveToken) || colorScheme.icon;
 
-  const mergedDesign = mergeDesign(containerDesign, design);
-  const designClass = getDesignClass(mergedDesign);
 
   return (
     <Card
-      className={designClass}
-      data-design={JSON.stringify(mergedDesign)}
       design={{
+        effect: "glassLight",
+        minWidth: "300px",
+        maxWidth: "500px",
+        borderColor: { value: `${colorScheme.border}`, important: true },
+        border: '2px solid',
+        shadow: "shadow.lg",
+        marginBottom: 2,
         animation: "slideInRight 0.3s ease-out",
       }}
     >
       <Flex design={{ alignItems: "flex-start", gap: 3 }}>
-        <Icon size={20} color={colorScheme.icon} style={{ flexShrink: 0, marginTop: "2px" }} />
+        <Icon size={20} color={iconColor} style={{ flexShrink: 0, marginTop: "2px" }} />
         <Flex design={{ flexDirection: "column", gap: 2, flex: 1 }}>
           <Text
             design={{
               fontSize: "14px",
-              color: "#111827",
+              color: "color.text.primary",
               lineHeight: "1.5",
             }}
           >
@@ -204,7 +200,7 @@ export const toast = {
       id,
       message,
       type: "info",
-      duration: 5000,
+      duration: 50000,
       ...options,
     };
     toasts.push(newToast);

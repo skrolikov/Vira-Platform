@@ -2,7 +2,7 @@
  * Smart Components - Компоненты без логики, фреймворк подкладывает всё сам
  * 
  * @example
- * <v-table data="@clients" columns="@clientColumns" />
+ * <vi-table data="@clients" columns="@clientColumns" />
  * 
  * Фреймворк автоматически:
  * - находит сервис "clients"
@@ -19,8 +19,8 @@ import { useReactiveService } from "./reactive";
 // Типы для smart компонентов
 export interface SmartComponentProps {
   [key: string]: any;
-  "v-bind"?: Record<string, any>;
-  "v-model"?: string;
+  "vi-bind"?: Record<string, any>;
+  "vi-model"?: string;
 }
 
 /**
@@ -37,7 +37,7 @@ function processSmartProps(
 
   for (const [key, value] of Object.entries(props)) {
     // Пропуск служебных атрибутов
-    if (key.startsWith("v-") || key.startsWith("@")) {
+    if (key.startsWith("vi-") || key.startsWith("@")) {
       continue;
     }
 
@@ -165,7 +165,7 @@ export function createSmartComponent<P extends Record<string, any>>(
 }
 
 /**
- * JSX трансформация для обработки v- и @ синтаксиса
+ * JSX трансформация для обработки vi- и @ синтаксиса
  * (Требует babel/transform плагина - будет в компиляторе)
  */
 export const VIRA_JSX_TRANSFORMS = {
@@ -177,16 +177,16 @@ export const VIRA_JSX_TRANSFORMS = {
     };
   },
   
-  // v-bind → spread props
-  "v-bind": (value: Record<string, any>) => {
+  // vi-bind → spread props
+  "vi-bind": (value: Record<string, any>) => {
     return {
       type: "spread",
       props: value,
     };
   },
   
-  // v-model → двустороннее связывание
-  "v-model": (value: string) => {
+  // vi-model → двустороннее связывание
+  "vi-model": (value: string) => {
     return {
       type: "model",
       path: value,

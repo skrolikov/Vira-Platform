@@ -29,7 +29,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   // Красивые стили по умолчанию — как у Input
   const defaultDesign: DesignProps = {
     width: "100%",
-    padding: "12px 16px",
+    padding: 3,
     bg: "color.bg.tertiary",
     border: "1px solid",
     borderColor: "color.bg.tertiary",

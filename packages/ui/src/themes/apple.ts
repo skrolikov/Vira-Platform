@@ -17,31 +17,66 @@ export const apple = {
     },
   },
   radius: {
-    sm: "10px",
-    md: "16px",
-    lg: "24px",
+    sm: "15px",
+    md: "30px",
+    lg: "40px",
     full: "9999px",
   },
   space: {
-    1: "4px",
-    2: "8px",
-    3: "16px",
+    1: "5px",
+    2: "10px",
+    3: "15px",
     4: "24px",
     5: "32px",
     6: "48px",
   },
   shadow: {
     sm: "0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04)",
-    md: "0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
+    md: "0 5px 5px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
     lg: "0 8px 32px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.12)",
   },
   effect: {
-    glass: "backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);",
-    glassLight: "backdrop-filter: blur(10px) saturate(150%); -webkit-backdrop-filter: blur(10px) saturate(150%);",
-    glassHeavy: "backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%);",
-    liquid: "background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);",
-    glow: "0 0 20px rgba(0, 122, 255, 0.3), 0 0 40px rgba(0, 122, 255, 0.15)",
-    shimmer: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)",
+    glass: {
+      background: "rgba(255,255,255,0.7)",
+      backdropFilter: "blur(20px) saturate(180%)",
+      WebkitBackdropFilter: "blur(20px) saturate(180%)",
+      border: "1px solid",
+      borderColor: "rgb(255 255 255 / 30%)",
+      shadow: "shadow.md",
+    },
+
+    glassLight: {
+      background: "rgba(255,255,255,0.55)",
+      backdropFilter: "blur(10px) saturate(140%)",
+      WebkitBackdropFilter: "blur(10px) saturate(140%)",
+      border: "1px solid",
+      borderColor: "rgb(255 255 255 / 50%)",
+      shadow: "0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08), inset 0px 1px 3px 0px rgb(255 255 255)",
+    },
+
+    glassHeavy: {
+      background: "rgba(255,255,255,0.85)",
+      backdropFilter: "blur(40px) saturate(200%)",
+      WebkitBackdropFilter: "blur(40px) saturate(200%)",
+      border: "1px solid",
+      borderColor: "rgb(255 255 255 / 70%)",
+      shadow: "shadow.md",
+    },
+
+    glow: {
+      boxShadow:
+        "0 0 20px rgba(0,122,255,0.35), 0 0 40px rgba(0,122,255,0.15)",
+    },
+
+    liquid: {
+      background:
+        "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%)",
+    },
+
+    shimmer: {
+      background:
+        "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
+    },
   },
   typography: {
     fontSize: {

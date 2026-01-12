@@ -160,6 +160,7 @@ export const Layout: React.FC<LayoutProps> = ({
           onClose={() => setMobileDrawerOpen(false)}
           placement="left"
           title={header?.title || "Меню"}
+          logo={header?.logo}
           closeOnBackdrop
           closeOnEscape
           width="280px"
@@ -168,8 +169,6 @@ export const Layout: React.FC<LayoutProps> = ({
             {...navbar} 
             collapsed={false}
             onItemClick={handleMobileNavItemClick}
-            logo={header?.logo}
-            title={header?.title}
           />
         </Drawer>
       )}

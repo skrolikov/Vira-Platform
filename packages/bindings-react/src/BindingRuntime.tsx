@@ -102,7 +102,6 @@ export const BindingRuntime: React.FC<BindingRuntimeProps> = ({
         const actionBinding = resolveAction(action, context);
         
         if (!actionBinding) {
-          console.warn(`[BindingRuntime] Action "${action}" not found`);
           return;
         }
 
@@ -141,7 +140,6 @@ export const BindingRuntime: React.FC<BindingRuntimeProps> = ({
         const parsed = parseModel(model);
         
         if (!binding) {
-          console.warn(`[BindingRuntime] Model "${model}" not found`);
           return;
         }
 

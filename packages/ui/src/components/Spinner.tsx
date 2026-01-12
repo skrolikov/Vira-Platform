@@ -46,7 +46,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
             transform: rotate(360deg);
           }
         }
-        .v-spinner-inner {
+        .vi-spinner-inner {
           width: 100%;
           height: 100%;
           border: 2px solid transparent;
@@ -72,7 +72,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
     position: "relative",
     width: `${spinnerSize}px`,
     height: `${spinnerSize}px`,
-    color: spinnerColor,
+    color: typeof spinnerColor === "string" ? spinnerColor : undefined,
     flexShrink: 0, // Предотвращаем растягивание
   };
   
@@ -84,7 +84,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
       {...props}
     >
       <div 
-        className="v-spinner-inner"
+        className="vi-spinner-inner"
         style={{
           width: "100%",
           height: "100%",

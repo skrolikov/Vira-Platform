@@ -1,5 +1,41 @@
 # @vira-ui/core
 
+## 14.0.0
+
+### Major Changes
+
+- chore: fir release
+
+## 13.0.0
+
+### Major Changes
+
+- chore: update
+
+## 12.0.0
+
+### Major Changes
+
+- chore: fix
+
+## 11.0.0
+
+### Major Changes
+
+- chore: fix
+
+## 10.0.0
+
+### Major Changes
+
+- chore: fix
+
+## 9.0.0
+
+### Major Changes
+
+- chore: update
+
 ## 8.0.0
 
 ### Major Changes

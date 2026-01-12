@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { Phone, MessageCircle, Globe, ShoppingCart, User, MessageSquare, Archive, Lock, Search } from 'lucide-react';
 import { Flex } from '../Flex';
 import { Avatar } from '../Avatar';
 import { Badge } from '../Badge';
@@ -32,14 +33,15 @@ interface ChatListProps {
   emptyMessage?: string;
 }
 
-const getIntegrationIcon = (type: string): string => {
+const getIntegrationIcon = (type: string) => {
+  const iconSize = 14;
   switch (type) {
-    case 'telegram': return '📱';
-    case 'whatsapp': return '💬';
-    case 'website': return '🌐';
-    case 'order': return '📦';
-    case 'contact': return '👤';
-    default: return '💭';
+    case 'telegram': return <Phone size={iconSize} />;
+    case 'whatsapp': return <MessageCircle size={iconSize} />;
+    case 'website': return <Globe size={iconSize} />;
+    case 'order': return <ShoppingCart size={iconSize} />;
+    case 'contact': return <User size={iconSize} />;
+    default: return <MessageSquare size={iconSize} />;
   }
 };
 
@@ -85,8 +87,6 @@ export const ChatList: React.FC<ChatListProps> = ({
       design={{
         height: '100%',
         bg: 'color.bg.primary',
-        borderRight: '1px solid',
-        borderColor: 'color.border.primary',
       }}
     >
       {/* Header */}
@@ -94,8 +94,6 @@ export const ChatList: React.FC<ChatListProps> = ({
         as="div"
         design={{
           padding: 3,
-          borderBottom: '1px solid',
-          borderColor: 'color.border.primary',
           bg: 'color.bg.primary',
         }}
       >
@@ -115,7 +113,6 @@ export const ChatList: React.FC<ChatListProps> = ({
             placeholder="Поиск чатов..."
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            prefix="🔍"
             design={{ width: '100%' }}
           />
         )}
@@ -153,16 +150,12 @@ export const ChatList: React.FC<ChatListProps> = ({
               as="button"
               onClick={() => onSelectChat(chat.id)}
               design={{
-                padding: '14px 16px',
+                padding: 2,
                 cursor: 'pointer',
-                borderBottom: '1px solid',
-                borderColor: 'color.border.secondary',
                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 position: 'relative',
                 bg: selectedChatId === chat.id ? 'color.bg.tertiary' : 'transparent',
-                borderLeft: selectedChatId === chat.id ? '4px solid' : 'none',
-                borderLeftColor: selectedChatId === chat.id ? 'color.primary' : 'transparent',
-                paddingLeft: selectedChatId === chat.id ? '12px' : '16px',
+                paddingLeft: selectedChatId === chat.id ? 2 : 2,
                 textAlign: 'left',
                 width: '100%',
                 border: 'none',
@@ -171,7 +164,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                 },
               }}
             >
-              <Flex gap="md" align="flex-start">
+              <Flex gap={2} align="flex-start">
                 {/* Avatar */}
                 <Box
                   as="div"
@@ -200,10 +193,8 @@ export const ChatList: React.FC<ChatListProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '12px',
-                      border: '2px solid',
-                      borderColor: 'color.bg.primary',
                       boxShadow: 'shadow.sm',
+                      color: 'color.text.secondary',
                     }}
                   >
                     {getIntegrationIcon(chat.type)}
@@ -213,7 +204,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                 {/* Content */}
                 <Flex 
                   direction="column" 
-                  gap="xs"
+                  gap={3}
                   design={{
                     flex: 1,
                     minWidth: 0,
@@ -265,20 +256,23 @@ export const ChatList: React.FC<ChatListProps> = ({
 
                   {/* Meta info */}
                   {(chat.orderNumber || chat.status !== 'active') && (
-                    <Flex gap="xs" align="center">
+                    <Flex gap={3} align="center">
                       {chat.orderNumber && (
-                        <Badge preset="info">
-                          📦 {chat.orderNumber}
+                        <Badge preset="info" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <ShoppingCart size={12} />
+                          {chat.orderNumber}
                         </Badge>
                       )}
                       {chat.status === 'archived' && (
-                        <Badge preset="info">
-                          📁 Архив
+                        <Badge preset="info" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Archive size={12} />
+                          Архив
                         </Badge>
                       )}
                       {chat.status === 'closed' && (
-                        <Badge preset="info">
-                          🔒 Закрыт
+                        <Badge preset="info" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Lock size={12} />
+                          Закрыт
                         </Badge>
                       )}
                     </Flex>

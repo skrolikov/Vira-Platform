@@ -139,7 +139,7 @@ class DesignRegistry {
    * Если design уже зарегистрирован - просто возвращает hash
    * Иначе генерирует CSS и добавляет в стили
    */
-  register(design: DesignProps, prefix: string = "v-"): string {
+  register(design: DesignProps, prefix: string = "vi-"): string {
     if (!design || Object.keys(design).length === 0) {
       return "";
     }
@@ -244,7 +244,7 @@ class DesignRegistry {
 export const designRegistry = DesignRegistry.getInstance();
 
 // Экспортируем функции для удобства
-export function registerDesign(design: DesignProps, prefix: string = "v-"): string {
+export function registerDesign(design: DesignProps, prefix: string = "vi-"): string {
   return designRegistry.register(design, prefix);
 }
 

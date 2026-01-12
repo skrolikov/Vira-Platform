@@ -4,170 +4,222 @@ import { mergeDesign, getDesignClass, applyDesignClass } from "../utils/design-u
 import { Card } from "./Card";
 import { Flex } from "./Flex";
 import { Text } from "./Text";
+import { Heading } from "./Heading";
+import { Badge } from "./Badge";
 
 export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string;
   value: string | number;
-  valueModel?: string; // optional, for Vira bindings
-  design?: DesignProps;
+  subtext?: string | React.ReactNode;
   icon?: React.ReactNode;
-  iconColor?: "primary" | "success" | "warning" | "danger" | "secondary" | string;
-  change?: {
-    value: string;
-    trend: "up" | "down" | "neutral";
-  };
-  changeModel?: string;
-  secondaryValue?: string | number;
-  secondaryLabel?: string;
-  preset?: "default" | "colored" | "interactive";
+  iconColor?: "primary" | "success" | "warning" | "danger" | "info" | "secondary" | string;
+  badge?: string | React.ReactNode;
+  size?: "sm" | "md" | "lg";
+  colored?: boolean;
+  color?: "primary" | "success" | "warning" | "danger" | "info" | "secondary";
+  design?: DesignProps;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
   label,
   value,
-  valueModel,
+  subtext,
   icon,
-  iconColor = "primary",
-  change,
-  changeModel,
-  secondaryValue,
-  secondaryLabel,
-  preset = "default",
+  iconColor,
+  badge,
+  size = "md",
+  colored = false,
+  color = "primary",
   design,
   className,
   ...props
 }) => {
-  const computedValue = valueModel ?? value;
-  const computedChange = changeModel ? undefined : change;
-
-  const getTrendColor = (trend: string) => {
-    switch (trend) {
-      case "up":
-        return "color.success";
-      case "down":
-        return "color.danger";
-      default:
-        return "color.text.secondary";
-    }
+  // Размеры
+  const sizeConfig = {
+    sm: {
+      padding: 3,
+      iconSize: 20,
+      labelSize: "typography.fontSize.xs",
+      valueSize: "1.5rem",
+      subtextSize: "typography.fontSize.xs",
+      gap: 2,
+    },
+    md: {
+      padding: 4,
+      iconSize: 24,
+      labelSize: "typography.fontSize.sm",
+      valueSize: "2rem",
+      subtextSize: "typography.fontSize.sm",
+      gap: 2,
+    },
+    lg: {
+      padding: 5,
+      iconSize: 28,
+      labelSize: "typography.fontSize.base",
+      valueSize: "2.5rem",
+      subtextSize: "typography.fontSize.base",
+      gap: 3,
+    },
   };
 
-  const getIconBgColor = () => {
-    switch (iconColor) {
-      case "primary": return "color.primary";
-      case "success": return "color.success";
-      case "warning": return "color.warning";
-      case "danger": return "color.danger";
-      case "secondary": return "color.secondary";
-      default: return iconColor;
-    }
+  const config = sizeConfig[size];
+
+  // Цвета для colored режима
+  const colorConfig: Record<string, { bg: string; text: string; textOpacity: number; subtextOpacity: number }> = {
+    primary: {
+      bg: "color.primary",
+      text: "color.text.inverse",
+      textOpacity: 0.9,
+      subtextOpacity: 0.8,
+    },
+    success: {
+      bg: "color.success",
+      text: "color.text.inverse",
+      textOpacity: 0.9,
+      subtextOpacity: 0.8,
+    },
+    warning: {
+      bg: "color.warning",
+      text: "color.text.inverse",
+      textOpacity: 0.9,
+      subtextOpacity: 0.8,
+    },
+    danger: {
+      bg: "color.danger",
+      text: "color.text.inverse",
+      textOpacity: 0.9,
+      subtextOpacity: 0.8,
+    },
+    info: {
+      bg: "color.info",
+      text: "color.text.inverse",
+      textOpacity: 0.9,
+      subtextOpacity: 0.8,
+    },
+    secondary: {
+      bg: "color.secondary",
+      text: "color.text.inverse",
+      textOpacity: 0.9,
+      subtextOpacity: 0.8,
+    },
   };
+
+  const colorStyles = colored ? colorConfig[color] : null;
 
   // Базовый дизайн карточки
   const baseCardDesign: DesignProps = {
-    padding: { base: 2, md: 3 },
-    radius: "radius.md",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: { base: "center", md: "flex-start" },
-    gap: 2,
+    padding: config.padding,
+    ...(colored && colorStyles
+      ? {
+          border: "none",
+          background: colorStyles.bg,
+        }
+      : {}),
   };
 
-  const presetDesign: Record<string, DesignProps> = {
-    default: {},
-    colored: {
-      bg: "color.bg.tertiary",
-    },
-    interactive: {
-      cursor: "pointer",
-      transition: "all 0.2s ease",
-      hover: { transform: "translateY(-2px)" },
-    },
-  };
-
-  const presetMerged = mergeDesign(baseCardDesign, presetDesign[preset]);
-  const finalCardDesign = design ? mergeDesign(presetMerged, design) : presetMerged;  
+  const finalCardDesign = design ? mergeDesign(baseCardDesign, design) : baseCardDesign;
   const finalClassName = applyDesignClass(className, getDesignClass(finalCardDesign));
 
-  // Дизайн иконки
-  const iconDesign: DesignProps = {
-    width: { base: "32px", md: "56px" },
-    height: { base: "32px", md: "56px" },
-    radius: "radius.sm",
-    bg: getIconBgColor(),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "color.text.inverse",
-    flexShrink: 0,
+  // Цвета текста
+  const labelColor = colored && colorStyles ? colorStyles.text : "color.text.secondary";
+  const valueColor = colored && colorStyles ? colorStyles.text : "color.text.primary";
+  const subtextColor = colored && colorStyles ? colorStyles.text : "color.text.secondary";
+
+  const labelOpacity = colored && colorStyles ? colorStyles.textOpacity : 0.7;
+  const subtextOpacityValue = colored && colorStyles ? colorStyles.subtextOpacity : 0.6;
+
+  // Цвет иконки
+  const getIconColorValue = () => {
+    if (colored) {
+      return "var(--color-text-inverse)";
+    }
+    if (iconColor) {
+      const colorMap: Record<string, string> = {
+        primary: "var(--color-primary)",
+        success: "var(--color-success)",
+        warning: "var(--color-warning)",
+        danger: "var(--color-danger)",
+        info: "var(--color-info)",
+        secondary: "var(--color-secondary)",
+      };
+      return colorMap[iconColor] || iconColor;
+    }
+    return undefined;
   };
 
-  // Контейнер контента (label, value, change, secondary)
-  const contentDesign: DesignProps = {
-    flex: { base: 1, md: "none" },
-    display: "flex",
-    flexDirection: { base: "column", md: "column" },
-    gap: 1,
-    alignItems: { base: "flex-start", md: "flex-start" },
-  };
+  const iconColorValue = getIconColorValue();
 
   return (
     <Card design={finalCardDesign} className={finalClassName} {...props}>
-      {icon && <Flex design={iconDesign}>{icon}</Flex>}
-
-      <Flex design={contentDesign}>
-        {/* Label */}
-        <Text
-          design={{
-            fontSize: "typography.fontSize.xs",
-            fontWeight: "typography.fontWeight.semibold",
-            color: "color.text.secondary",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
-          }}
-        >
-          {label}
-        </Text>
+      <Flex direction="column" gap={config.gap}>
+        {/* Header: Icon + Label */}
+        <Flex align="center" gap={1}>
+          {icon && (
+            <Flex
+              design={{
+                flexShrink: 0,
+              }}
+            >
+              {React.isValidElement(icon)
+                ? React.cloneElement(icon as React.ReactElement, {
+                    size: config.iconSize,
+                    ...(iconColorValue && { color: iconColorValue }),
+                  })
+                : icon}
+            </Flex>
+          )}
+          <Text
+            size={size === "sm" ? "xs" : size === "lg" ? "base" : "sm"}
+            design={{
+              color: labelColor,
+              opacity: labelOpacity,
+            }}
+          >
+            {label}
+          </Text>
+        </Flex>
 
         {/* Value */}
-        <Text
+        <Heading
+          level={2}
           design={{
-            fontSize: { base: "24px", md: "32px" },
+            fontSize: config.valueSize,
+            margin: 0,
+            color: valueColor,
             fontWeight: "typography.fontWeight.bold",
-            color: "color.text.primary",
-            lineHeight: "1.2",
           }}
         >
-          {computedValue}
-        </Text>
+          {typeof value === "number" ? value.toLocaleString("ru-RU") : value}
+        </Heading>
 
-        {/* Change */}
-        {computedChange && (
-          <Flex
-            design={{
-              fontSize: "typography.fontSize.sm",
-              fontWeight: "typography.fontWeight.medium",
-              color: getTrendColor(computedChange.trend),
-              gap: 1,
-              alignItems: "center",
-            }}
-          >
-            <Text>{computedChange.trend === "up" ? "↑" : computedChange.trend === "down" ? "↓" : "→"}</Text>
-            <Text>{computedChange.value}</Text>
+        {/* Footer: Subtext or Badge */}
+        {(subtext || badge) && (
+          <Flex align="center" gap={2}>
+            {subtext && (
+              <Text
+                size={size === "sm" ? "xs" : size === "lg" ? "base" : "sm"}
+                design={{
+                  color: subtextColor,
+                  opacity: subtextOpacityValue,
+                }}
+              >
+                {subtext}
+              </Text>
+            )}
+            {badge && (
+              <Badge
+                preset={
+                  colored
+                    ? "default"
+                    : typeof badge === "string" && badge.toLowerCase().includes("успех")
+                    ? "success"
+                    : "default"
+                }
+              >
+                {badge}
+              </Badge>
+            )}
           </Flex>
-        )}
-
-        {/* Secondary */}
-        {secondaryValue && secondaryLabel && (
-          <Text
-            design={{
-              fontSize: "typography.fontSize.sm",
-              fontWeight: "typography.fontWeight.normal",
-              color: "color.text.secondary",
-              lineHeight: "1.4",
-            }}
-          >
-            {secondaryLabel}: {secondaryValue}
-          </Text>
         )}
       </Flex>
     </Card>

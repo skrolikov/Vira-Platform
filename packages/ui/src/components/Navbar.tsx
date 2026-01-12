@@ -6,6 +6,10 @@ import { Heading } from "./Heading";
 import { useNavbarState } from "../utils/useNavbarState";
 import { NavButton } from "./NavButton";
 import { navItemDesign } from "./navbar.design";
+import { Dropdown } from "./Dropdown";
+import type { DropdownItem } from "./Dropdown";
+import { Box } from "./Box";
+import { Tooltip } from "./Tooltip";
 // Note: ViraComponentProps removed - component works independently
 
 export interface NavItemRenderCtx {
@@ -25,17 +29,17 @@ export interface NavItem {
   onClick?: () => void;
   action?: string; // Note: Requires Vira Framework (moved to bindings package)
   children?: NavItem[]; // Дочерние элементы навигации
-  
+
   // Поведение
   href?: string;
   disabled?: boolean;
   external?: boolean;
-  
+
   // Кастомный рендер
   renderRight?: (ctx: NavItemRenderCtx) => React.ReactNode;
 }
 
-export interface NavbarProps 
+export interface NavbarProps
   extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
   design?: DesignProps;
   items: NavItem[];
@@ -67,10 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     display: "flex",
     flexDirection: "column",
     gap: 2,
-    padding: {
-      base: 0,
-      md: 4,
-    },
+    padding: 0,
     width: {
       base: "100%",
       md: collapsed ? "72px" : "280px",
@@ -158,18 +159,89 @@ export const Navbar: React.FC<NavbarProps> = ({
     const isActive = Boolean(isItemActive(item));
     const itemExpanded = isExpanded(item.id);
     const hasChildren = item.children && item.children.length > 0 && !collapsed;
+    const hasChildrenCollapsed = item.children && item.children.length > 0 && collapsed;
+
+    // В свернутом режиме показываем dropdown при КЛИКЕ на элемент с дочерними
+    if (hasChildrenCollapsed) {
+      const dropdownItems: DropdownItem[] = [];
+
+      // Добавляем сам родительский элемент
+      dropdownItems.push({
+        id: item.id,
+        label: item.label,
+        icon: item.icon,
+        onClick: () => handleItemClick(item),
+        design: {
+          fontWeight: "600",
+          borderBottom: "1px solid",
+          borderColor: "color.bg.tertiary",
+          paddingBottom: "8px",
+          marginBottom: "4px",
+        },
+      });
+
+      // Добавляем дочерние элементы
+      item.children!.forEach(child => {
+        dropdownItems.push({
+          id: child.id,
+          label: child.label,
+          icon: child.icon,
+          onClick: () => handleItemClick(child),
+        });
+      });
+
+      return (
+        <Box key={item.id}>
+          <Dropdown
+            trigger={
+              <div style={{ cursor: "pointer" }}>
+                <NavButton
+                  item={item}
+                  active={isActive}
+                  expanded={false}
+                  collapsed={collapsed}
+                  level={level}
+                  onClick={(e) => {
+                    // Ничего не делаем, Dropdown сам обработает клик
+                  }}
+                  formatBadge={formatBadge}
+                />
+              </div>
+            }
+            items={dropdownItems}
+            placement="bottom-end"
+          />
+        </Box>
+      );
+    }
 
     return (
       <Flex key={item.id} design={{ flexDirection: "column", gap: 0 }}>
-        <NavButton
-          item={item}
-          active={isActive}
-          expanded={itemExpanded}
-          collapsed={collapsed}
-          level={level}
-          onClick={(e) => handleItemClick(item, e)}
-          formatBadge={formatBadge}
-        />
+        {collapsed ? (
+          <Tooltip content={item.label} placement="right">
+            <Box>
+              <NavButton
+                item={item}
+                active={isActive}
+                expanded={itemExpanded}
+                collapsed={collapsed}
+                level={level}
+                onClick={(e) => handleItemClick(item, e)}
+                formatBadge={formatBadge}
+              />
+            </Box>
+          </Tooltip>
+        ) : (
+          <NavButton
+            item={item}
+            active={isActive}
+            expanded={itemExpanded}
+            collapsed={collapsed}
+            level={level}
+            onClick={(e) => handleItemClick(item, e)}
+            formatBadge={formatBadge}
+          />
+        )}
 
         {hasChildren && itemExpanded && (
           <Flex design={navItemDesign.childrenContainer()}>
@@ -181,39 +253,44 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <nav 
-      className={finalClassName} 
+    <nav
+      className={finalClassName}
       aria-label="Main navigation"
-      {...(mergedDesign && { "data-design": getDataDesignAttribute(mergedDesign) })} 
+      {...(mergedDesign && { "data-design": getDataDesignAttribute(mergedDesign) })}
       {...props}
     >
-      {/* Лого и название в Navbar */}
-      {(logo || title) && !collapsed && (
-        <Flex
-          design={{
-            flexDirection: "column",
-            gap: 2,
-            padding: 4,
-            paddingBottom: 12,
-            borderBottom: "1px solid",
-            borderColor: "color.bg.tertiary",
-            marginBottom: 2,
-          }}
-        >
-          {logo && (
-            <Flex align="center" gap={2}>
-              {logo}
-            </Flex>
-          )}
-          {title && (
-            <Heading level={3} design={{ margin: 0, fontSize: "typography.fontSize.lg", fontWeight: "typography.fontWeight.bold" }}>
-              {title}
-            </Heading>
-          )}
-        </Flex>
-      )}
-      
-      {items.map(item => renderNavItem(item))}
+      <Box>
+        {/* Лого и название в Navbar - скрыто на мобильных */}
+        {(logo || title) && !collapsed && (
+          <Flex
+            gap={2}
+            align="center"
+            direction="row"
+            design={{
+              padding: 3,
+              borderBottom: "1px solid",
+              borderColor: "color.bg.tertiary",
+              shadow: "shadow.sm",
+              height: "90px",
+              display: { base: "none", md: "flex" }, // Скрываем на мобильных
+            }}
+          >
+            {logo && (
+              <Flex gap={2}>
+                {logo}
+              </Flex>
+            )}
+            {title && (
+              <Heading level={3} design={{ margin: 0, fontSize: "typography.fontSize.lg", fontWeight: "typography.fontWeight.bold" }}>
+                {title}
+              </Heading>
+            )}
+          </Flex>
+        )}
+      </Box>
+      <Box design={{ padding: 4 }}>
+        {items.map(item => renderNavItem(item))}
+      </Box>
     </nav>
   );
 };

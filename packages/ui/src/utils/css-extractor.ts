@@ -13,12 +13,12 @@ import type { DesignProps } from "../types";
  * Used for build-time CSS generation
  * 
  * @param designs - Array of all designs used in the app
- * @param prefix - CSS class prefix (default: "v-")
+ * @param prefix - CSS class prefix (default: "vi-")
  * @returns Combined CSS string
  */
 export function extractCSS(
   designs: DesignProps[],
-  prefix: string = "v-"
+  prefix: string = "vi-"
 ): string {
   // Register all designs to generate CSS
   const cssRules: string[] = [];
@@ -41,7 +41,7 @@ export function extractCSS(
  */
 export function extractCSSFromDesign(
   design: DesignProps,
-  prefix: string = "v-"
+  prefix: string = "vi-"
 ): string {
   const hash = designRegistry.register(design, prefix);
   return designRegistry.getCSS(hash) || "";

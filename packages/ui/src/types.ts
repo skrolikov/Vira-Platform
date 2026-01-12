@@ -10,10 +10,16 @@ export type TokenPath =
   | `typography.fontSize.${keyof typeof tokens.typography.fontSize}`
   | `typography.fontWeight.${keyof typeof tokens.typography.fontWeight}`;
 
+export type ImportantValue<T = string | number | TokenPath> = {
+  value: T;
+  important: boolean;
+};
+
 export type DesignValue = 
   | string 
   | number 
   | TokenPath
+  | ImportantValue<string | number | TokenPath>
   | { [key: string]: DesignValue };
 
 export type ResponsiveValue<T> = T | {
@@ -25,15 +31,15 @@ export type ResponsiveValue<T> = T | {
 };
 
 export interface NestedStyles {
-  [selector: string]: Omit<DesignProps, "hover" | "focus" | "active">;
+  [selector: string]: Omit<DesignProps, "hover" | "focus" | "active" | "selected">;
 }
 
 export interface DesignProps {
   // Colors
-  color?: TokenPath | string;
-  bg?: TokenPath | string;
-  border?: string;
-  borderColor?: TokenPath | string;
+  color?: TokenPath | string | ImportantValue<TokenPath | string>;
+  bg?: TokenPath | string | ImportantValue<TokenPath | string>;
+  border?: string | ImportantValue<string>;
+  borderColor?: TokenPath | string | ImportantValue<TokenPath | string>;
   
   // Spacing
   padding?: ResponsiveValue<keyof typeof tokens.space | number | string>;
@@ -76,9 +82,10 @@ export interface DesignProps {
   transform?: string;
   
   // Pseudo-states
-  hover?: Omit<DesignProps, "hover" | "focus" | "active">;
-  focus?: Omit<DesignProps, "hover" | "focus" | "active">;
-  active?: Omit<DesignProps, "hover" | "focus" | "active">;
+  hover?: Omit<DesignProps, "hover" | "focus" | "active" | "selected">;
+  focus?: Omit<DesignProps, "hover" | "focus" | "active" | "selected">;
+  active?: Omit<DesignProps, "hover" | "focus" | "active" | "selected">;
+  selected?: Omit<DesignProps, "hover" | "focus" | "active" | "selected">;
   
   // Index signature для вложенных селекторов и других свойств
   // Можно писать напрямую "& .icon", "& .child" и т.д.

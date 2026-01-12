@@ -518,7 +518,7 @@ export function ClientCard({ clientId, onDelete }: { clientId: string; onDelete?
     <Card
       design={{
         padding: 16,
-        border: '1px solid #e5e7eb',
+        border: '1px solid', borderColor: 'color.bg.tertiary' ,
         borderRadius: '8px',
         transition: 'all 0.3s',
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',

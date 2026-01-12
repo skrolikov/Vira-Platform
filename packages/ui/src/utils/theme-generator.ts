@@ -18,6 +18,7 @@ export interface Theme {
     radius?: string;
     [key: string]: any;
   }>;
+  effect?: Record<string, any>; // Эффекты могут быть как объектами, так и строками
   [key: string]: any; // Для дополнительных свойств тем
 }
 
@@ -43,6 +44,61 @@ export function generateThemeCSSVariables(theme: Theme): string {
         if (!addedVars.has(varName)) {
           rules.push(`  ${varName}: ${value};`);
           addedVars.add(varName);
+        }
+      }
+    });
+  }
+  
+  // Effect variables
+  if (theme.effect) {
+    Object.entries(theme.effect).forEach(([effectName, effectConfig]) => {
+      if (typeof effectConfig === "object" && effectConfig !== null && !Array.isArray(effectConfig)) {
+        // Эффекты - это объекты с CSS свойствами
+        // Преобразуем их в CSS переменные
+        Object.entries(effectConfig).forEach(([cssProp, cssValue]) => {
+          // Преобразуем camelCase в kebab-case для CSS свойств
+          const kebabProp = cssProp.replace(/([A-Z])/g, "-$1").toLowerCase();
+          const varName = `--effect-${effectName}-${kebabProp}`;
+          if (!addedVars.has(varName)) {
+            // Если значение - это токен (например, "shadow.md"), разрешаем его
+            let finalValue = cssValue;
+            if (typeof cssValue === "string" && cssValue.startsWith("shadow.")) {
+              // Пытаемся разрешить токен shadow из темы или foundation
+              const shadowKey = cssValue.replace("shadow.", "");
+              const shadowFromTheme = theme.shadow?.[shadowKey];
+              if (shadowFromTheme) {
+                finalValue = shadowFromTheme;
+              } else {
+                // Используем как есть, если не нашли
+                finalValue = cssValue;
+              }
+            }
+            rules.push(`  ${varName}: ${finalValue};`);
+            addedVars.add(varName);
+          }
+        });
+      } else if (typeof effectConfig === "string") {
+        // Если эффект - это строка, пытаемся распарсить её как CSS свойство
+        // Например, "0 0 20px rgba(0,122,255,0.35)" для box-shadow
+        // Пробуем определить тип эффекта по имени
+        if (effectName.includes("glow") || effectName.includes("neon") || effectName.includes("shadow")) {
+          const varName = `--effect-${effectName}-box-shadow`;
+          if (!addedVars.has(varName)) {
+            rules.push(`  ${varName}: ${effectConfig};`);
+            addedVars.add(varName);
+          }
+        } else if (effectName.includes("blur") || effectName.includes("glass")) {
+          const varName = `--effect-${effectName}-backdrop-filter`;
+          if (!addedVars.has(varName)) {
+            rules.push(`  ${varName}: ${effectConfig};`);
+            addedVars.add(varName);
+          }
+        } else if (effectName.includes("gradient") || effectName.includes("background")) {
+          const varName = `--effect-${effectName}-background`;
+          if (!addedVars.has(varName)) {
+            rules.push(`  ${varName}: ${effectConfig};`);
+            addedVars.add(varName);
+          }
         }
       }
     });
@@ -250,7 +306,7 @@ export function generateThemeCSSVariables(theme: Theme): string {
     Object.entries(theme.presets).forEach(([presetName, presetOverrides]) => {
       const presetSelectors: string[] = [];
       
-      // Генерируем селектор для пресета (например, .v-xxxxx[data-preset="glass"])
+      // Генерируем селектор для пресета (например, .vi-xxxxx[data-preset="glass"])
       // Но так как мы не знаем хеши классов, используем CSS переменные
       Object.entries(presetOverrides).forEach(([key, value]) => {
         if (key === "padding" && typeof value === "number") {

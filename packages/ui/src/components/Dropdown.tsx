@@ -6,6 +6,7 @@ import { Card } from "./Card";
 import { Flex } from "./Flex";
 import { Box } from "./Box";
 import { Text } from "./Text";
+import { EffectCard } from "./EffectCard";
 
 export interface DropdownItem {
   id: string;
@@ -53,7 +54,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   const menuDesign: DesignProps = mergeDesign(
     {
-      padding: 0,
+      padding: 2,
       minWidth: "200px",
       maxHeight: "300px",
       overflowY: "auto",
@@ -67,7 +68,13 @@ export const Dropdown: React.FC<DropdownProps> = ({
   );
 
   const defaultItemDesign: DesignProps = {
-    padding: "8px 12px",
+    padding: 2,
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+    width: "100%",
+    textAlign: "left",
+    border: "none",
     bg: "transparent",
     color: "color.text.primary",
     fontSize: "typography.fontSize.sm",
@@ -91,7 +98,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       trigger="click"
       placement={placement}
       content={
-        <Card design={menuDesign}>
+        <EffectCard design={menuDesign}>
           <Flex design={{ flexDirection: "column", gap: 0 }}>
             {items.map((item, index) => {
               if (item.divider) {
@@ -124,14 +131,6 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   design={itemDesign}
                   onClick={() => handleItemClick(item)}
                   {...(item.disabled && { disabled: true } as any)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    width: "100%",
-                    textAlign: "left",
-                    border: "none",
-                  }}
                 >
                   {item.icon && (
                     <Box
@@ -157,7 +156,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
               );
             })}
           </Flex>
-        </Card>
+        </EffectCard>
       }
     >
       {trigger}

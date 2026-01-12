@@ -7,12 +7,13 @@ export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   as?: keyof JSX.IntrinsicElements;
   children: React.ReactNode;
   truncate?: boolean; // <-- обрезать текст с многоточием
-  size?: "xs" | "sm" | "md" | "lg" | "xl"; // <-- размеры текста
+  size?: "xs" | "sm" | "base" | "md" | "lg" | "xl"; // <-- размеры текста
 }
 
 const sizeMap: Record<string, string> = {
   xs: "typography.fontSize.xs",
   sm: "typography.fontSize.sm",
+  base: "typography.fontSize.base",
   md: "typography.fontSize.md",
   lg: "typography.fontSize.lg",
   xl: "typography.fontSize.xl",

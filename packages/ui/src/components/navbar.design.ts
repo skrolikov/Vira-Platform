@@ -17,8 +17,8 @@ export const navItemDesign = {
       md: "center",
     },
     padding: {
-      base: "12px 16px",
-      md: ctx.collapsed ? "10px 20px" : "12px 16px",
+      base: 3,
+      md: ctx.collapsed ? "10px 20px" : 3,
     },
     paddingLeft: ctx.level && ctx.level > 0 
       ? `${16 + ctx.level * 16}px` 
@@ -109,7 +109,7 @@ export const navItemDesign = {
       md: 4,
     },
     marginTop: 1,
-    borderLeft: "2px solid var(--vira-color-bg-tertiary, #e5e5e7)",
+    borderLeft: "2px solid var(--color-bg-tertiary, #e5e5e7)",
   }),
 };
 

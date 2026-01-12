@@ -32,6 +32,8 @@ export interface ViraConnectionPool {
   sendDiff(channel: string, patch: any, msgId?: string): void;
   /** Current status */
   getStatus(): ViraPoolStatus;
+  /** Close connection and stop reconnecting */
+  close(): void;
 }
 
 class ViraConnectionPoolImpl implements ViraConnectionPool {
@@ -62,13 +64,12 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
     this.idleCloseMs = opts.idleCloseMs ?? 15000;
     this.reconnect = opts.reconnect;
     this.handshakeData = opts.handshakeData;
-    console.log('[ViraConnectionPoolImpl] constructor handshakeData:', this.handshakeData);
   }
 
   private log(...args: any[]) {
     if (!this.debug) return;
     // eslint-disable-next-line no-console
-    console.debug("[VRP:POOL]", ...args);
+    console.log('[VRP_POOL]', ...args);
   }
 
   private notifyStatus() {
@@ -115,9 +116,17 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
         // route only channel-bearing messages
         const anyMsg: any = msg as any;
         const ch = anyMsg.channel;
+        if (this.debug && ch) {
+          this.log('routing message', { type: msg.type, channel: ch, hasListeners: this.channelListeners.has(ch), listenerCount: this.channelListeners.get(ch)?.size || 0 });
+        }
         if (!ch) return;
         const set = this.channelListeners.get(ch);
-        if (!set || set.size === 0) return;
+        if (!set || set.size === 0) {
+          if (this.debug) {
+            this.log('no listeners for channel', ch);
+          }
+          return;
+        }
         set.forEach((listener) => {
           try {
             listener(msg);
@@ -180,8 +189,11 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
     const prev = this.channelRefCount.get(ch) || 0;
     this.channelRefCount.set(ch, prev + 1);
     if (prev === 0) {
+      this.log("subscribing to channel", ch);
       this.conn?.subscribe(ch);
       this.log("sub ref +", ch);
+    } else {
+      this.log("reusing subscription", ch, "refcount:", prev + 1);
     }
 
     return () => {
@@ -246,28 +258,83 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
       session: this.session,
     };
   }
+
+  close(): void {
+    this.cancelIdleClose();
+    // Clear all listeners
+    this.channelListeners.clear();
+    this.channelRefCount.clear();
+    this.statusListeners.clear();
+    // Close connection
+    if (this.conn) {
+      try {
+        this.conn.close();
+      } catch {
+        // ignore
+      }
+      this.conn = null;
+    }
+    this.connected = false;
+    this.session = null;
+    this.error = null;
+  }
 }
 
 const pools = new Map<string, ViraConnectionPoolImpl>();
 
-function poolKey(url: string, authToken?: string, handshakeData?: Record<string, any>) {
-  // Include handshakeData in key to ensure separate pools for different contexts
-  const dataKey = handshakeData ? JSON.stringify(handshakeData) : "";
-  return `${url}::${authToken || ""}::${dataKey}`;
+function poolKey(url: string, authToken?: string) {
+  // Simplified key - we now always read handshakeData from localStorage
+  return `${url}::${authToken || ""}`;
 }
 
-/** Global singleton pool per (url, authToken, handshakeData). */
+function getHandshakeDataFromStorage(): Record<string, any> | undefined {
+  // Try to read user data from localStorage (same logic as getCurrentUser)
+  try {
+    const userStr = (typeof localStorage !== 'undefined') ? localStorage.getItem('user') : null;
+    if (!userStr) return undefined;
+    const user = JSON.parse(userStr);
+    if (!user || !user.company_id) return undefined;
+    return {
+      company_id: user.company_id,
+      location_id: user.location_id,
+      employee_id: user.employee_id,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+/** Global singleton pool per (url, authToken). handshakeData is always read from localStorage. */
 export function getViraConnectionPool(options: ViraPoolOptions): ViraConnectionPool {
-  const key = poolKey(options.url, options.authToken, options.handshakeData);
+  // Always try to get handshakeData from localStorage first
+  const handshakeData = options.handshakeData || getHandshakeDataFromStorage();
+  const key = poolKey(options.url, options.authToken);
+  
+  
   const existing = pools.get(key);
   if (existing) {
-    // If pool exists but handshakeData changed, we need a new pool
-    // But since key includes handshakeData, different handshakeData = different key = new pool
     return existing;
   }
-  const pool = new ViraConnectionPoolImpl(options);
+  const pool = new ViraConnectionPoolImpl({
+    ...options,
+    handshakeData,
+  });
   pools.set(key, pool);
   return pool;
+}
+
+/**
+ * Close all VRP connection pools
+ */
+export function closeAllViraPools(): void {
+  for (const pool of pools.values()) {
+    try {
+      pool.close();
+    } catch {
+      // ignore errors
+    }
+  }
+  pools.clear();
 }
 
 

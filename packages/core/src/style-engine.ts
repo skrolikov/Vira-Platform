@@ -15,17 +15,43 @@ const classNameCache = new Map<string, string>();
 // Счётчик для уникальных классов
 let classCounter = 0;
 
-/**
- * Разрешение токена по пути (например, "color.primary" -> "#007bff")
- */
-function resolveToken(path: string, tokens: any): string | undefined {
-  if (!tokens || typeof tokens !== "object") {
-    return undefined;
+// ======================== Глобальные токены и тема ========================
+let globalTokens: any = {};
+let globalTheme: any = {}; // сюда пихаем, например, appleTheme
+
+export function setGlobalTokens(tokens: any) {
+  globalTokens = tokens;
+}
+
+export function setGlobalTheme(theme: any) {
+  globalTheme = theme;
+}
+
+// ======================== Хэш и генерация классов ========================
+function generateClassName(design: Record<string, any>): string {
+  const key = JSON.stringify(design);
+  if (classNameCache.has(key)) return classNameCache.get(key)!;
+
+  const className = `vira-${hashString(key)}-${classCounter++}`;
+  classNameCache.set(key, className);
+  return className;
+}
+
+function hashString(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
   }
-  
+  return Math.abs(hash).toString(36);
+}
+
+// ======================== Разрешение токенов ========================
+function resolveToken(path: string, tokens: any): string | undefined {
+  if (!tokens || typeof tokens !== "object") return undefined;
   const parts = path.split(".");
   let current = tokens;
-  
   for (const part of parts) {
     if (current && typeof current === "object" && part in current) {
       current = current[part];
@@ -33,73 +59,33 @@ function resolveToken(path: string, tokens: any): string | undefined {
       return undefined;
     }
   }
-  
   return typeof current === "string" ? current : undefined;
 }
 
-/**
- * Базовые токены (заглушка)
- * В реальном приложении токены должны передаваться через конфигурацию
- */
-let globalTokens: any = {};
-
-/**
- * Установка глобальных токенов (вызывается из ui пакета при инициализации)
- */
-export function setGlobalTokens(tokens: any) {
-  globalTokens = tokens;
-}
-
-/**
- * Генерация уникального имени класса
- */
-function generateClassName(design: Record<string, any>): string {
-  const key = JSON.stringify(design);
+// ======================== Effect ========================
+// Исправленная функция applyEffect
+function applyEffect(design: Record<string, any>, theme: any): Record<string, any> {
+  if (!design.effect) return design;
   
-  if (classNameCache.has(key)) {
-    return classNameCache.get(key)!;
-  }
-
-  const className = `vira-${hashString(key)}-${classCounter++}`;
-  classNameCache.set(key, className);
-  
-  return className;
-}
-
-/**
- * Простой hash для строки
- */
-function hashString(str: string): string {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(36);
-}
-
-/**
- * Преобразование design props в CSS
- */
-function designToCSS(design: Record<string, any>): string {
-  const css: string[] = [];
-
-  for (const [key, value] of Object.entries(design)) {
-    const cssProperty = convertToCSSProperty(key);
-    const cssValue = resolveDesignValue(value);
-
-    if (cssProperty && cssValue !== undefined) {
-      css.push(`  ${cssProperty}: ${cssValue};`);
+  // Если effect - это строка (название эффекта из темы)
+  if (typeof design.effect === 'string') {
+    const effectName = design.effect;
+    const effectDef = theme.effect?.[effectName];
+    if (!effectDef) {
+      console.warn(`Effect "${effectName}" not found in theme`);
+      return design;
     }
+    
+    // Удаляем effect из design и применяем его стили
+    const { effect, ...rest } = design;
+    return { ...effectDef, ...rest };
   }
-
-  return css.join("\n");
+  
+  // Если effect - уже объект с CSS свойствами
+  return { ...design.effect, ...design };
 }
 
-/**
- * Преобразование CSS свойства
- */
+// ======================== CSS генерация ========================
 function convertToCSSProperty(key: string): string {
   const propertyMap: Record<string, string> = {
     bg: "background-color",
@@ -142,118 +128,92 @@ function convertToCSSProperty(key: string): string {
     fontWeight: "font-weight",
     color: "color",
     display: "display",
+    backdropFilter: "backdrop-filter",
+    WebkitBackdropFilter: "-webkit-backdrop-filter",
+    background: "background",
   };
-
   return propertyMap[key] || key;
 }
 
-/**
- * Разрешение значения дизайн-токена
- */
 function resolveDesignValue(value: any): string | undefined {
   if (typeof value === "string") {
-    // Проверяем, это токен ($token) или обычное значение
     if (value.startsWith("$")) {
       const tokenPath = value.substring(1);
       const resolved = resolveToken(tokenPath, globalTokens);
-      // Если токен не найден, возвращаем оригинальное значение
       return resolved || value;
     }
     return value;
   }
-
-  if (typeof value === "number") {
-    return `${value}px`;
-  }
-
+  if (typeof value === "number") return `${value}px`;
   return String(value);
 }
 
-/**
- * Генерация CSS класса из design props
- * 
- * @example
- * const className = generateStyle({
- *   bg: "$primary",
- *   p: 12,
- *   radius: "$md",
- * });
- * // Возвращает: "vira-a12f-0"
- * // И добавляет CSS в <style id="vira-css">
- */
-export function generateStyle(design: Record<string, any>): string {
-  const className = generateClassName(design);
-  
-  // Проверяем кеш
-  if (styleCache.has(className)) {
-    return className;
+function designToCSS(design: Record<string, any>): string {
+  const css: string[] = [];
+  for (const [key, value] of Object.entries(design)) {
+    const cssProp = convertToCSSProperty(key);
+    const cssValue = resolveDesignValue(value);
+    if (cssProp && cssValue !== undefined) css.push(`  ${cssProp}: ${cssValue};`);
+  }
+  return css.join("\n");
+}
+
+function injectStyle(className: string, css: string) {
+  if (typeof document === "undefined") return;
+
+  let styleEl = document.getElementById("vira-css");
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = "vira-css";
+    document.head.appendChild(styleEl);
   }
 
-  // Генерируем CSS
-  const css = designToCSS(design);
-  const fullCSS = `.${className} {\n${css}\n}`;
+  styleEl.textContent += `\n${css}\n`;
+}
 
-  // Сохраняем в кеш
-  styleCache.set(className, fullCSS);
+// ======================== Основная функция ========================
+export function generateStyle(design: Record<string, any>): string {
+  // Применяем effect из темы ДО генерации CSS
+  const processedDesign = applyEffectFromTheme(design, globalTheme);
+  
+  const className = generateClassName(processedDesign);
+  if (styleCache.has(className)) return className;
 
-  // Добавляем в DOM
-  injectStyle(className, fullCSS);
+  const css = designToCSS(processedDesign);
+  styleCache.set(className, `.${className} {\n${css}\n}`);
+  injectStyle(className, css);
 
   return className;
 }
 
-/**
- * Инъекция стилей в DOM
- */
-function injectStyle(className: string, css: string) {
-  // Проверяем наличие document (для SSR)
-  if (typeof document === "undefined") {
-    return;
-  }
-
-  let styleElement = document.getElementById("vira-css");
-
-  if (!styleElement) {
-    styleElement = document.createElement("style");
-    styleElement.id = "vira-css";
-    document.head.appendChild(styleElement);
-  }
-
-  // Добавляем CSS в style элемент
-  styleElement.textContent += `\n${css}\n`;
+// Новая функция для применения эффектов из темы
+function applyEffectFromTheme(design: Record<string, any>, theme: any): Record<string, any> {
+  if (!design.effect || !theme?.effect) return design;
+  
+  const effectName = design.effect;
+  if (typeof effectName !== 'string') return design;
+  
+  const effectStyles = theme.effect[effectName];
+  if (!effectStyles) return design;
+  
+  // Удаляем свойство effect и добавляем реальные стили
+  const { effect, ...rest } = design;
+  return { ...effectStyles, ...rest };
 }
 
-/**
- * Преобразование design props в React Native стили
- * 
- * @example
- * const nativeStyle = designToNative({
- *   bg: "$primary",
- *   p: 12,
- *   radius: "$md",
- * });
- * // { backgroundColor: tokens.primary, padding: 12, borderRadius: tokens.radius.md }
- */
+// ======================== React Native ========================
 export function designToNative(design: Record<string, any>): Record<string, any> {
   const nativeStyle: Record<string, any> = {};
-
   for (const [key, value] of Object.entries(design)) {
     const nativeKey = convertToNativeProperty(key);
     const nativeValue = resolveNativeValue(value);
-
-    if (nativeKey && nativeValue !== undefined) {
-      nativeStyle[nativeKey] = nativeValue;
-    }
+    if (nativeKey && nativeValue !== undefined) nativeStyle[nativeKey] = nativeValue;
   }
-
   return nativeStyle;
 }
 
-/**
- * Преобразование в React Native свойство
- */
 function convertToNativeProperty(key: string): string {
-  const propertyMap: Record<string, string> = {
+  const map: Record<string, string> = {
     bg: "backgroundColor",
     backgroundColor: "backgroundColor",
     p: "padding",
@@ -283,9 +243,9 @@ function convertToNativeProperty(key: string): string {
     radius: "borderRadius",
     borderRadius: "borderRadius",
     border: "borderWidth",
-    shadow: "shadowColor", // В RN shadow это объект
+    shadow: "shadowColor",
     boxShadow: "shadowColor",
-    gap: "gap", // RN поддерживает gap
+    gap: "gap",
     flex: "flex",
     flexDirection: "flexDirection",
     alignItems: "alignItems",
@@ -294,49 +254,33 @@ function convertToNativeProperty(key: string): string {
     fontWeight: "fontWeight",
     color: "color",
     display: "display",
+    backdropFilter: "backdropFilter",
+    WebkitBackdropFilter: "WebkitBackdropFilter",
+    background: "background",
   };
-
-  return propertyMap[key] || key;
+  return map[key] || key;
 }
 
-/**
- * Разрешение значения для React Native
- */
 function resolveNativeValue(value: any): any {
   if (typeof value === "string") {
     if (value.startsWith("$")) {
-      const tokenPath = value.substring(1);
-      const resolved = resolveToken(tokenPath, globalTokens);
-      // Если токен не найден, возвращаем оригинальное значение
+      const resolved = resolveToken(value.substring(1), globalTokens);
       return resolved || value;
     }
-    // Если это px - убираем
-    if (value.endsWith("px")) {
-      return parseFloat(value);
-    }
+    if (value.endsWith("px")) return parseFloat(value);
     return value;
   }
-
   return value;
 }
 
-/**
- * Очистка кеша стилей
- */
+// ======================== Кэш ========================
 export function clearStyleCache() {
   styleCache.clear();
   classNameCache.clear();
-  
-  const styleElement = document.getElementById("vira-css");
-  if (styleElement) {
-    styleElement.textContent = "";
-  }
+  const styleEl = document.getElementById("vira-css");
+  if (styleEl) styleEl.textContent = "";
 }
 
-/**
- * Получение всех сгенерированных стилей
- */
 export function getGeneratedStyles(): string {
   return Array.from(styleCache.values()).join("\n\n");
 }
-

@@ -114,7 +114,7 @@ export const Input: React.FC<InputProps> = ({
   
   // Красивые стили по умолчанию (как у SearchInput)
   const defaultDesign: DesignProps = {
-    padding: "12px 16px",
+    padding: 3,
     bg: "color.bg.tertiary",
     border: "1px solid",
     borderColor: "color.bg.tertiary",

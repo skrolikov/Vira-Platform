@@ -15,13 +15,18 @@ export function mergeDesign(
 ): DesignProps {
   if (!preset) return design || {};
   if (!design) return preset;
-  
-  // Мержим основные свойства
+
+  // Для effect применяем специальную логику:
+  // Если в design указан effect, он имеет приоритет
+  // Но мы сохраняем его как отдельное свойство
+  const hasEffect = 'effect' in design;
+
+  // Мержим основные свойства, но effect из design имеет приоритет
   const merged: DesignProps = {
     ...preset,
     ...design,
   };
-  
+
   // Правильно мержим вложенные объекты (hover, focus, active)
   // Только если они есть в обоих объектах
   if (preset.hover || design.hover) {
@@ -30,33 +35,33 @@ export function mergeDesign(
       ...(design.hover || {}),
     };
   }
-  
+
   if (preset.focus || design.focus) {
     merged.focus = {
       ...(preset.focus || {}),
       ...(design.focus || {}),
     };
   }
-  
+
   if (preset.active || design.active) {
     merged.active = {
       ...(preset.active || {}),
       ...(design.active || {}),
     };
   }
-  
+
   return merged;
 }
 
 /**
  * Получает класс для design и регистрирует его в DesignRegistry
  * 
- * В проде: возвращает только hash класс (v-{hash})
+ * В проде: возвращает только hash класс (vi-{hash})
  * В dev: можно также добавить data-design атрибут для отладки
  */
 export function getDesignClass(
   design: DesignProps,
-  prefix: string = "v-"
+  prefix: string = "vi-"
 ): string {
   if (!design || Object.keys(design).length === 0) {
     return "";
@@ -64,7 +69,7 @@ export function getDesignClass(
 
   // Регистрируем design в registry (если ещё не зарегистрирован - генерирует CSS)
   const hash = registerDesign(design, prefix);
-  
+
   return hash ? `${prefix}${hash}` : "";
 }
 
@@ -85,13 +90,12 @@ export function getDataDesignAttribute(design: DesignProps): string | undefined 
   if (shouldHideDataDesign) {
     return undefined;
   }
-  
+
   // В проде не добавляем data-design
   if (!shouldIncludeDataDesign()) {
     return undefined;
   }
-  
+
   // В dev режиме добавляем для отладки
   return JSON.stringify(design);
 }
-

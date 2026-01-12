@@ -68,6 +68,13 @@ export const Button = React.forwardRef<HTMLElement, ButtonProps>(({
     mergedDesign = mergedDesign ? mergeDesign(mergedDesign, design) : design;
   }
   
+  // Добавляем position: relative для loading анимации, если нужно
+  if (loading && mergedDesign) {
+    mergedDesign = mergeDesign(mergedDesign, { position: "relative" });
+  } else if (loading) {
+    mergedDesign = { position: "relative" };
+  }
+  
   const designClass = mergedDesign ? getDesignClass(mergedDesign) : "";
   const finalClassName = applyDesignClass(className, designClass);
   
@@ -76,68 +83,14 @@ export const Button = React.forwardRef<HTMLElement, ButtonProps>(({
   
   return (
     <>
-      <style>{`
-        button:disabled,
-        button[disabled],
-        [data-preset]:disabled,
-        [data-preset][disabled] {
-          opacity: 0.6 !important;
-          cursor: not-allowed !important;
-          pointer-events: none !important;
-        }
-        button:disabled:hover,
-        button[disabled]:hover,
-        [data-preset]:disabled:hover,
-        [data-preset][disabled]:hover {
-          transform: none !important;
-          opacity: 0.6 !important;
-        }
-        @keyframes vira-button-shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        .vira-button-loading {
-          position: relative;
-          overflow: hidden;
-        }
-        .vira-button-loading > * {
-          opacity: 0.7;
-        }
-        .vira-button-loading::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.4) 30%,
-            rgba(255, 255, 255, 0.6) 50%,
-            rgba(255, 255, 255, 0.4) 70%,
-            transparent 100%
-          );
-          animation: vira-button-shimmer 2s infinite;
-          pointer-events: none;
-          z-index: 1;
-        }
-      `}</style>
       {React.createElement(
         Component,
         {
           ref: ref as any,
-          className: `${finalClassName} ${loading ? "vira-button-loading" : ""}`,
+          className: `${finalClassName}`,
           onClick,
           disabled: isDisabled,
-          style: {
-            position: loading ? "relative" : undefined,
-            ...props.style,
-          },
+          ...(props.style && { style: props.style }),
           ...(mergedDesign && { "data-design": getDataDesignAttribute(mergedDesign) }),
           ...(preset && { "data-preset": preset }),
           "aria-busy": loading,

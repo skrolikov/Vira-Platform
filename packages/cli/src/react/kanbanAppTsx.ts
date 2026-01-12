@@ -14,7 +14,7 @@ import './index.css';
  * ✅ Server-authoritative state (client is terminal)
  * ✅ Auto-binding ready (action/model props)
  * 
- * This is THE standard for Vira apps.
+ * This is THE standard for VIRA SMPs.
  */
 
 export function App() {

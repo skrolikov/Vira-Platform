@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { MessageCircle, X, Phone, ShoppingCart, User, Globe, Send, Loader2 } from 'lucide-react';
 import { Flex } from '../Flex';
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
@@ -94,11 +95,41 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const getIntegrationBadge = () => {
     switch (chatType) {
-      case 'telegram': return <Badge preset="primary">📱 Telegram</Badge>;
-      case 'whatsapp': return <Badge preset="success">💬 WhatsApp</Badge>;
-      case 'website': return <Badge preset="info">🌐 Сайт</Badge>;
-      case 'order': return <Badge preset="warning">📦 Заказ</Badge>;
-      case 'contact': return <Badge preset="info">👤 Контакт</Badge>;
+      case 'telegram': 
+        return (
+          <Badge preset="primary" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Phone size={12} />
+            Telegram
+          </Badge>
+        );
+      case 'whatsapp': 
+        return (
+          <Badge preset="success" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <MessageCircle size={12} />
+            WhatsApp
+          </Badge>
+        );
+      case 'website': 
+        return (
+          <Badge preset="info" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Globe size={12} />
+            Сайт
+          </Badge>
+        );
+      case 'order': 
+        return (
+          <Badge preset="warning" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <ShoppingCart size={12} />
+            Заказ
+          </Badge>
+        );
+      case 'contact': 
+        return (
+          <Badge preset="info" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <User size={12} />
+            Контакт
+          </Badge>
+        );
       default: return null;
     }
   };
@@ -116,8 +147,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         as="div"
         design={{
           padding: '16px 20px',
-          borderBottom: '1px solid',
-          borderColor: 'color.border.primary',
           bg: 'color.bg.primary',
           boxShadow: 'shadow.sm',
         }}
@@ -126,37 +155,33 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           justify="space-between"
           align="center"
         >
-          <Flex gap="md" align="center">
+          <Flex gap={2} align="center">
             <Avatar
               src={chatAvatar}
               alt={chatTitle || customerName || 'Chat'}
               size="md"
               initials={chatTitle?.[0] || customerName?.[0] || '?'}
             />
-            <Flex direction="column" gap="xs">
+            <Flex direction="column" gap={3}>
               <Heading level={4} design={{ margin: 0, fontSize: '1.125rem', fontWeight: '700' }}>
                 {chatTitle || customerName || 'Без названия'}
               </Heading>
-              <Flex gap="xs" align="center">
+              <Flex gap={3} align="center">
                 {getIntegrationBadge()}
                 {orderNumber && (
-                  <Badge preset="info">
-                    📦 {orderNumber}
+                  <Badge preset="info" design={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <ShoppingCart size={12} />
+                    {orderNumber}
                   </Badge>
                 )}
               </Flex>
             </Flex>
           </Flex>
 
-          <Flex gap="sm" align="center">
-            {showCreateContact && onCreateContact && (
-              <Button preset="primary" onClick={onCreateContact}>
-                + Создать контакт
-              </Button>
-            )}
+          <Flex gap={2} align="center">
             {onClose && (
-              <Button preset="ghost" onClick={onClose}>
-                ✕
+              <Button preset="ghost" onClick={onClose} design={{ padding: '8px' }}>
+                <X size={18} />
               </Button>
             )}
           </Flex>
@@ -171,10 +196,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         design={{
           flex: 1,
           overflowY: 'auto',
-          padding: '20px',
+          padding: { base: 3, md: 4 },
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px',
+          gap: { base: 3, md: 4 },
           bg: 'color.bg.secondary',
         }}
       >
@@ -182,7 +207,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         {hasMore && (
           <Flex justify="center" design={{ padding: '16px 0' }}>
             {loading ? (
-              <Text design={{ color: 'color.text.secondary' }}>Загрузка...</Text>
+              <Flex gap={2} align="center" design={{ color: 'color.text.secondary' }}>
+                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                <Text design={{ color: 'color.text.secondary' }}>Загрузка...</Text>
+              </Flex>
             ) : (
               <Button preset="ghost" onClick={onLoadMore}>
                 Загрузить предыдущие
@@ -197,19 +225,24 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             justify="center" 
             align="center" 
             direction="column"
-            gap="md"
+            gap={2}
             design={{ flex: 1 }}
           >
             <Box
               as="div"
               design={{
-                fontSize: '4rem',
-                opacity: 0.5,
+                padding: '24px',
+                borderRadius: '50%',
+                bg: 'color.bg.tertiary',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: 0.6,
               }}
             >
-              💬
+              <MessageCircle size={48} style={{ color: 'var(--color-text-secondary)' }} />
             </Box>
-            <Text design={{ color: 'color.text.secondary' }}>Нет сообщений</Text>
+            <Text design={{ color: 'color.text.secondary', fontWeight: '500' }}>Нет сообщений</Text>
             <Text size="sm" design={{ color: 'color.text.secondary' }}>Начните разговор!</Text>
           </Flex>
         ) : (
@@ -226,46 +259,51 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
-          <Flex gap="sm" align="center" design={{ padding: '8px 0' }}>
-            <Box
-              as="div"
-              design={{
-                display: 'flex',
-                gap: '4px',
-                padding: '8px 12px',
-              }}
-            >
+          <Flex gap={2} align="center" design={{ padding: '8px 0' }}>
               <Box
                 as="div"
                 design={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  bg: '#9ca3af',
-                  animation: 'typing 1.4s infinite',
+                  display: 'flex',
+                  gap: '4px',
+                  padding: '8px 12px',
+                  bg: 'color.bg.secondary',
+                  borderRadius: '16px',
                 }}
-              />
-              <Box
-                as="div"
-                design={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  bg: '#9ca3af',
-                  animation: 'typing 1.4s infinite 0.2s',
-                }}
-              />
-              <Box
-                as="div"
-                design={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  bg: '#9ca3af',
-                  animation: 'typing 1.4s infinite 0.4s',
-                }}
-              />
-            </Box>
+              >
+                <Box
+                  as="div"
+                  design={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    bg: 'color.text.secondary',
+                    animation: 'typing 1.4s infinite',
+                    opacity: 0.6,
+                  }}
+                />
+                <Box
+                  as="div"
+                  design={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    bg: 'color.text.secondary',
+                    animation: 'typing 1.4s infinite 0.2s',
+                    opacity: 0.6,
+                  }}
+                />
+                <Box
+                  as="div"
+                  design={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    bg: 'color.text.secondary',
+                    animation: 'typing 1.4s infinite 0.4s',
+                    opacity: 0.6,
+                  }}
+                />
+              </Box>
             <Text size="sm" design={{ color: 'color.text.secondary' }}>
               {typingUsers.join(', ')} печатает...
             </Text>
@@ -280,9 +318,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       <Box
         as="div"
         design={{
-          padding: '16px 20px',
-          borderTop: '1px solid',
-          borderColor: 'color.border.primary',
+          padding: { base: 3, md: 4 },
           bg: 'color.bg.primary',
           boxShadow: 'shadow.sm',
         }}

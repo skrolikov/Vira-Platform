@@ -13,11 +13,6 @@ export const Loader: React.FC<LoaderProps> = ({
 }) => {
   const spinnerDesign: DesignProps = {
     width: size,
-    height: size,
-    borderWidth: 2,
-    borderStyle: "solid",
-    borderColor: "color.border.subtle",
-    borderTopColor: "color.border.primary",
     radius: "radius.full",
     animation: "spin",
   };

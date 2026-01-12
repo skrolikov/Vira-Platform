@@ -12,7 +12,7 @@ import { vintage } from "../themes/vintage";
 import { swiss } from "../themes/swiss";
 import { typography } from "../themes/typography";
 import { memphis } from "../themes/memphis";
-import { brutalism } from "../themes/brutalism";
+import { threed } from "../themes/threed";
 import { monochrome } from "../themes/monochrome";
 import { foundationTokens } from "../tokens/foundation";
 import { generateCSSVariables } from "../utils/css-variables";
@@ -59,7 +59,7 @@ function resolveColorToken(path: string, theme: Theme): string | null {
   return typeof current === "string" ? current : null;
 }
 
-export type ThemeName = "default" | "monochrome" | "cyberpunk" | "aurora" | "material" | "retro" | "midnight" | "synthwave" | "apple" | "neomorph" | "eightbit" | "vintage" | "swiss" | "typography" | "memphis" | "brutalism";
+export type ThemeName = "default" | "monochrome" | "cyberpunk" | "aurora" | "material" | "retro" | "midnight" | "synthwave" | "apple" | "neomorph" | "eightbit" | "vintage" | "swiss" | "typography" | "memphis" | "threed";
 
 export interface ViraProviderProps {
   theme?: ThemeName;
@@ -108,7 +108,7 @@ export const ViraProvider: React.FC<ViraProviderProps> = ({
       swiss: swiss as Theme,
       typography: typography as Theme,
       memphis: memphis as Theme,
-      brutalism: brutalism as Theme,
+      threed: threed as Theme,
     };
     
     const selectedTheme = themeMap[theme];
@@ -269,7 +269,7 @@ export const ViraProvider: React.FC<ViraProviderProps> = ({
     // In production, CSS should be extracted at build time
     if (shouldEnableDevTools()) {
     setTimeout(() => {
-      generateRuntimeStyles("v-", true);
+      generateRuntimeStyles("vi-", true);
     }, 0);
     }
   }, [theme]);

@@ -113,7 +113,7 @@ export const docsPresets = {
   } as DesignProps,
 
   codeHeader: {
-    padding: "12px 16px",
+    padding: 3,
     bg: "#111827",
     radius: "0",
     border: "none",

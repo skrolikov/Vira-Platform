@@ -1,4 +1,5 @@
 import React from 'react';
+import { Check, CheckCheck, X, Reply, Trash2, Paperclip, FileText, Image as ImageIcon } from 'lucide-react';
 import { Flex } from '../Flex';
 import { Avatar } from '../Avatar';
 import { Text } from '../Text';
@@ -40,13 +41,13 @@ const formatTime = (date: Date): string => {
   return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 };
 
-const getStatusIcon = (status?: string): string => {
+const getStatusIcon = (status?: string) => {
   switch (status) {
-    case 'sent': return '✓';
-    case 'delivered': return '✓✓';
-    case 'read': return '✓✓';
-    case 'failed': return '✗';
-    default: return '';
+    case 'sent': return <Check size={12} />;
+    case 'delivered': return <CheckCheck size={12} />;
+    case 'read': return <CheckCheck size={12} style={{ color: 'var(--color-primary)' }} />;
+    case 'failed': return <X size={12} />;
+    default: return null;
   }
 };
 
@@ -83,12 +84,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       justify={isOwn ? 'flex-end' : 'flex-start'}
       design={{
         padding: '2px 0',
-        animation: 'messageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        position: 'relative',
       }}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <Flex gap="sm" align="flex-end" design={{ maxWidth: '70%' }}>
+      <Flex gap={2} align="flex-end" design={{ maxWidth: '70%', position: 'relative' }}>
         {/* Avatar (only for incoming messages) */}
         {!isOwn && (
           <Avatar
@@ -100,7 +101,77 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           />
         )}
 
-        <Flex direction="column" gap="xs" design={{ flex: 1 }}>
+        {/* Actions buttons - positioned on the side */}
+        {(onReply || onDelete) && (
+          <Box
+            as="div"
+            style={{
+              position: 'absolute',
+              [isOwn ? 'left' : 'right']: '-45px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              opacity: showActions ? 1 : 0,
+              transition: 'opacity 0.1s ease',
+              zIndex: 10,
+              pointerEvents: showActions ? 'auto' : 'none',
+            }}
+            design={{
+              bg: 'color.bg.primary',
+              borderRadius: "radius.md",
+              padding: '4px',
+              boxShadow: 'shadow.md',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+            }}
+          >
+            {onReply && (
+              <Button
+                preset="ghost"
+                onClick={() => onReply(id)}
+                title="Ответить"
+                design={{
+                  padding: '6px',
+                  minWidth: 'auto',
+                  height: 'auto',
+                  bg: 'color.bg.secondary',
+                  borderRadius: '6px',
+                  color: 'color.text.primary',
+                  hover: {
+                    bg: 'color.bg.tertiary',
+                    transform: 'scale(1.05)',
+                  },
+                }}
+              >
+                <Reply size={14} style={{ color: 'var(--color-text-primary)' }} />
+              </Button>
+            )}
+            {onDelete && isOwn && (
+              <Button
+                preset="ghost"
+                onClick={() => onDelete(id)}
+                title="Удалить"
+                design={{
+                  padding: '6px',
+                  minWidth: 'auto',
+                  height: 'auto',
+                  bg: 'color.danger.light',
+                  borderRadius: '6px',
+                  color: 'color.danger',
+                  hover: {
+                    bg: 'color.danger',
+                    color: 'white',
+                    transform: 'scale(1.05)',
+                  },
+                }}
+              >
+                <Trash2 size={14} />
+              </Button>
+            )}
+          </Box>
+        )}
+
+        <Flex direction="column" gap={3} design={{ flex: 1 }}>
           {/* Sender name (for group chats) */}
           {!isOwn && senderName && (
             <Text 
@@ -129,10 +200,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 ? 'color.primary' 
                 : 'color.bg.primary',
               color: isOwn ? 'white' : 'color.text.primary',
-              border: isOwn ? 'none' : '1px solid',
-              borderColor: isOwn ? 'transparent' : 'color.border.primary',
-              borderBottomRightRadius: isOwn ? '4px' : '16px',
-              borderBottomLeftRadius: isOwn ? '16px' : '4px',
               hover: {
                 boxShadow: isOwn ? 'shadow.lg' : 'shadow.md',
                 transform: 'translateY(-1px)',
@@ -146,8 +213,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 design={{
                   padding: 2,
                   marginBottom: 2,
-                  borderLeft: '3px solid',
-                  borderLeftColor: isOwn ? 'rgba(255,255,255,0.5)' : 'color.primary',
                   bg: 'rgba(0, 0, 0, 0.1)',
                   borderRadius: '4px',
                 }}
@@ -163,7 +228,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
             {/* Attachments */}
             {attachments.length > 0 && (
-              <Flex direction="column" gap="xs" design={{ marginBottom: 2 }}>
+              <Flex direction="column" gap={3} design={{ marginBottom: 2 }}>
                 {attachments.map((attachment, idx) => (
                   <Box key={idx} as="div">
                     {attachment.type === 'image' ? (
@@ -172,7 +237,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                         alt={attachment.name}
                         design={{
                           maxWidth: '100%',
-                          borderRadius: '8px',
+                          borderRadius: "radius.md",
                           cursor: 'pointer',
                           display: 'block',
                         }}
@@ -183,7 +248,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                         design={{
                           padding: 2,
                           bg: 'color.bg.secondary',
-                          borderRadius: '8px',
+                          borderRadius: "radius.md",
                           cursor: 'pointer',
                           transition: 'all 0.2s ease',
                           hover: {
@@ -191,17 +256,22 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                           },
                         }}
                       >
-                        <Flex gap="sm" align="center">
+                        <Flex gap={2} align="center">
                           <Box
                             as="div"
                             design={{
-                              fontSize: '1.5rem',
                               flexShrink: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '4px',
+                              borderRadius: '4px',
+                              bg: isOwn ? 'rgba(255,255,255,0.1)' : 'color.bg.tertiary',
                             }}
                           >
-                            📎
+                            <Paperclip size={16} style={{ color: isOwn ? 'rgba(255,255,255,0.9)' : 'var(--color-text-secondary)' }} />
                           </Box>
-                          <Flex direction="column" gap="xs" design={{ flex: 1, minWidth: 0 }}>
+                          <Flex direction="column" gap={3} design={{ flex: 1, minWidth: 0 }}>
                             <Text 
                               size="sm" 
                               design={{ 
@@ -238,7 +308,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             </Text>
 
             {/* Time & Status */}
-            <Flex justify="flex-end" align="center" gap="xs" design={{ marginTop: 1 }}>
+            <Flex justify="flex-end" align="center" gap={3} design={{ marginTop: 1 }}>
               {editedAt && (
                 <Text size="xs" design={{ color: isOwn ? 'rgba(255,255,255,0.7)' : 'color.text.secondary' }}>
                   изм.
@@ -248,73 +318,19 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 {formatTime(createdAt)}
               </Text>
               {isOwn && status && (
-                <Text 
-                  size="xs" 
-                  design={{ 
+                <Box
+                  as="div"
+                  design={{
+                    display: 'flex',
+                    alignItems: 'center',
                     color: status === 'read' ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.7)',
                   }}
                 >
                   {getStatusIcon(status)}
-                </Text>
+                </Box>
               )}
             </Flex>
           </Box>
-
-          {/* Actions (on hover) */}
-          {showActions && (onReply || onDelete) && (
-            <Flex 
-              gap="xs" 
-              justify={isOwn ? 'flex-end' : 'flex-start'}
-              design={{
-                opacity: showActions ? 1 : 0,
-                transition: 'opacity 0.2s',
-                marginTop: 1,
-              }}
-            >
-              {onReply && (
-                <Button
-                  preset="ghost"
-                  onClick={() => onReply(id)}
-                  title="Ответить"
-                  design={{
-                    padding: '4px 8px',
-                    fontSize: '0.875rem',
-                    minWidth: 'auto',
-                    height: 'auto',
-                    bg: 'color.bg.secondary',
-                    borderRadius: '6px',
-                    hover: {
-                      bg: 'color.bg.tertiary',
-                      transform: 'scale(1.05)',
-                    },
-                  }}
-                >
-                  ↩️
-                </Button>
-              )}
-              {onDelete && isOwn && (
-                <Button
-                  preset="ghost"
-                  onClick={() => onDelete(id)}
-                  title="Удалить"
-                  design={{
-                    padding: '4px 8px',
-                    fontSize: '0.875rem',
-                    minWidth: 'auto',
-                    height: 'auto',
-                    bg: 'color.danger.light',
-                    borderRadius: '6px',
-                    hover: {
-                      bg: 'color.danger',
-                      transform: 'scale(1.05)',
-                    },
-                  }}
-                >
-                  🗑️
-                </Button>
-              )}
-            </Flex>
-          )}
         </Flex>
       </Flex>
     </Flex>

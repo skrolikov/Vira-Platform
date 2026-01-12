@@ -58,6 +58,7 @@ export const Backdrop: React.FC<BackdropProps> = ({
   if (!isOpen) return null;
 
   const backdropDesign: DesignProps = {
+    effect: "glass",
     position: "fixed",
     top: 0,
     left: 0,
@@ -72,6 +73,11 @@ export const Backdrop: React.FC<BackdropProps> = ({
     ...design,
   };
 
+  // Если указан effect, то мы не переопределяем bg, так как effect сам установит нужный background
+  if (design?.effect) {
+    delete backdropDesign.bg;
+  }
+
   const mergedDesign = mergeDesign(backdropDesign, design);
   const designClass = getDesignClass(mergedDesign);
 
@@ -79,18 +85,6 @@ export const Backdrop: React.FC<BackdropProps> = ({
     <div
       className={designClass}
       data-design={JSON.stringify(mergedDesign)}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex,
-      }}
       onClick={onClick}
     >
       {children}

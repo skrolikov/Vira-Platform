@@ -17,6 +17,7 @@ export interface DrawerProps {
   title?: string;
   subtitle?: string;
   description?: string; // Синоним для subtitle, добавлено для совместимости с ViraDrawer
+  logo?: React.ReactNode; // Логотип для отображения в заголовке
   children: React.ReactNode;
   showCloseButton?: boolean;
   closeOnBackdrop?: boolean;
@@ -48,6 +49,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   title,
   subtitle,
   description,
+  logo,
   children,
   showCloseButton = true,
   closeOnBackdrop = true,
@@ -245,7 +247,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   };
 
   const footerDesignMerged: DesignProps = {
-    padding: 3,
+    padding: 2,
     borderTopWidth: "1px",
     borderTopStyle: "solid",
     borderTopColor: "color.bg.tertiary",
@@ -259,7 +261,7 @@ export const Drawer: React.FC<DrawerProps> = ({
   if (!isOpen && !isAnimating) return null;
 
   return (
-    <Backdrop isOpen={isOpen} onClick={closeOnBackdrop ? onClose : undefined} zIndex={1000}>
+    <Backdrop isOpen={isOpen} onClick={closeOnBackdrop ? onClose : undefined}>
       <Card
         className={`${drawerClass} vira-drawer-content ${className || ""}`.trim()}
         data-design={JSON.stringify(mergedDesign)}
@@ -281,34 +283,48 @@ export const Drawer: React.FC<DrawerProps> = ({
           >
             <Flex
               design={{
-                flexDirection: "column",
-                gap: 1,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 2,
                 flex: 1,
               }}
             >
-              {title && (
-                <Text
-                  design={{
-                    fontSize: "20px",
-                    fontWeight: "700",
-                    color: "color.text.primary",
-                    lineHeight: "1.3",
-                  }}
-                >
-                  {title}
-                </Text>
+              {logo && (
+                <Flex align="center" justify="center">
+                  {logo}
+                </Flex>
               )}
-              {drawerDescription && (
-                <Text
-                  design={{
-                    fontSize: "14px",
-                    color: "color.text.secondary",
-                    lineHeight: "1.5",
-                  }}
-                >
-                  {drawerDescription}
-                </Text>
-              )}
+              <Flex
+                design={{
+                  flexDirection: "column",
+                  gap: 1,
+                  flex: 1,
+                }}
+              >
+                {title && (
+                  <Text
+                    design={{
+                      fontSize: "20px",
+                      fontWeight: "700",
+                      color: "color.text.primary",
+                      lineHeight: "1.3",
+                    }}
+                  >
+                    {title}
+                  </Text>
+                )}
+                {drawerDescription && (
+                  <Text
+                    design={{
+                      fontSize: "14px",
+                      color: "color.text.secondary",
+                      lineHeight: "1.5",
+                    }}
+                  >
+                    {drawerDescription}
+                  </Text>
+                )}
+              </Flex>
             </Flex>
             {showCloseButton && (
               <Button
@@ -357,7 +373,9 @@ export const Drawer: React.FC<DrawerProps> = ({
             design={footerDesignMerged}
             data-design={JSON.stringify(footerDesignMerged)}
           >
-            {footer}
+            <Card design={{padding: 3, radius: 'radius.md'}}>
+              {footer}
+            </Card>
           </Flex>
         )}
       </Card>

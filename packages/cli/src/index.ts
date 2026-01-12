@@ -1068,7 +1068,7 @@ function buildComponentBody(
   // import { watch, signal } from '@vira-ui/core';
   // const [editValue, setEditValue] = signal('');
   // watch(() => editValue(), (newValue) => {
-  //   sendDiff({ [field]: newValue, updated_at: new Date().toISOString() });
+  //   sendDiff({ [field]: newValue, updated_at: getLocalISOString() });
   // }, { debounce: 500 });
 
   return createElement('div', { className: '${name.toLowerCase()}' },
@@ -1129,7 +1129,7 @@ async function generateComponent(name: string, dir: string, config: ComponentCon
   if (vrpConfig) {
     const typeName = vrpConfig.stateType.replace('State', '');
     componentCode += `// TODO: Если у вас есть синхронизированные типы из backend, используйте их:
-// import type { ${typeName} } from '../vira-types';
+// import type { ${typeName} } from '@/vira-types';
 // export type ${vrpConfig.stateType} = ${typeName};
 
 export interface ${vrpConfig.stateType} {
@@ -1239,7 +1239,7 @@ import { createService, useService, batch } from '@vira-ui/core';
 import { useViraState } from '@vira-ui/react';
 import { v4 as uuid } from 'uuid';
 // TODO: Если у вас есть синхронизированные типы из backend, используйте их:
-// import type { ${typeName} } from '../vira-types';
+// import type { ${typeName} } from '@/vira-types';
 // export type ${vrpConfig.stateType} = ${typeName};
 
 export interface ${vrpConfig.stateType} {
@@ -1287,12 +1287,12 @@ export function use${name}(id?: string) {
       const newItem: ${vrpConfig.stateType} = {
         ...item,
         id: itemId,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        created_at: getLocalISOString(),
+        updated_at: getLocalISOString(),
       } as ${vrpConfig.stateType};
       sendEvent('${lowerName}.created', {
         ...newItem,
-        timestamp: new Date().toISOString()
+        timestamp: getLocalISOString()
       });
     },
     // Update operations
@@ -1300,15 +1300,15 @@ export function use${name}(id?: string) {
       sendDiff(updates);
       sendEvent('${lowerName}.updated', { 
         ...updates,
-        updated_at: new Date().toISOString(),
-        timestamp: new Date().toISOString()
+        updated_at: getLocalISOString(),
+        timestamp: getLocalISOString()
       });
     },
     // Delete operation
     delete(itemId: string) {
       sendEvent('${lowerName}.deleted', { 
         id: itemId,
-        timestamp: new Date().toISOString()
+        timestamp: getLocalISOString()
       });
     },
     sendEvent,
@@ -1333,8 +1333,8 @@ createService('${lowerName}Bulk', () => ({
         sendEvent('${lowerName}.updated', { 
           id, 
           ...payload, 
-          updated_at: new Date().toISOString(),
-          timestamp: new Date().toISOString() 
+          updated_at: getLocalISOString(),
+          timestamp: getLocalISOString() 
         });
       });
     });
@@ -1345,7 +1345,7 @@ createService('${lowerName}Bulk', () => ({
       ids.forEach(id => {
         sendEvent('${lowerName}.deleted', { 
           id, 
-          timestamp: new Date().toISOString() 
+          timestamp: getLocalISOString() 
         });
       });
     });

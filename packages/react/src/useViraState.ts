@@ -176,12 +176,8 @@ export function useViraState<T = any, C extends string = string>(
     }
   }, [handshakeDataOption]);
   
-  console.log('[useViraState] handshakeDataOption:', handshakeDataOption);
-  console.log('[useViraState] handshakeDataKey:', handshakeDataKey);
-  
   const pool: ViraConnectionPool | null = useMemo(() => {
     if (disablePooling) return null;
-    console.log('[useViraState] Creating pool with handshakeData:', handshakeDataOption);
     return getViraConnectionPool({ url: apiUrl, authToken, handshakeData: handshakeDataOption, debug });
   }, [disablePooling, apiUrl, authToken, handshakeDataKey, debug]);
 
@@ -192,6 +188,16 @@ export function useViraState<T = any, C extends string = string>(
     if (!channel) return;
 
     const handleMessage = (msg: Message) => {
+      const msgChannel = 'channel' in msg ? msg.channel : undefined;
+      if (debug) {
+        if (msg.type === 'diff' && msgChannel === channel) {
+          const patchObj = msg.patch as any;
+          const patchKeys = patchObj && typeof patchObj === 'object' ? Object.keys(patchObj) : [];
+          console.log('[VRP_CLIENT] Diff message received:', { channel, patchKeys });
+        } else {
+          console.log('[VRP_CLIENT] Message received:', { type: msg.type, channel: msgChannel, myChannel: channel, match: msgChannel === channel });
+        }
+      }
       switch (msg.type) {
         case 'update':
         case 'event':
@@ -219,17 +225,70 @@ export function useViraState<T = any, C extends string = string>(
         case 'diff':
           if (msg.channel === channel && msg.patch) {
             setData((prev) => {
+              if (debug) {
+                console.log('[VRP_CLIENT] Applying diff:', { channel, patch: msg.patch, prevKeys: prev && typeof prev === 'object' ? Object.keys(prev as any) : [] });
+              }
               if (!prev) {
                 return msg.patch as T;
               }
 
               if (typeof prev === 'object' && typeof msg.patch === 'object') {
+                const patchObj = msg.patch as Record<string, any>;
+                const prevObj = prev as Record<string, any>;
+                
+                // If patch is empty, ignore it (might be a backend issue)
+                const patchKeys = Object.keys(patchObj);
+                if (patchKeys.length === 0) {
+                  if (debug) {
+                    console.log('[VRP_CLIENT] Empty patch received, ignoring:', { channel });
+                  }
+                  return prev;
+                }
+                
+                // Check for deletions first (null values in patch)
+                const keysToDelete: string[] = [];
+                for (const key in patchObj) {
+                  if (patchObj[key] === null || patchObj[key] === undefined) {
+                    keysToDelete.push(key);
+                  }
+                }
+                
+                // If we have deletions, create new object without deleted keys
+                if (keysToDelete.length > 0) {
+                  if (debug) {
+                    console.log('[VRP_CLIENT] Processing deletions:', { channel, keysToDelete, prevCount: Object.keys(prevObj).length });
+                  }
+                  
+                  const result: Record<string, any> = {};
+                  // Copy all keys from prevObj except deleted ones
+                  for (const key in prevObj) {
+                    if (!keysToDelete.includes(key)) {
+                      result[key] = prevObj[key];
+                    }
+                  }
+                  // Apply non-null updates from patch
+                  for (const key in patchObj) {
+                    if (!keysToDelete.includes(key) && patchObj[key] !== null && patchObj[key] !== undefined) {
+                      result[key] = patchObj[key];
+                    }
+                  }
+                  
+                  if (debug) {
+                    console.log('[VRP_CLIENT] After deletion:', { channel, resultCount: Object.keys(result).length, deletedCount: keysToDelete.length });
+                  }
+                  
+                  // Force new object reference to trigger React re-render
+                  return { ...result } as T;
+                }
+                
+                // No deletions, just merge updates
                 let mergedData;
                 if (useDeepMerge) {
-                  mergedData = deepMerge(prev as Record<string, any>, msg.patch as Record<string, any>) as T;
+                  mergedData = deepMerge(prev as Record<string, any>, patchObj) as T;
                 } else {
-                  mergedData = { ...(prev as any), ...(msg.patch as any) };
+                  mergedData = { ...(prev as any), ...patchObj };
                 }
+                
                 return mergedData;
               }
 
@@ -242,6 +301,9 @@ export function useViraState<T = any, C extends string = string>(
 
     // --- Pooled mode (default) ---
     if (pool) {
+      if (debug) {
+        console.log('[VRP_CLIENT] Subscribing to channel:', channel);
+      }
       // Subscribe to messages for this channel
       const unsubChannel = pool.subscribe(channel, handleMessage);
 
@@ -363,9 +425,46 @@ export function useViraState<T = any, C extends string = string>(
 
   const sendDiff = useCallback(
     (patch: Partial<T>, msgId?: string) => {
+      // Apply optimistic update immediately for deletions
+      if (patch && typeof patch === 'object') {
+        const patchObj = patch as Record<string, any>;
+        const keysToDelete: string[] = [];
+        for (const key in patchObj) {
+          if (patchObj[key] === null || patchObj[key] === undefined) {
+            keysToDelete.push(key);
+          }
+        }
+        if (keysToDelete.length > 0) {
+          if (debug) {
+            console.log('[VRP_CLIENT] Optimistic deletion:', { channel, keysToDelete });
+          }
+          setData((prev) => {
+            if (!prev || typeof prev !== 'object') return prev;
+            const prevObj = prev as Record<string, any>;
+            const result: Record<string, any> = {};
+            // Copy all keys except deleted ones
+            for (const key in prevObj) {
+              if (!keysToDelete.includes(key)) {
+                result[key] = prevObj[key];
+              }
+            }
+            // Apply non-null updates from patch
+            for (const key in patchObj) {
+              if (!keysToDelete.includes(key) && patchObj[key] !== null && patchObj[key] !== undefined) {
+                result[key] = patchObj[key];
+              }
+            }
+            if (debug) {
+              console.log('[VRP_CLIENT] Optimistic deletion result:', { channel, resultCount: Object.keys(result).length, prevCount: Object.keys(prevObj).length });
+            }
+            // Force new object reference
+            return { ...result } as T;
+          });
+        }
+      }
       transportRef.current?.sendDiff(patch, msgId ?? generateMsgId());
     },
-    [generateMsgId]
+    [generateMsgId, channel]
   );
 
   return {

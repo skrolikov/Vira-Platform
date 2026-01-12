@@ -72,8 +72,11 @@ function convertToCSSProperty(key: string): string {
     borderRight: "border-right",
     outline: "outline",
     transition: "transition",
+    overflow: "overflow",
     overflowX: "overflow-x",
     overflowY: "overflow-y",
+    textOverflow: "text-overflow",
+    whiteSpace: "white-space",
     cursor: "cursor",
     transform: "transform",
   };
@@ -84,6 +87,86 @@ function convertToCSSProperty(key: string): string {
   }
   
   return propertyMap[key];
+}
+
+// Конвертирует effect в соответствующие CSS свойства
+function convertEffectToCSS(effect: string, useVariables: boolean = true): Record<string, string> | null {
+  // Проверяем, является ли effect строкой
+  if (typeof effect !== "string") {
+    return null;
+  }
+ 
+  // Проверяем наличие эффекта через CSS переменные в :root
+  // Если переменных нет, эффект не существует в теме
+  if (typeof document !== "undefined") {
+    const rootStyle = getComputedStyle(document.documentElement);
+    const backdropVar = rootStyle.getPropertyValue(`--effect-${effect}-backdrop-filter`).trim();
+    const backgroundVar = rootStyle.getPropertyValue(`--effect-${effect}-background`).trim();
+    const shadowVar = rootStyle.getPropertyValue(`--effect-${effect}-box-shadow`).trim();
+    const borderVar = rootStyle.getPropertyValue(`--effect-${effect}-border`).trim();
+    const borderColorVar = rootStyle.getPropertyValue(`--effect-${effect}-border-color`).trim();
+    const shadowFieldVar = rootStyle.getPropertyValue(`--effect-${effect}-shadow`).trim();
+    
+    // Если ни одной переменной эффекта нет, эффект не существует в теме
+    if (!backdropVar && !backgroundVar && !shadowVar && !borderVar && !borderColorVar && !shadowFieldVar) {
+      return null; // Эффект не существует в теме
+    }
+  }
+  
+  // Пытаемся использовать CSS переменные для эффектов из тем
+  // CSS переменные генерируются в theme-generator.ts
+  const cssProperties: Record<string, string> = {};
+  
+  // Пробуем найти backdrop-filter для эффекта
+  const backdropFilterVar = `--effect-${effect}-backdrop-filter`;
+  cssProperties["backdrop-filter"] = `var(${backdropFilterVar})`;
+  cssProperties["-webkit-backdrop-filter"] = `var(${backdropFilterVar})`;
+  
+  // Пробуем найти background для эффекта
+  const backgroundVar = `--effect-${effect}-background`;
+  cssProperties["background"] = `var(${backgroundVar})`;
+  
+  // Пробуем найти background-color для эффекта
+  const backgroundColorVar = `--effect-${effect}-background-color`;
+  cssProperties["background-color"] = `var(${backgroundColorVar})`;
+  
+  // Пробуем найти box-shadow для эффекта
+  const boxShadowVar = `--effect-${effect}-box-shadow`;
+  cssProperties["box-shadow"] = `var(${boxShadowVar})`;
+  
+  // Добавляем поддержку border
+  const borderVar = `--effect-${effect}-border`;
+  cssProperties["border"] = `var(${borderVar})`;
+  
+  // Добавляем поддержку border-color
+  const borderColorVar = `--effect-${effect}-border-color`;
+  cssProperties["border-color"] = `var(${borderColorVar})`;
+  
+  // Добавляем поддержку shadow (может быть как box-shadow, так и отдельное поле)
+  // Если есть поле shadow, оно может быть токеном (например, "shadow.md")
+  // или реальным значением
+  if (typeof document !== "undefined") {
+    const rootStyle = getComputedStyle(document.documentElement);
+    const shadowFieldVar = rootStyle.getPropertyValue(`--effect-${effect}-shadow`).trim();
+    if (shadowFieldVar) {
+      // Если это токен вида "shadow.md", разрешаем его
+      if (shadowFieldVar.startsWith("shadow.")) {
+        const shadowToken = resolveTokenCached(shadowFieldVar);
+        if (shadowToken) {
+          cssProperties["box-shadow"] = shadowToken;
+        } else {
+          // Если не удалось разрешить, используем как есть
+          cssProperties["box-shadow"] = shadowFieldVar;
+        }
+      } else {
+        // Если это реальное значение, используем его
+        cssProperties["box-shadow"] = shadowFieldVar;
+      }
+    }
+  }
+  
+  // Возвращаем свойства (даже если некоторые переменные не определены, это нормально)
+  return cssProperties;
 }
 
 function convertToCSSValue(key: string, value: any, useVariables: boolean = true): string | null {
@@ -157,37 +240,77 @@ function generateResponsiveCSS(
   const breakpoints = getBreakpoints();
   
   if (value.sm) {
-    const cssValue = convertToCSSValue(key, value.sm, useVariables);
+    let cssValue: string | null;
+    let isImportant = false;
+    
+    if (value.sm && typeof value.sm === "object" && !Array.isArray(value.sm) && "value" in value.sm && "important" in value.sm) {
+      cssValue = convertToCSSValue(key, value.sm.value, useVariables);
+      isImportant = value.sm.important === true;
+    } else {
+      cssValue = convertToCSSValue(key, value.sm, useVariables);
+    }
+    
     if (cssValue) {
+      const importantSuffix = isImportant ? " !important" : "";
       rules.push(`@media (min-width: ${breakpoints.sm}) {`);
-      rules.push(`  ${className} { ${cssProperty}: ${cssValue}; }`);
+      rules.push(`  ${className} { ${cssProperty}: ${cssValue}${importantSuffix}; }`);
       rules.push(`}`);
     }
   }
   
   if (value.md) {
-    const cssValue = convertToCSSValue(key, value.md, useVariables);
+    let cssValue: string | null;
+    let isImportant = false;
+    
+    if (value.md && typeof value.md === "object" && !Array.isArray(value.md) && "value" in value.md && "important" in value.md) {
+      cssValue = convertToCSSValue(key, value.md.value, useVariables);
+      isImportant = value.md.important === true;
+    } else {
+      cssValue = convertToCSSValue(key, value.md, useVariables);
+    }
+    
     if (cssValue) {
+      const importantSuffix = isImportant ? " !important" : "";
       rules.push(`@media (min-width: ${breakpoints.md}) {`);
-      rules.push(`  ${className} { ${cssProperty}: ${cssValue}; }`);
+      rules.push(`  ${className} { ${cssProperty}: ${cssValue}${importantSuffix}; }`);
       rules.push(`}`);
     }
   }
   
   if (value.lg) {
-    const cssValue = convertToCSSValue(key, value.lg, useVariables);
+    let cssValue: string | null;
+    let isImportant = false;
+    
+    if (value.lg && typeof value.lg === "object" && !Array.isArray(value.lg) && "value" in value.lg && "important" in value.lg) {
+      cssValue = convertToCSSValue(key, value.lg.value, useVariables);
+      isImportant = value.lg.important === true;
+    } else {
+      cssValue = convertToCSSValue(key, value.lg, useVariables);
+    }
+    
     if (cssValue) {
+      const importantSuffix = isImportant ? " !important" : "";
       rules.push(`@media (min-width: ${breakpoints.lg}) {`);
-      rules.push(`  ${className} { ${cssProperty}: ${cssValue}; }`);
+      rules.push(`  ${className} { ${cssProperty}: ${cssValue}${importantSuffix}; }`);
       rules.push(`}`);
     }
   }
   
   if (value.xl) {
-    const cssValue = convertToCSSValue(key, value.xl, useVariables);
+    let cssValue: string | null;
+    let isImportant = false;
+    
+    if (value.xl && typeof value.xl === "object" && !Array.isArray(value.xl) && "value" in value.xl && "important" in value.xl) {
+      cssValue = convertToCSSValue(key, value.xl.value, useVariables);
+      isImportant = value.xl.important === true;
+    } else {
+      cssValue = convertToCSSValue(key, value.xl, useVariables);
+    }
+    
     if (cssValue) {
+      const importantSuffix = isImportant ? " !important" : "";
       rules.push(`@media (min-width: ${breakpoints.xl}) {`);
-      rules.push(`  ${className} { ${cssProperty}: ${cssValue}; }`);
+      rules.push(`  ${className} { ${cssProperty}: ${cssValue}${importantSuffix}; }`);
       rules.push(`}`);
     }
   }
@@ -217,10 +340,20 @@ function generateNestedCSS(
         }
         
         const cssProperty = convertToCSSProperty(styleKey);
-        const cssValue = convertToCSSValue(styleKey, styleValue, useVariables);
+        // Проверяем, является ли значение объектом с полем important
+        let cssValue: string | null;
+        let isImportant = false;
+        
+        if (styleValue && typeof styleValue === "object" && !Array.isArray(styleValue) && "value" in styleValue && "important" in styleValue) {
+          cssValue = convertToCSSValue(styleKey, styleValue.value, useVariables);
+          isImportant = styleValue.important === true;
+        } else {
+          cssValue = convertToCSSValue(styleKey, styleValue, useVariables);
+        }
         
         if (cssValue) {
-          properties.push(`  ${cssProperty}: ${cssValue};`);
+          const importantSuffix = isImportant ? " !important" : "";
+          properties.push(`  ${cssProperty}: ${cssValue}${importantSuffix};`);
         }
       }
       
@@ -239,7 +372,7 @@ function generateNestedCSS(
   return rules;
 }
 
-export function generateCSSFromDesign(design: Record<string, any>, prefix: string = "v-", useVariables: boolean = true, hash?: string): string {
+export function generateCSSFromDesign(design: Record<string, any>, prefix: string = "vi-", useVariables: boolean = true, hash?: string): string {
   // Если hash не передан, генерируем его (для обратной совместимости)
   const designHash = hash || generateHash(JSON.stringify(design));
   const className = `.${prefix}${designHash}`;
@@ -248,7 +381,22 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
   
   for (const [key, value] of Object.entries(design)) {
     // Пропускаем псевдо-состояния и вложенные селекторы (они обрабатываются отдельно)
-    if (key === "hover" || key === "focus" || key === "active" || key.startsWith("&")) {
+    if (key === "hover" || key === "focus" || key === "active" || key === "selected" || key.startsWith("&")) {
+      continue;
+    }
+    
+    // Специальная обработка для effect
+    if (key === "effect") {
+      const effectStyles = convertEffectToCSS(value, useVariables);
+      if (effectStyles && Object.keys(effectStyles).length > 0) {
+        for (const [cssProp, cssValue] of Object.entries(effectStyles)) {
+          // Пропускаем пустые значения
+          if (cssValue && cssValue.trim() !== "") {
+            properties.push(`  ${cssProp}: ${cssValue};`);
+          }
+        }
+      }
+      // Если эффект не найден, просто пропускаем его (не добавляем стили)
       continue;
     }
     
@@ -258,9 +406,20 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
       const baseValue = getBaseValue(value);
       if (baseValue !== undefined) {
         const cssProperty = convertToCSSProperty(key);
-        const cssValue = convertToCSSValue(key, baseValue, useVariables);
+        // Проверяем, является ли значение объектом с полем important
+        let cssValue: string | null;
+        let isImportant = false;
+        
+        if (baseValue && typeof baseValue === "object" && !Array.isArray(baseValue) && "value" in baseValue && "important" in baseValue) {
+          cssValue = convertToCSSValue(key, baseValue.value, useVariables);
+          isImportant = baseValue.important === true;
+        } else {
+          cssValue = convertToCSSValue(key, baseValue, useVariables);
+        }
+        
         if (cssValue) {
-          properties.push(`  ${cssProperty}: ${cssValue};`);
+          const importantSuffix = isImportant ? " !important" : "";
+          properties.push(`  ${cssProperty}: ${cssValue}${importantSuffix};`);
         }
       }
       // Медиа-запросы добавляем отдельно
@@ -268,10 +427,21 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
       mediaQueries.push(...responsiveRules);
     } else {
       const cssProperty = convertToCSSProperty(key);
-      const cssValue = convertToCSSValue(key, value, useVariables);
+      // Проверяем, является ли значение объектом с полем important
+      let cssValue: string | null;
+      let isImportant = false;
+      
+      if (value && typeof value === "object" && !Array.isArray(value) && "value" in value && "important" in value) {
+        // Специальный синтаксис: { value: "...", important: true }
+        cssValue = convertToCSSValue(key, value.value, useVariables);
+        isImportant = value.important === true;
+      } else {
+        cssValue = convertToCSSValue(key, value, useVariables);
+      }
       
       if (cssValue) {
-        properties.push(`  ${cssProperty}: ${cssValue};`);
+        const importantSuffix = isImportant ? " !important" : "";
+        properties.push(`  ${cssProperty}: ${cssValue}${importantSuffix};`);
       }
     }
   }
@@ -295,9 +465,20 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
         continue;
       }
       const cssProperty = convertToCSSProperty(key);
-      const cssValue = convertToCSSValue(key, value, useVariables);
+      // Проверяем, является ли значение объектом с полем important
+      let cssValue: string | null;
+      let isImportant = false;
+      
+      if (value && typeof value === "object" && !Array.isArray(value) && "value" in value && "important" in value) {
+        cssValue = convertToCSSValue(key, value.value, useVariables);
+        isImportant = value.important === true;
+      } else {
+        cssValue = convertToCSSValue(key, value, useVariables);
+      }
+      
       if (cssValue) {
-        hoverProps.push(`  ${cssProperty}: ${cssValue};`);
+        const importantSuffix = isImportant ? " !important" : "";
+        hoverProps.push(`  ${cssProperty}: ${cssValue}${importantSuffix};`);
       }
     }
     if (hoverProps.length > 0) {
@@ -316,9 +497,20 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
         continue;
       }
       const cssProperty = convertToCSSProperty(key);
-      const cssValue = convertToCSSValue(key, value, useVariables);
+      // Проверяем, является ли значение объектом с полем important
+      let cssValue: string | null;
+      let isImportant = false;
+      
+      if (value && typeof value === "object" && !Array.isArray(value) && "value" in value && "important" in value) {
+        cssValue = convertToCSSValue(key, value.value, useVariables);
+        isImportant = value.important === true;
+      } else {
+        cssValue = convertToCSSValue(key, value, useVariables);
+      }
+      
       if (cssValue) {
-        focusProps.push(`  ${cssProperty}: ${cssValue};`);
+        const importantSuffix = isImportant ? " !important" : "";
+        focusProps.push(`  ${cssProperty}: ${cssValue}${importantSuffix};`);
       }
     }
     if (focusProps.length > 0) {
@@ -336,9 +528,20 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
         continue;
       }
       const cssProperty = convertToCSSProperty(key);
-      const cssValue = convertToCSSValue(key, value, useVariables);
+      // Проверяем, является ли значение объектом с полем important
+      let cssValue: string | null;
+      let isImportant = false;
+      
+      if (value && typeof value === "object" && !Array.isArray(value) && "value" in value && "important" in value) {
+        cssValue = convertToCSSValue(key, value.value, useVariables);
+        isImportant = value.important === true;
+      } else {
+        cssValue = convertToCSSValue(key, value, useVariables);
+      }
+      
       if (cssValue) {
-        activeProps.push(`  ${cssProperty}: ${cssValue};`);
+        const importantSuffix = isImportant ? " !important" : "";
+        activeProps.push(`  ${cssProperty}: ${cssValue}${importantSuffix};`);
       }
     }
     if (activeProps.length > 0) {
@@ -349,6 +552,38 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
     css += activeNestedRules.length > 0 ? "\n" + activeNestedRules.join("\n") : "";
   }
   
+  if (design.selected) {
+    const selectedProps: string[] = [];
+    for (const [key, value] of Object.entries(design.selected)) {
+      if (key.startsWith("&")) {
+        continue;
+      }
+      const cssProperty = convertToCSSProperty(key);
+      // Проверяем, является ли значение объектом с полем important
+      let cssValue: string | null;
+      let isImportant = false;
+      
+      if (value && typeof value === "object" && !Array.isArray(value) && "value" in value && "important" in value) {
+        cssValue = convertToCSSValue(key, value.value, useVariables);
+        isImportant = value.important === true;
+      } else {
+        cssValue = convertToCSSValue(key, value, useVariables);
+      }
+      
+      if (cssValue) {
+        const importantSuffix = isImportant ? " !important" : "";
+        selectedProps.push(`  ${cssProperty}: ${cssValue}${importantSuffix};`);
+      }
+    }
+    if (selectedProps.length > 0) {
+      // Используем aria-pressed для активного/выбранного состояния
+      css += `\n${className}[aria-pressed="true"] {\n${selectedProps.join("\n")}\n}`;
+    }
+    
+    const selectedNestedRules = generateNestedCSS(`${className}[aria-pressed="true"]`, design.selected, useVariables);
+    css += selectedNestedRules.length > 0 ? "\n" + selectedNestedRules.join("\n") : "";
+  }
+  
   // Добавляем медиа-запросы
   if (mediaQueries.length > 0) {
     css += "\n" + mediaQueries.join("\n");
@@ -357,7 +592,7 @@ export function generateCSSFromDesign(design: Record<string, any>, prefix: strin
   return css;
 }
 
-export function generateRuntimeStyles(prefix: string = "v-", useVariables: boolean = true): void {
+export function generateRuntimeStyles(prefix: string = "vi-", useVariables: boolean = true): void {
   if (typeof document === "undefined") {
     return;
   }
