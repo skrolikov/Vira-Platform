@@ -1,5 +1,11 @@
 # @vira-ui/core
 
+## 15.0.0
+
+### Major Changes
+
+- chore: fix
+
 ## 14.0.0
 
 ### Major Changes

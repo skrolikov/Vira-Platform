@@ -1,5 +1,11 @@
 # @vira-ui/cli
 
+## 9.0.0
+
+### Major Changes
+
+- chore: fix
+
 ## 8.0.0
 
 ### Major Changes
