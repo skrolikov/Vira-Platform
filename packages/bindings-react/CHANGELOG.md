@@ -1,5 +1,11 @@
 # @vira-ui/bindings-react
 
+## 10.0.0
+
+### Major Changes
+
+- chore: fix
+
 ## 9.0.0
 
 ### Major Changes

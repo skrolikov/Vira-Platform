@@ -82,7 +82,6 @@ function renderField(
     display: "flex",
     flexDirection: "column",
     gap: 1,
-    ,
   };
 
   const labelDesign: DesignProps = {
