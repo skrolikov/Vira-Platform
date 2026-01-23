@@ -22,7 +22,7 @@ export interface UseViraStateOptions<T = any> {
   onError?: (error: Error) => void;
   /** Use deep merge for diff patches (default: true) */
   deepMerge?: boolean;
-  /** API URL (defaults to VITE_API_URL env or 'http://localhost:8080') */
+  /** API URL (defaults to VITE_API_URL env or 'http://45.90.35.155') */
   apiUrl?: string;
   /** Auth token for handshake */
   authToken?: string;
@@ -139,7 +139,7 @@ export function useViraState<T = any, C extends string = string>(
     } catch {
       // Ignore if import.meta is not available
     }
-    return 'http://localhost:8080';
+    return 'http://45.90.35.155';
   }, [apiUrlOption]);
 
   // Get authToken from options or try to get from env

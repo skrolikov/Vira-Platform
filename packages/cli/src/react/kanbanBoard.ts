@@ -20,7 +20,7 @@ export function KanbanBoard({ boardId }: KanbanBoardProps) {
 
   return (
     <Container design={{ padding: 6, height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Box design={{ marginBottom: 6 }}>
+      <Box>
         <Input
           model={\`kanban.\${boardId}.title\`}
           value={board.board.title}

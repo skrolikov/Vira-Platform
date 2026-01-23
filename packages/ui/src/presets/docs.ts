@@ -106,8 +106,8 @@ export const docsPresets = {
     bg: "#1f2937",
     padding: 0,
     radius: "12px",
-    marginTop: 3,
-    marginBottom: 3,
+    
+    
     overflow: "hidden",
     border: "1px solid #374151",
   } as DesignProps,
@@ -157,13 +157,12 @@ export const docsPresets = {
   sectionHeader: {
     alignItems: "center",
     gap: 3,
-    marginBottom: 3,
+    
   } as DesignProps,
 
   // Примеры
   exampleCard: {
     padding: 0,
-    marginBottom: 4,
     bg: "#ffffff",
     radius: "12px",
     border: "1px solid #e5e7eb",

@@ -15,6 +15,9 @@ export const tokens = {
       secondary: "#f9fafb",
       tertiary: "#f3f4f6",
     },
+    gradient: {
+      primary: "linear-gradient(45deg, var(--color-primary), var(--color-secondary))",
+    }
   },
   radius: {
     sm: "6px",

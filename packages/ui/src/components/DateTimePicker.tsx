@@ -579,7 +579,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 gap: 1,
               }}
             >
-              <Text design={{ fontSize: '0.7rem', fontWeight: '600', opacity: 0.7, marginBottom: 1, letterSpacing: '0.05em' }}>
+              <Text design={{ fontSize: '0.7rem', fontWeight: '600', opacity: 0.7,  letterSpacing: '0.05em' }}>
                 БЫСТРЫЙ ВЫБОР
               </Text>
               {isMobile ? (
@@ -705,7 +705,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                   <Text design={{ fontSize: '0.7rem', opacity: 0.7 }}>Часы</Text>
                 </Flex>
 
-                <Text design={{ fontSize: isMobile ? '2rem' : '1.5rem', fontWeight: '300', opacity: 0.3, marginTop: 10 }}>:</Text>
+                <Text design={{ fontSize: isMobile ? '2rem' : '1.5rem', fontWeight: '300', opacity: 0.3,  }}>:</Text>
 
                 <Flex design={{ flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                   <Flex

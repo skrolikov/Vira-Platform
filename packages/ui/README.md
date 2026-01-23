@@ -202,21 +202,126 @@ import { Textarea } from "@vira-ui/ui";
 <Textarea placeholder="Введите текст" rows={5} />
 ```
 
-### Модальные окна
+### Модальные окна и Панели
 
-#### Modal, Drawer
+#### Modal
+
+Классическое модальное окно, появляется поверх контента с затемнением фона.
 
 ```tsx
-import { Modal, Drawer } from "@vira-ui/ui";
+import { Modal } from "@vira-ui/ui";
 
-<Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-  <Text>Содержимое</Text>
+<Modal 
+  isOpen={isOpen} 
+  onClose={() => setIsOpen(false)}
+  title="Заголовок"
+  size="md"
+>
+  <Text>Содержимое модального окна</Text>
 </Modal>
+```
 
-<Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} placement="right">
+**Sizes:** `xs`, `sm`, `md`, `lg`, `xl`, `full`
+
+#### Drawer
+
+Выдвижная панель, появляется поверх контента с затемнением фона. Идеально для форм и быстрых действий.
+
+```tsx
+import { Drawer } from "@vira-ui/ui";
+
+<Drawer 
+  isOpen={isOpen} 
+  onClose={() => setIsOpen(false)} 
+  placement="right"
+  title="Форма"
+  footer={<Button>Сохранить</Button>}
+>
   <Text>Содержимое</Text>
 </Drawer>
 ```
+
+**Placements:** `left`, `right`, `top`, `bottom`
+
+#### SidePanel ⚡ NEW
+
+Боковая панель, которая **сдвигает** основной контент страницы вместо наложения поверх него. Создаёт ощущение отдельной страницы/раздела.
+
+```tsx
+import { SidePanel } from "@vira-ui/ui";
+
+<SidePanel
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  placement="right"
+  title="Детали контакта"
+  subtitle="Вся информация о клиенте"
+  size="600px"
+  footer={<Button>Сохранить</Button>}
+>
+  <ContactDetails />
+</SidePanel>
+```
+
+**Особенности:**
+- ✨ Сдвигает контент страницы (не overlay)
+- 🎯 Создаёт ощущение отдельного раздела
+- 📱 Идеально для больших форм, деталей, расширенных интерфейсов
+- 🔧 Поддержка хлебных крошек, закладок, переходов
+- 💼 Профессиональный UX для бизнес-приложений
+
+**Когда использовать:**
+- Детальный просмотр/редактирование записей
+- Многошаговые формы
+- Расширенные интерфейсы с навигацией
+- Когда нужно ощущение "отдельной страницы"
+
+#### BottomSheet ⚡ NEW
+
+Drawer снизу экрана с поддержкой свайпа. Идеально для подтверждений и быстрых форм.
+
+```tsx
+import { BottomSheet } from "@vira-ui/ui";
+
+<BottomSheet
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}
+  title="Удалить контакт?"
+  subtitle="Это действие нельзя отменить"
+  swipeable
+  showHandle
+  footer={
+    <Flex gap={2}>
+      <Button preset="ghost">Отмена</Button>
+      <Button preset="danger">Удалить</Button>
+    </Flex>
+  }
+>
+  <Text>Дополнительная информация</Text>
+</BottomSheet>
+```
+
+**Особенности:**
+- 📱 Выезжает снизу вверх
+- 👆 Поддержка свайпа для закрытия
+- 🎯 "Ручка" для свайпа (как на iOS)
+- ⚡ Минимальная высота под контент
+- 📦 Автоматическая адаптация
+
+**Когда использовать:**
+- Подтверждения действий (удаление, сохранение)
+- Быстрые формы (укажите стоимость, введите комментарий)
+- Action sheets (выбор действия)
+- Мобильные интерфейсы
+
+**Сравнение компонентов:**
+
+| Компонент | Overlay | Сдвигает контент | Свайп | Лучше для |
+|-----------|---------|------------------|-------|-----------|
+| Modal | ✅ | ❌ | ❌ | Подтверждения, уведомления |
+| Drawer | ✅ | ❌ | ❌ | Формы, быстрые действия |
+| SidePanel | ❌ | ✅ | ❌ | Детали, расширенные интерфейсы |
+| BottomSheet | ✅ | ❌ | ✅ | Мобильные действия, подтверждения |
 
 ### Навигация
 

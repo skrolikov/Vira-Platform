@@ -80,7 +80,7 @@ showcase-back/
 
 ```bash
 # Создать заказ
-curl -X POST http://localhost:8080/api/orders \
+curl -X POST http://45.90.35.155/api/orders \
   -H "Content-Type: application/json" \
   -d '{
     "client_name": "Иван Иванов",
@@ -89,10 +89,10 @@ curl -X POST http://localhost:8080/api/orders \
   }'
 
 # Получить все заказы
-curl http://localhost:8080/api/orders
+curl http://45.90.35.155/api/orders
 
 # Обновить статус
-curl -X PATCH http://localhost:8080/api/orders/{id}/status \
+curl -X PATCH http://45.90.35.155/api/orders/{id}/status \
   -H "Content-Type: application/json" \
   -d '{"status": "success"}'
 ```

@@ -269,7 +269,7 @@ const user = await rest.post('/users', { name: 'John' });
 import { createViraConnection } from '@vira-ui/core';
 
 const connection = createViraConnection({
-  url: 'ws://localhost:8080/ws',
+  url: 'ws://45.90.35.155/ws',
   authToken: 'token'
 });
 

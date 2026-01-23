@@ -82,12 +82,12 @@ function renderField(
     display: "flex",
     flexDirection: "column",
     gap: 1,
-    marginBottom: 4,
+    ,
   };
 
   const labelDesign: DesignProps = {
     display: "block",
-    marginBottom: 2,
+    
     fontWeight: "typography.fontWeight.medium",
     fontSize: "typography.fontSize.sm",
     color: "color.text.primary",

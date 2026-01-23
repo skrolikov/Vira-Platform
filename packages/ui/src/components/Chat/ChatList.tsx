@@ -101,7 +101,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           level={3} 
           design={{ 
             margin: 0, 
-            marginBottom: 2,
+            
             fontSize: '1.125rem',
             fontWeight: '700',
           }}

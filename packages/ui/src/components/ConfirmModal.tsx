@@ -91,7 +91,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     height: "48px",
     borderRadius: "radius.full",
     bg: "color.bg.secondary",
-    marginBottom: 3,
+    
   };
 
   const messageDesign: DesignProps = {

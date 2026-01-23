@@ -1,2 +1,2 @@
-export const envLocal = `VITE_API_URL=http://localhost:8080
+export const envLocal = `VITE_API_URL=http://45.90.35.155
 `;

@@ -14,7 +14,7 @@ export function KanbanCard({ card, boardId }: KanbanCardProps) {
   return (
     <Card
       design={{
-        marginBottom: 2,
+        
         cursor: 'pointer',
         padding: 3,
       }}
@@ -22,11 +22,11 @@ export function KanbanCard({ card, boardId }: KanbanCardProps) {
         // Open card details (future: modal)
       }}
     >
-      <Text design={{ fontWeight: 600, fontSize: '14px', marginBottom: 1 }}>
+      <Text design={{ fontWeight: 600, fontSize: '14px',  }}>
         {card.title}
       </Text>
       {card.description && (
-        <Text design={{ fontSize: '12px', color: '#666', marginBottom: 2 }}>
+        <Text design={{ fontSize: '12px', color: '#666',  }}>
           {card.description}
         </Text>
       )}

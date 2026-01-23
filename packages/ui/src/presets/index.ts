@@ -540,7 +540,7 @@ export const presets = {
     cursor: "pointer",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     hover: {
-      bg: "color.bg.tertiary",
+      bg: "rgb(255 255 255 / 20%)",
       transform: "translateY(-1px)",
       shadow: "shadow.lg",
     },

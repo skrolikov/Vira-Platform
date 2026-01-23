@@ -6,6 +6,7 @@ import { generateHash } from "./hash";
 import { getBreakpoints } from "./breakpoints";
 import { resolveToken } from "./token-resolver";
 import { getCachedToken } from "./token-cache";
+import { resolveColorHex } from "./color-helpers";
 
 const tokens: any = foundationTokens;
 
@@ -186,6 +187,15 @@ function convertToCSSValue(key: string, value: any, useVariables: boolean = true
   const actualValue = baseValue !== undefined ? baseValue : value;
   
   if (typeof actualValue === "string") {
+    // Для цветовых свойств (bg, backgroundColor, color, borderColor) сначала пробуем resolveColorHex
+    // Это позволяет использовать hex-коды напрямую и токены типа "blue.500"
+    if (["bg", "backgroundColor", "background-color", "color", "borderColor", "border-color"].includes(key)) {
+      const hexColor = resolveColorHex(actualValue);
+      if (hexColor) {
+        return hexColor; // Возвращаем hex напрямую, не через CSS переменные
+      }
+    }
+    
     const tokenValue = resolveTokenCached(actualValue);
     if (tokenValue) {
       // Используем CSS переменные если включено

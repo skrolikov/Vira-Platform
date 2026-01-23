@@ -32,13 +32,13 @@ export function KanbanColumn({ column, boardId }: KanbanColumnProps) {
         flexDirection: 'column',
       }}
     >
-      <Text design={{ fontWeight: 600, fontSize: '16px', marginBottom: 4 }}>
+      <Text design={{ fontWeight: 600, fontSize: '16px',  }}>
         {column.title}
       </Text>
       <ScrollArea
         design={{
           flex: 1,
-          marginBottom: 3,
+          
         }}
       >
         <Flex direction="column" gap={2}>

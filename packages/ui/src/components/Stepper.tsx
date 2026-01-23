@@ -35,7 +35,7 @@ export const Stepper: React.FC<StepperProps> = ({
   const containerDesign: DesignProps = {
     display: "flex",
     flexDirection: orientation === "horizontal" ? "row" : "column",
-    gap: 4,
+    
     alignItems: orientation === "horizontal" ? "flex-start" : "stretch",
     ...design,
   };

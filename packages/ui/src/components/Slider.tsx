@@ -150,7 +150,7 @@ export const Slider: React.FC<SliderProps> = ({
           design={{
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 2,
+            
           }}
         >
           {label && (

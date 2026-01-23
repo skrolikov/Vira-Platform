@@ -85,7 +85,7 @@ export const ViraMultiStepForm: React.FC<ViraMultiStepFormProps> = ({
   const containerDesign: DesignProps = {
     display: "flex",
     flexDirection: "column",
-    gap: 4,
+    
     ...design,
   };
 
@@ -97,7 +97,7 @@ export const ViraMultiStepForm: React.FC<ViraMultiStepFormProps> = ({
     <div className={finalClassName} data-design={JSON.stringify(mergedDesign)}>
       {/* Progress Bar */}
       {showProgress && (
-        <Flex design={{ flexDirection: "column", gap: 1, marginBottom: 6 }}>
+        <Flex design={{ flexDirection: "column", gap: 1,  }}>
           <div
             className={getDesignClass({
               width: "100%",
@@ -120,7 +120,7 @@ export const ViraMultiStepForm: React.FC<ViraMultiStepFormProps> = ({
             design={{
               fontSize: "typography.fontSize.sm",
               color: "color.text.secondary",
-              marginTop: 1,
+              
               textAlign: "center",
             }}
           >
@@ -130,7 +130,7 @@ export const ViraMultiStepForm: React.FC<ViraMultiStepFormProps> = ({
       )}
 
       {/* Step Navigation */}
-      <Flex design={{ gap: 2, marginBottom: 4, flexWrap: "wrap" }}>
+      <Flex design={{ gap: 2, , flexWrap: "wrap" }}>
         {steps.map((step, index) => {
           const isActive = index === currentStep;
           const isDisabled = index > currentStep;
@@ -159,11 +159,11 @@ export const ViraMultiStepForm: React.FC<ViraMultiStepFormProps> = ({
 
       {/* Current Step Content */}
       <Flex design={{ flexDirection: "column", gap: 2 }}>
-        <Heading level={3} design={{ marginBottom: 1 }}>
+        <Heading level={3}>
           {currentStepConfig.title}
         </Heading>
         {currentStepConfig.description && (
-          <Text design={{ color: "color.text.secondary", marginBottom: 4 }}>
+          <Text design={{ color: "color.text.secondary",  }}>
             {currentStepConfig.description}
           </Text>
         )}
@@ -175,7 +175,7 @@ export const ViraMultiStepForm: React.FC<ViraMultiStepFormProps> = ({
               bg: "color.danger",
               color: "color.text.inverse",
               radius: "radius.md",
-              marginBottom: 4,
+              ,
             }}
           >
             <Text design={{ color: "color.text.inverse" }}>
@@ -205,7 +205,7 @@ export const ViraMultiStepForm: React.FC<ViraMultiStepFormProps> = ({
       </Flex>
 
       {/* Navigation Buttons */}
-      <Flex design={{ gap: 2, justifyContent: "space-between", marginTop: 4 }}>
+      <Flex design={{ gap: 2, justifyContent: "space-between",  }}>
         <Button
           onClick={handlePrevious}
           preset="secondary"

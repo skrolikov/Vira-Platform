@@ -188,7 +188,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                   boxShadow: 'shadow.lg',
                 }}
               >
-                <Flex gap={2} align="center" design={{ marginBottom: 2 }}>
+                <Flex gap={2} align="center">
                   <MessageSquare size={16} style={{ color: 'var(--color-primary)' }} />
                   <Text design={{ fontWeight: '600' }} size="sm">
                     Быстрые ответы

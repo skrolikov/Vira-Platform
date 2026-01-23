@@ -108,8 +108,10 @@ func Load() {
 			AllowedOrigins []string
 		}{
 			AllowedOrigins: []string{
-				"http://localhost:5173",
+				"https://vira-smp.ru",
 				"http://localhost:3000",
+				"https://vira-smp.ru",
+				"http://vira-smp.ru",
 			},
 		},
 	}

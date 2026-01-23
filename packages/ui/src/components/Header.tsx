@@ -905,7 +905,7 @@ export const Header: React.FC<HeaderProps> = ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 4,
+    
     padding: 3,
     height: "90px",
     bg: "color.bg.primary",

@@ -374,7 +374,7 @@ function TableComponent<T extends Record<string, any>>({
     <Flex direction="column" design={{ width: "100%"}} style={{overflow: "auto", position: "relative"}} {...props}>
       {/* Toolbar */}
       {(toolbarContent || searchable || exportable) && (
-        <Flex justify="space-between" align="center" wrap design={{ marginBottom: 4 }}>
+        <Flex justify="space-between" align="center" wrap>
           {toolbarContent && <Flex align="center" wrap design={{ flex: 1 }}>{toolbarContent}</Flex>}
           {searchable && !toolbarContent && (
             <SearchInput value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder={searchPlaceholder} />
@@ -682,8 +682,8 @@ function TableComponent<T extends Record<string, any>>({
                 {expandable && isExpanded && expandedContent && (
                   <Box design={{ 
                     padding: 4, 
-                    marginTop: 2, 
-                    marginBottom: 2,
+                     
+                    
                     borderRadius: "radius.md",
                     bg: "color.bg.secondary",
                     border: "1px solid",
@@ -714,7 +714,7 @@ function TableComponent<T extends Record<string, any>>({
       {/* Footer */}
       {
         (pagination || sortedData.length > 0) && (
-          <Flex justify="space-between" align="center" design={{ marginTop: 4 }}>
+          <Flex justify="space-between" align="center">
             <Text color="text.secondary" size="sm">
               Показано: {sortedData.length} из {data.length}
               {searchTerm && ` (отфильтровано)`}

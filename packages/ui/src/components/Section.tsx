@@ -20,7 +20,9 @@ export const Section: React.FC<SectionProps> = ({
   ...props
 }) => {
   const defaultDesign: DesignProps = {
-    marginBottom: 3,
+    display: "flex",
+    flexDirection: "column",
+    gap: 3,
   };
 
   const presetDesign = preset ? presets[preset] : undefined;

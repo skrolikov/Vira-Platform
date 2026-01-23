@@ -32,13 +32,13 @@ docker-compose up api
 
 ```bash
 # Health check
-curl http://localhost:8080/health
+curl http://45.90.35.155/health
 
 # Получить все заказы
-curl http://localhost:8080/api/orders
+curl http://45.90.35.155/api/orders
 
 # Создать заказ
-curl -X POST http://localhost:8080/api/orders \
+curl -X POST http://45.90.35.155/api/orders \
   -H "Content-Type: application/json" \
   -d '{
     "client_name": "Иван Иванов",
@@ -61,8 +61,8 @@ cp .env.example .env
 
 Backend готов к работе с `@vira-ui/showcase`:
 
-- API: `http://localhost:8080/api`
-- CORS настроен для `http://localhost:5173` (Vite dev server)
+- API: `http://45.90.35.155/api`
+- CORS настроен для `https://vira-smp.ru` (Vite dev server)
 - Все endpoints RESTful
 
 ## 🎯 Следующие шаги

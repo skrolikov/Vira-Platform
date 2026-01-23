@@ -180,7 +180,7 @@ export const ViraDrawer: React.FC<ViraDrawerProps> = ({
     padding: 6,
     borderBottom: title ? "1px solid" : "none",
     borderColor: "color.bg.tertiary",
-    gap: 4,
+    
     flexShrink: 0,
   };
 

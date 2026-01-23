@@ -157,7 +157,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     position: "absolute",
     top: "100%",
     left: 0,
-    marginTop: 1,
+    
     bg: "color.bg.primary",
     border: "1px solid",
     borderColor: "color.bg.tertiary",
@@ -172,7 +172,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 3,
+    
   };
 
   const monthYearDesign: DesignProps = {
@@ -277,7 +277,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           </Flex>
 
           {/* Дни недели */}
-          <Flex design={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, marginBottom: 2 }}>
+          <Flex design={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1,  }}>
             {WEEKDAYS.map(day => (
               <Text key={day} design={weekdayDesign}>
                 {day}

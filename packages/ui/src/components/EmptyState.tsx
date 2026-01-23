@@ -51,7 +51,6 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     <Flex className={designClass} design={mergedDesign} data-design={JSON.stringify(mergedDesign)}>
       <Flex
         design={{
-          marginBottom: 4,
           color: "#9ca3af",
         }}
       >
@@ -62,7 +61,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           fontSize: "20px",
           fontWeight: "600",
           color: "#111827",
-          marginBottom: 2,
+          
         }}
       >
         {title}

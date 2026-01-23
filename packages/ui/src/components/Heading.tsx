@@ -19,32 +19,26 @@ export const Heading: React.FC<HeadingProps> = ({
     1: {
       fontSize: "typography.fontSize.2xl",
       fontWeight: "typography.fontWeight.bold",
-      marginBottom: 5,
     },
     2: {
       fontSize: "typography.fontSize.xl",
       fontWeight: "typography.fontWeight.semibold",
-      marginBottom: 4,
     },
     3: {
       fontSize: "typography.fontSize.lg",
       fontWeight: "typography.fontWeight.semibold",
-      marginBottom: 3,
     },
     4: {
       fontSize: "typography.fontSize.md",
       fontWeight: "typography.fontWeight.medium",
-      marginBottom: 2,
     },
     5: {
       fontSize: "typography.fontSize.sm",
       fontWeight: "typography.fontWeight.medium",
-      marginBottom: 2,
     },
     6: {
       fontSize: "typography.fontSize.xs",
       fontWeight: "typography.fontWeight.medium",
-      marginBottom: 1,
     },
   };
   

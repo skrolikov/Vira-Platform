@@ -73,7 +73,7 @@ export const Toast: React.FC<ToastProps> = ({ toast, onClose, design }) => {
         borderColor: { value: `${colorScheme.border}`, important: true },
         border: '2px solid',
         shadow: "shadow.lg",
-        marginBottom: 2,
+        
         animation: "slideInRight 0.3s ease-out",
       }}
     >

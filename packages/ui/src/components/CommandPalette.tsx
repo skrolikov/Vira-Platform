@@ -279,7 +279,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             color: "#9ca3af",
           }}
         >
-          <Flex design={{ gap: 4 }}>
+          <Flex>
             <Text design={{ fontSize: "12px", color: "#9ca3af" }}>
               ↑↓ навигация
             </Text>

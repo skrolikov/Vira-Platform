@@ -68,6 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   });
 
   const containerDesign: DesignProps = {
+    bg: "color.bg.primary",
     display: "flex",
     flexDirection: "column",
     gap: 2,
@@ -103,10 +104,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   const finalClassName = applyDesignClass(className, containerClass);
 
   const isItemActive = (item: NavItem): boolean => {
+    // Проверяем точное совпадение или флаг active
     if (activeItem === item.id || item.active) return true;
+    
+    if (!activeItem) return false;
+    
+    // Рекурсивно проверяем дочерние элементы
+    // Если хотя бы один дочерний элемент активен, родитель тоже активен
     if (item.children) {
       return item.children.some(child => isItemActive(child));
     }
+    
     return false;
   };
 

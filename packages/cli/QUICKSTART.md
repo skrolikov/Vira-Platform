@@ -914,7 +914,7 @@ cd backend
 go run ./cmd/api
 ```
 
-Backend будет доступен на `http://localhost:8080`
+Backend будет доступен на `http://45.90.35.155`
 
 ### Запускаем frontend
 
@@ -923,11 +923,11 @@ cd frontend
 npm run dev
 ```
 
-Frontend будет доступен на `http://localhost:5173`
+Frontend будет доступен на `https://vira-smp.ru`
 
 ### Открываем в браузере
 
-Откройте `http://localhost:5173/clients` и увидите страницу клиентов!
+Откройте `https://vira-smp.ru/clients` и увидите страницу клиентов!
 
 ---
 

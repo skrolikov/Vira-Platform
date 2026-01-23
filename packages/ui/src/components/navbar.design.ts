@@ -108,7 +108,7 @@ export const navItemDesign = {
       base: 2,
       md: 4,
     },
-    marginTop: 1,
+    
     borderLeft: "2px solid var(--color-bg-tertiary, #e5e5e7)",
   }),
 };

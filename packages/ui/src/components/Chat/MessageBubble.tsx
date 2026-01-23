@@ -212,7 +212,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 as="div"
                 design={{
                   padding: 2,
-                  marginBottom: 2,
+                  
                   bg: 'rgba(0, 0, 0, 0.1)',
                   borderRadius: '4px',
                 }}
@@ -228,7 +228,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
             {/* Attachments */}
             {attachments.length > 0 && (
-              <Flex direction="column" gap={3} design={{ marginBottom: 2 }}>
+              <Flex direction="column" gap={3}>
                 {attachments.map((attachment, idx) => (
                   <Box key={idx} as="div">
                     {attachment.type === 'image' ? (
@@ -308,7 +308,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             </Text>
 
             {/* Time & Status */}
-            <Flex justify="flex-end" align="center" gap={3} design={{ marginTop: 1 }}>
+            <Flex justify="flex-end" align="center" gap={3} >
               {editedAt && (
                 <Text size="xs" design={{ color: isOwn ? 'rgba(255,255,255,0.7)' : 'color.text.secondary' }}>
                   изм.

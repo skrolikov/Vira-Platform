@@ -132,6 +132,7 @@ export const Layout: React.FC<LayoutProps> = ({
         <Box
           className={rightContainerClass}
           design={rightContainerDesign}
+          data-layout-content="true"
         >
           {/* Header */}
           {showHeader && (

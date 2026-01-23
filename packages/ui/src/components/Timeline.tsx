@@ -36,7 +36,7 @@ export const Timeline: React.FC<TimelineProps> = ({
   const containerDesign: DesignProps = {
     display: "flex",
     flexDirection: orientation === "horizontal" ? "row" : "column",
-    gap: 4,
+    
     position: "relative",
     ...design,
   };

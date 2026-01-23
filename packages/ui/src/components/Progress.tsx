@@ -120,7 +120,7 @@ export const Progress: React.FC<ProgressProps> = ({
           design={{
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 2,
+            
           }}
         >
           {label && (

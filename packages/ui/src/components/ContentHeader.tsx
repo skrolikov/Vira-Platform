@@ -84,8 +84,7 @@ export const ContentHeader: React.FC<ContentHeaderProps> = ({
       md: "space-between",
     },
     flexWrap: "wrap",
-    gap: "16px",
-    marginBottom: "16px",
+    gap: 3,
   };
 
   // Мержим default design с переданным design
