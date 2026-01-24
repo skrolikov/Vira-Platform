@@ -1,5 +1,11 @@
 # @vira-ui/core
 
+## 15.1.0
+
+### Minor Changes
+
+- fix: remove hardcoded IP from library, use current origin as default
+
 ## 15.0.0
 
 ### Major Changes

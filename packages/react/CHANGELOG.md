@@ -1,10 +1,15 @@
 # @vira-ui/react
 
-## 13.0.0
+## 13.1.0
 
-### Major Changes
+### Minor Changes
 
-- chore: fix
+- fix: remove hardcoded IP from library, use current origin as default
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/core@15.1.0
 
 ## 12.0.0
 

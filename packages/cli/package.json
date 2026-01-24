@@ -1,6 +1,6 @@
 {
   "name": "@vira-ui/cli",
-  "version": "9.0.0",
+  "version": "9.1.0",
   "description": "CLI tool for ViraJS project generation",
   "author": "Vira Team",
   "license": "MIT",

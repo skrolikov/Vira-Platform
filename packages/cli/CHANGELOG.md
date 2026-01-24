@@ -1,5 +1,11 @@
 # @vira-ui/cli
 
+## 9.1.0
+
+### Minor Changes
+
+- fix: remove hardcoded IP from library, use current origin as default
+
 ## 9.0.0
 
 ### Major Changes
