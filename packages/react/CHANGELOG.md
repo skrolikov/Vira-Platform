@@ -1,5 +1,11 @@
 # @vira-ui/react
 
+## 13.0.0
+
+### Major Changes
+
+- chore: fix
+
 ## 12.0.0
 
 ### Major Changes

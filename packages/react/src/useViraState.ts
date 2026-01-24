@@ -129,17 +129,50 @@ export function useViraState<T = any, C extends string = string>(
 
   // Use provided apiUrl or fallback to env or default
   // Note: import.meta is only available in ESM, so we check safely
+  // IMPORTANT: Auto-detect protocol based on current page (wss:// for HTTPS, ws:// for HTTP)
   const apiUrl = useMemo(() => {
-    if (apiUrlOption) return apiUrlOption;
-    // Try to get from env if available (Vite/bundler environment)
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const env = (globalThis as any).import?.meta?.env || (globalThis as any).process?.env;
-      if (env?.VITE_API_URL) return env.VITE_API_URL;
-    } catch {
-      // Ignore if import.meta is not available
+    let url = apiUrlOption;
+    
+    // Try to get from env if not provided
+    if (!url) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const env = (globalThis as any).import?.meta?.env || (globalThis as any).process?.env;
+        url = env?.VITE_API_URL;
+      } catch {
+        // Ignore if import.meta is not available
+      }
     }
-    return 'http://45.90.35.155';
+    
+    // If still no URL, use default
+    if (!url) {
+      url = 'http://45.90.35.155';
+    }
+    
+    // Auto-detect protocol based on current page
+    // For HTTPS pages, use wss:// for WebSocket and https:// for HTTP
+    // For HTTP pages, use ws:// for WebSocket and http:// for HTTP
+    if (typeof window !== 'undefined' && window.location) {
+      const isHttps = window.location.protocol === 'https:';
+      
+      if (isHttps) {
+        // Replace ws:// with wss:// and http:// with https://
+        if (url.startsWith('ws://')) {
+          url = url.replace('ws://', 'wss://');
+        } else if (url.startsWith('http://')) {
+          url = url.replace('http://', 'https://');
+        }
+      } else {
+        // Replace wss:// with ws:// and https:// with http://
+        if (url.startsWith('wss://')) {
+          url = url.replace('wss://', 'ws://');
+        } else if (url.startsWith('https://')) {
+          url = url.replace('https://', 'http://');
+        }
+      }
+    }
+    
+    return url;
   }, [apiUrlOption]);
 
   // Get authToken from options or try to get from env
