@@ -22,7 +22,7 @@ export interface UseViraStateOptions<T = any> {
   onError?: (error: Error) => void;
   /** Use deep merge for diff patches (default: true) */
   deepMerge?: boolean;
-  /** API URL (defaults to VITE_API_URL env or 'http://45.90.35.155') */
+  /** API URL (defaults to VITE_API_URL env or current origin with /ws path) */
   apiUrl?: string;
   /** Auth token for handshake */
   authToken?: string;
@@ -127,7 +127,7 @@ export function useViraState<T = any, C extends string = string>(
   const wasConnectedRef = useRef(false);
   const lastErrorRef = useRef<Error | null>(null);
 
-  // Use provided apiUrl or fallback to env or default
+  // Use provided apiUrl or fallback to env or relative path
   // Note: import.meta is only available in ESM, so we check safely
   // IMPORTANT: Auto-detect protocol based on current page (wss:// for HTTPS, ws:// for HTTP)
   const apiUrl = useMemo(() => {
@@ -143,35 +143,15 @@ export function useViraState<T = any, C extends string = string>(
         // Ignore if import.meta is not available
       }
     }
-    
-    // If still no URL, use default
+    // Default: use current origin with /ws path (works for same-origin deployments)
     if (!url) {
-      url = 'http://45.90.35.155';
-    }
-    
-    // Auto-detect protocol based on current page
-    // For HTTPS pages, use wss:// for WebSocket and https:// for HTTP
-    // For HTTP pages, use ws:// for WebSocket and http:// for HTTP
-    if (typeof window !== 'undefined' && window.location) {
-      const isHttps = window.location.protocol === 'https:';
-      
-      if (isHttps) {
-        // Replace ws:// with wss:// and http:// with https://
-        if (url.startsWith('ws://')) {
-          url = url.replace('ws://', 'wss://');
-        } else if (url.startsWith('http://')) {
-          url = url.replace('http://', 'https://');
-        }
-      } else {
-        // Replace wss:// with ws:// and https:// with http://
-        if (url.startsWith('wss://')) {
-          url = url.replace('wss://', 'ws://');
-        } else if (url.startsWith('https://')) {
-          url = url.replace('https://', 'http://');
-        }
+      if (typeof window !== 'undefined' && window.location) {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        return `${protocol}//${window.location.host}/ws`;
       }
+      // Server-side or unknown environment: use relative path
+      return '/ws';
     }
-    
     return url;
   }, [apiUrlOption]);
 
