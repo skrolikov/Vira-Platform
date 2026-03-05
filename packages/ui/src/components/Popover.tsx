@@ -191,7 +191,6 @@ export const Popover: React.FC<PopoverProps> = ({
           style={{
             ...position,
             position: "fixed",
-            zIndex: contentZIndex,
           }}
         >
           {content}
