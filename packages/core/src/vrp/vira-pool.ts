@@ -24,6 +24,14 @@ export interface ViraPoolOptions {
 export interface ViraConnectionPool {
   /** Subscribe to a channel and start receiving update/diff/event for it. Returns unsubscribe function. */
   subscribe(channel: string, listener: ViraChannelListener): () => void;
+  /**
+   * Passively listen to messages for a channel WITHOUT holding a subscription or
+   * incrementing the refcount. The listener receives messages only when at least
+   * one "active" subscriber (via subscribe()) exists for the channel.
+   * Use this for monitoring/analytics that must not prevent the channel from
+   * being unsubscribed when real consumers leave.
+   */
+  subscribePassive(channel: string, listener: ViraChannelListener): () => void;
   /** Listen to connection status changes (shared). Returns unsubscribe function. */
   onStatus(listener: ViraPoolStatusListener): () => void;
   /** Send messages */
@@ -54,6 +62,8 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
   // Per-channel listener sets & refcounts
   private channelListeners = new Map<string, Set<ViraChannelListener>>();
   private channelRefCount = new Map<string, number>();
+  // Passive listeners — observe messages without holding a subscription
+  private passiveListeners = new Map<string, Set<ViraChannelListener>>();
 
   private idleTimer: any = null;
 
@@ -125,6 +135,11 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
           if (this.debug) {
             this.log('no listeners for channel', ch);
           }
+          // Still deliver to passive listeners even when no active subscribers
+          const passiveSet = this.passiveListeners.get(ch);
+          if (passiveSet && passiveSet.size > 0) {
+            passiveSet.forEach((listener) => { try { listener(msg); } catch { /* ignore */ } });
+          }
           return;
         }
         set.forEach((listener) => {
@@ -134,6 +149,11 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
             // ignore user listener errors
           }
         });
+        // Also deliver to passive listeners
+        const passiveSet = this.passiveListeners.get(ch);
+        if (passiveSet && passiveSet.size > 0) {
+          passiveSet.forEach((listener) => { try { listener(msg); } catch { /* ignore */ } });
+        }
       },
     });
 
@@ -214,6 +234,26 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
       }
 
       this.scheduleIdleCloseIfNeeded();
+    };
+  }
+
+  subscribePassive(channel: string, listener: ViraChannelListener): () => void {
+    const ch = String(channel || "").trim();
+    if (!ch) return () => void 0;
+
+    let set = this.passiveListeners.get(ch);
+    if (!set) {
+      set = new Set<ViraChannelListener>();
+      this.passiveListeners.set(ch, set);
+    }
+    set.add(listener);
+
+    return () => {
+      const curSet = this.passiveListeners.get(ch);
+      curSet?.delete(listener);
+      if (curSet && curSet.size === 0) {
+        this.passiveListeners.delete(ch);
+      }
     };
   }
 

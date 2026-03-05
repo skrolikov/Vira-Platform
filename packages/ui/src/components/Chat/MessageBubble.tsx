@@ -160,7 +160,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                   color: 'color.danger',
                   hover: {
                     bg: 'color.danger',
-                    color: 'white',
+                    color: 'color.text.primary',
                     transform: 'scale(1.05)',
                   },
                 }}

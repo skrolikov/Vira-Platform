@@ -22,7 +22,7 @@ export function KanbanCard({ card, boardId }: KanbanCardProps) {
         // Open card details (future: modal)
       }}
     >
-      <Text design={{ fontWeight: 600, fontSize: '14px',  }}>
+      <Text design={{  fontSize: '14px',  }}>
         {card.title}
       </Text>
       {card.description && (

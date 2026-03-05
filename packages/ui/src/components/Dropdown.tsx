@@ -24,6 +24,8 @@ export interface DropdownProps {
   placement?: "bottom-start" | "bottom-end" | "top-start" | "top-end";
   onItemClick?: (item: DropdownItem) => void;
   design?: DesignProps;
+  /** z-index выпадающего меню (по умолчанию 1000; для drawer — 1100) */
+  popoverZIndex?: number;
 }
 
 /**
@@ -42,6 +44,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   placement = "bottom-start",
   onItemClick,
   design,
+  popoverZIndex = 1000,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -97,6 +100,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       onOpenChange={setIsOpen}
       trigger="click"
       placement={placement}
+      contentZIndex={popoverZIndex}
       content={
         <EffectCard design={menuDesign}>
           <Flex design={{ flexDirection: "column", gap: 0 }}>

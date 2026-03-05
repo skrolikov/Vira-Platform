@@ -135,13 +135,13 @@ export function useViraState<T = any, C extends string = string>(
     
     // Try to get from env if not provided
     if (!url) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const env = (globalThis as any).import?.meta?.env || (globalThis as any).process?.env;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const env = (globalThis as any).import?.meta?.env || (globalThis as any).process?.env;
         url = env?.VITE_API_URL;
-      } catch {
-        // Ignore if import.meta is not available
-      }
+    } catch {
+      // Ignore if import.meta is not available
+    }
     }
     // Default: use current origin with /ws path (works for same-origin deployments)
     if (!url) {
@@ -438,46 +438,44 @@ export function useViraState<T = any, C extends string = string>(
 
   const sendDiff = useCallback(
     (patch: Partial<T>, msgId?: string) => {
-      // Apply optimistic update immediately for deletions
+      // Apply optimistic update immediately for all changes (creates, updates, deletes)
       if (patch && typeof patch === 'object') {
         const patchObj = patch as Record<string, any>;
-        const keysToDelete: string[] = [];
-        for (const key in patchObj) {
-          if (patchObj[key] === null || patchObj[key] === undefined) {
-            keysToDelete.push(key);
-          }
-        }
-        if (keysToDelete.length > 0) {
+        const patchKeys = Object.keys(patchObj);
+        if (patchKeys.length > 0) {
           if (debug) {
-            console.log('[VRP_CLIENT] Optimistic deletion:', { channel, keysToDelete });
+            console.log('[VRP_CLIENT] Optimistic sendDiff:', { channel, patchKeys });
           }
           setData((prev) => {
-            if (!prev || typeof prev !== 'object') return prev;
-            const prevObj = prev as Record<string, any>;
-            const result: Record<string, any> = {};
-            // Copy all keys except deleted ones
-            for (const key in prevObj) {
-              if (!keysToDelete.includes(key)) {
-                result[key] = prevObj[key];
-              }
-            }
-            // Apply non-null updates from patch
+            const prevObj = (prev && typeof prev === 'object' ? prev : {}) as Record<string, any>;
+            const result: Record<string, any> = { ...prevObj };
             for (const key in patchObj) {
-              if (!keysToDelete.includes(key) && patchObj[key] !== null && patchObj[key] !== undefined) {
+              if (patchObj[key] === null || patchObj[key] === undefined) {
+                delete result[key];
+              } else if (
+                result[key] &&
+                typeof result[key] === 'object' &&
+                !Array.isArray(result[key]) &&
+                typeof patchObj[key] === 'object' &&
+                !Array.isArray(patchObj[key])
+              ) {
+                // Shallow-merge nested objects so partial patches don't wipe existing fields
+                // (e.g. list patch { orderId: { status_id } } keeps all other order fields)
+                result[key] = { ...result[key], ...patchObj[key] };
+              } else {
                 result[key] = patchObj[key];
               }
             }
             if (debug) {
-              console.log('[VRP_CLIENT] Optimistic deletion result:', { channel, resultCount: Object.keys(result).length, prevCount: Object.keys(prevObj).length });
+              console.log('[VRP_CLIENT] Optimistic sendDiff result:', { channel, resultCount: Object.keys(result).length });
             }
-            // Force new object reference
-            return { ...result } as T;
+            return result as T;
           });
         }
       }
       transportRef.current?.sendDiff(patch, msgId ?? generateMsgId());
     },
-    [generateMsgId, channel]
+    [generateMsgId, channel, debug]
   );
 
   return {

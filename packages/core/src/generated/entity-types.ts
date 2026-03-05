@@ -366,7 +366,7 @@ export const ENTITY_CONFIGS: Record<EntityName, EntityConfig> = {
     locationScoped: true,
     employeeScoped: false,
     crud: true,
-    permissionBase: 'adexpenses',
+    permissionBase: 'ad_expenses',
   },
   'adsource': {
     table: 'ad_sources',
@@ -374,7 +374,7 @@ export const ENTITY_CONFIGS: Record<EntityName, EntityConfig> = {
     locationScoped: true,
     employeeScoped: false,
     crud: true,
-    permissionBase: 'adsources',
+    permissionBase: 'ad_sources',
   },
   'advertisingcampaign': {
     table: 'advertising_campaigns',
@@ -382,7 +382,7 @@ export const ENTITY_CONFIGS: Record<EntityName, EntityConfig> = {
     locationScoped: false,
     employeeScoped: false,
     crud: true,
-    permissionBase: 'advertisingcampaigns',
+    permissionBase: 'ad_campaigns',
   },
   'advertisingexpense': {
     table: 'advertising_expenses',
@@ -390,7 +390,7 @@ export const ENTITY_CONFIGS: Record<EntityName, EntityConfig> = {
     locationScoped: false,
     employeeScoped: false,
     crud: true,
-    permissionBase: 'advertisingexpenses',
+    permissionBase: 'ad_costs',
   },
   'analyticscustomeractivity': {
     table: 'analytics_customer_activitys',

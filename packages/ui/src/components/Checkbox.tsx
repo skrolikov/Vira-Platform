@@ -140,7 +140,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
             <Text
               style={{
                 fontSize: dimensions.labelSize,
-                fontWeight: 500,
+                fontWeight: 'var(--typography-fontWeight-medium)',
                 color: props.disabled ? "var(--color-text-secondary, #9ca3af)" : "var(--color-text-primary, #374151)",
                 margin: 0,
               }}

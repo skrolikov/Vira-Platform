@@ -190,36 +190,36 @@ export const ENTITY_LABELS: Partial<Record<EntityName, string>> = {
 
 // Menu groups by permission base
 export const MENU_GROUPS: Record<string, MenuItem[]> = {
-  'adexpenses': [
+  'ad_expenses': [
     {
       id: 'adexpense',
       label: ENTITY_LABELS['adexpense'] || 'Adexpense',
       entity: ENTITY_NAMES.ADEXPENSE,
-      permission: PERMISSIONS.ADEXPENSES_VIEW,
+      permission: PERMISSIONS.AD_EXPENSES_VIEW,
     },
   ],
-  'adsources': [
+  'ad_sources': [
     {
       id: 'adsource',
       label: ENTITY_LABELS['adsource'] || 'Adsource',
       entity: ENTITY_NAMES.ADSOURCE,
-      permission: PERMISSIONS.ADSOURCES_VIEW,
+      permission: PERMISSIONS.AD_SOURCES_VIEW,
     },
   ],
-  'advertisingcampaigns': [
+  'ad_campaigns': [
     {
       id: 'advertisingcampaign',
       label: ENTITY_LABELS['advertisingcampaign'] || 'Advertisingcampaign',
       entity: ENTITY_NAMES.ADVERTISINGCAMPAIGN,
-      permission: PERMISSIONS.ADVERTISINGCAMPAIGNS_VIEW,
+      permission: PERMISSIONS.AD_CAMPAIGNS_VIEW,
     },
   ],
-  'advertisingexpenses': [
+  'ad_costs': [
     {
       id: 'advertisingexpense',
       label: ENTITY_LABELS['advertisingexpense'] || 'Advertisingexpense',
       entity: ENTITY_NAMES.ADVERTISINGEXPENSE,
-      permission: PERMISSIONS.ADVERTISINGEXPENSES_VIEW,
+      permission: PERMISSIONS.AD_COSTS_VIEW,
     },
   ],
   'analytics': [

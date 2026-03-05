@@ -28,6 +28,8 @@ export interface PopoverProps {
   disabled?: boolean;
   offset?: number;
   design?: DesignProps;
+  /** z-index контейнера контента (чтобы меню было поверх drawer и т.д.) */
+  contentZIndex?: number;
 }
 
 /**
@@ -189,7 +191,7 @@ export const Popover: React.FC<PopoverProps> = ({
           style={{
             ...position,
             position: "fixed",
-            zIndex: 1000,
+            zIndex: contentZIndex,
           }}
         >
           {content}

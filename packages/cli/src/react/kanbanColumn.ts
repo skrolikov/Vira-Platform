@@ -32,7 +32,7 @@ export function KanbanColumn({ column, boardId }: KanbanColumnProps) {
         flexDirection: 'column',
       }}
     >
-      <Text design={{ fontWeight: 600, fontSize: '16px',  }}>
+      <Text design={{  fontSize: '16px',  }}>
         {column.title}
       </Text>
       <ScrollArea

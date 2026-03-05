@@ -1,5 +1,11 @@
 # @vira-ui/ui
 
+## 11.0.0
+
+### Major Changes
+
+- chore: update
+
 ## 10.1.0
 
 ### Minor Changes

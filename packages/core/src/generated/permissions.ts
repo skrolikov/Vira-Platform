@@ -17,10 +17,10 @@ export type PermissionAction = typeof PERMISSION_ACTIONS[keyof typeof PERMISSION
 
 // Permission base names
 export const PERMISSION_BASES = {
-  ADEXPENSES: 'adexpenses',
-  ADSOURCES: 'adsources',
-  ADVERTISINGCAMPAIGNS: 'advertisingcampaigns',
-  ADVERTISINGEXPENSES: 'advertisingexpenses',
+  AD_EXPENSES: 'ad_expenses',
+  AD_SOURCES: 'ad_sources',
+  AD_CAMPAIGNS: 'ad_campaigns',
+  AD_COSTS: 'ad_costs',
   ANALYTICS: 'analytics',
   APIKEYS: 'apikeys',
   AUDITLOGS: 'auditlogs',
@@ -92,30 +92,30 @@ export type PermissionBase = typeof PERMISSION_BASES[keyof typeof PERMISSION_BAS
 
 // Full permission codes (base.action)
 export const PERMISSIONS = {
-  // adexpenses
-  ADEXPENSES_VIEW: 'adexpenses.view' as const,
-  ADEXPENSES_CREATE: 'adexpenses.create' as const,
-  ADEXPENSES_UPDATE: 'adexpenses.update' as const,
-  ADEXPENSES_DELETE: 'adexpenses.delete' as const,
-  ADEXPENSES_MANAGE: 'adexpenses.manage' as const,
-  // adsources
-  ADSOURCES_VIEW: 'adsources.view' as const,
-  ADSOURCES_CREATE: 'adsources.create' as const,
-  ADSOURCES_UPDATE: 'adsources.update' as const,
-  ADSOURCES_DELETE: 'adsources.delete' as const,
-  ADSOURCES_MANAGE: 'adsources.manage' as const,
-  // advertisingcampaigns
-  ADVERTISINGCAMPAIGNS_VIEW: 'advertisingcampaigns.view' as const,
-  ADVERTISINGCAMPAIGNS_CREATE: 'advertisingcampaigns.create' as const,
-  ADVERTISINGCAMPAIGNS_UPDATE: 'advertisingcampaigns.update' as const,
-  ADVERTISINGCAMPAIGNS_DELETE: 'advertisingcampaigns.delete' as const,
-  ADVERTISINGCAMPAIGNS_MANAGE: 'advertisingcampaigns.manage' as const,
-  // advertisingexpenses
-  ADVERTISINGEXPENSES_VIEW: 'advertisingexpenses.view' as const,
-  ADVERTISINGEXPENSES_CREATE: 'advertisingexpenses.create' as const,
-  ADVERTISINGEXPENSES_UPDATE: 'advertisingexpenses.update' as const,
-  ADVERTISINGEXPENSES_DELETE: 'advertisingexpenses.delete' as const,
-  ADVERTISINGEXPENSES_MANAGE: 'advertisingexpenses.manage' as const,
+  // ad_expenses
+  AD_EXPENSES_VIEW: 'ad_expenses.view' as const,
+  AD_EXPENSES_CREATE: 'ad_expenses.create' as const,
+  AD_EXPENSES_UPDATE: 'ad_expenses.update' as const,
+  AD_EXPENSES_DELETE: 'ad_expenses.delete' as const,
+  AD_EXPENSES_MANAGE: 'ad_expenses.manage' as const,
+  // ad_sources
+  AD_SOURCES_VIEW: 'ad_sources.view' as const,
+  AD_SOURCES_CREATE: 'ad_sources.create' as const,
+  AD_SOURCES_UPDATE: 'ad_sources.update' as const,
+  AD_SOURCES_DELETE: 'ad_sources.delete' as const,
+  AD_SOURCES_MANAGE: 'ad_sources.manage' as const,
+  // ad_campaigns
+  AD_CAMPAIGNS_VIEW: 'ad_campaigns.view' as const,
+  AD_CAMPAIGNS_CREATE: 'ad_campaigns.create' as const,
+  AD_CAMPAIGNS_UPDATE: 'ad_campaigns.update' as const,
+  AD_CAMPAIGNS_DELETE: 'ad_campaigns.delete' as const,
+  AD_CAMPAIGNS_MANAGE: 'ad_campaigns.manage' as const,
+  // ad_costs
+  AD_COSTS_VIEW: 'ad_costs.view' as const,
+  AD_COSTS_CREATE: 'ad_costs.create' as const,
+  AD_COSTS_UPDATE: 'ad_costs.update' as const,
+  AD_COSTS_DELETE: 'ad_costs.delete' as const,
+  AD_COSTS_MANAGE: 'ad_costs.manage' as const,
   // analytics
   ANALYTICS_VIEW: 'analytics.view' as const,
   ANALYTICS_CREATE: 'analytics.create' as const,
@@ -528,33 +528,33 @@ export function hasAllPermissions(userPermissions: string[], permissions: string
 
 // Permission groups by base
 export const PERMISSION_GROUPS: Record<PermissionBase, Permission[]> = {
-  'adexpenses': [
-    PERMISSIONS.ADEXPENSES_VIEW,
-    PERMISSIONS.ADEXPENSES_CREATE,
-    PERMISSIONS.ADEXPENSES_UPDATE,
-    PERMISSIONS.ADEXPENSES_DELETE,
-    PERMISSIONS.ADEXPENSES_MANAGE,
+  'ad_expenses': [
+    PERMISSIONS.AD_EXPENSES_VIEW,
+    PERMISSIONS.AD_EXPENSES_CREATE,
+    PERMISSIONS.AD_EXPENSES_UPDATE,
+    PERMISSIONS.AD_EXPENSES_DELETE,
+    PERMISSIONS.AD_EXPENSES_MANAGE,
   ],
-  'adsources': [
-    PERMISSIONS.ADSOURCES_VIEW,
-    PERMISSIONS.ADSOURCES_CREATE,
-    PERMISSIONS.ADSOURCES_UPDATE,
-    PERMISSIONS.ADSOURCES_DELETE,
-    PERMISSIONS.ADSOURCES_MANAGE,
+  'ad_sources': [
+    PERMISSIONS.AD_SOURCES_VIEW,
+    PERMISSIONS.AD_SOURCES_CREATE,
+    PERMISSIONS.AD_SOURCES_UPDATE,
+    PERMISSIONS.AD_SOURCES_DELETE,
+    PERMISSIONS.AD_SOURCES_MANAGE,
   ],
-  'advertisingcampaigns': [
-    PERMISSIONS.ADVERTISINGCAMPAIGNS_VIEW,
-    PERMISSIONS.ADVERTISINGCAMPAIGNS_CREATE,
-    PERMISSIONS.ADVERTISINGCAMPAIGNS_UPDATE,
-    PERMISSIONS.ADVERTISINGCAMPAIGNS_DELETE,
-    PERMISSIONS.ADVERTISINGCAMPAIGNS_MANAGE,
+  'ad_campaigns': [
+    PERMISSIONS.AD_CAMPAIGNS_VIEW,
+    PERMISSIONS.AD_CAMPAIGNS_CREATE,
+    PERMISSIONS.AD_CAMPAIGNS_UPDATE,
+    PERMISSIONS.AD_CAMPAIGNS_DELETE,
+    PERMISSIONS.AD_CAMPAIGNS_MANAGE,
   ],
-  'advertisingexpenses': [
-    PERMISSIONS.ADVERTISINGEXPENSES_VIEW,
-    PERMISSIONS.ADVERTISINGEXPENSES_CREATE,
-    PERMISSIONS.ADVERTISINGEXPENSES_UPDATE,
-    PERMISSIONS.ADVERTISINGEXPENSES_DELETE,
-    PERMISSIONS.ADVERTISINGEXPENSES_MANAGE,
+  'ad_costs': [
+    PERMISSIONS.AD_COSTS_VIEW,
+    PERMISSIONS.AD_COSTS_CREATE,
+    PERMISSIONS.AD_COSTS_UPDATE,
+    PERMISSIONS.AD_COSTS_DELETE,
+    PERMISSIONS.AD_COSTS_MANAGE,
   ],
   'analytics': [
     PERMISSIONS.ANALYTICS_VIEW,

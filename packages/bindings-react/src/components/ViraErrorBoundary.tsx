@@ -91,7 +91,7 @@ export class ViraErrorBoundary extends Component<
                   fontSize: "0.875rem",
                 }}
               >
-                <summary style={{ cursor: "pointer", fontWeight: 600, marginBottom: "0.5rem" }}>
+                <summary style={{ cursor: "pointer",  marginBottom: "0.5rem" }}>
                   Детали ошибки
                 </summary>
                 <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
