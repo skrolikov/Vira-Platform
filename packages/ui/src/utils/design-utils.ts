@@ -3,7 +3,7 @@ import { registerDesign, getDesignHash } from "./design-registry";
 import { shouldIncludeDataDesign } from "./env";
 
 // Контекст для проверки, нужно ли скрывать data-design
-let shouldHideDataDesign = false;
+let shouldHideDataDesign = true;
 
 export function setHideDataDesign(value: boolean) {
   shouldHideDataDesign = value;
@@ -81,21 +81,12 @@ export function applyDesignClass(
 }
 
 /**
- * Возвращает data-design атрибут только в dev режиме
- * 
- * В проде: всегда undefined (не добавляем JSON в DOM)
- * В dev: возвращает JSON для отладки (если не отключено через setHideDataDesign)
+ * Возвращает data-design атрибут только в dev режиме.
+ * В проде возвращает undefined, чтобы не добавлять JSON в DOM (чистый HTML).
+ * Режим определяется через shouldIncludeDataDesign() (Vite import.meta.env.PROD / NODE_ENV).
  */
 export function getDataDesignAttribute(design: DesignProps): string | undefined {
-  if (shouldHideDataDesign) {
-    return undefined;
-  }
-
-  // В проде не добавляем data-design
-  if (!shouldIncludeDataDesign()) {
-    return undefined;
-  }
-
-  // В dev режиме добавляем для отладки
+  if (shouldHideDataDesign) return undefined;
+  if (!shouldIncludeDataDesign()) return undefined;
   return JSON.stringify(design);
 }

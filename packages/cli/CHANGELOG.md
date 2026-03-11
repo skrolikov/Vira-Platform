@@ -1,5 +1,11 @@
 # @vira-ui/cli
 
+## 11.0.0
+
+### Major Changes
+
+- update
+
 ## 10.0.0
 
 ### Major Changes

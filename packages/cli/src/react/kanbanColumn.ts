@@ -24,7 +24,7 @@ export function KanbanColumn({ column, boardId }: KanbanColumnProps) {
     <Box
       design={{
         background: '#f5f5f5',
-        borderRadius: 2,
+        borderRadius: 'var(--radius-sm)',
         padding: 4,
         minWidth: '280px',
         maxHeight: 'calc(100vh - 100px)',

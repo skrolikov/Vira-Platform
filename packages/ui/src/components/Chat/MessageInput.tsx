@@ -118,7 +118,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         >
           <Flex justify="space-between" align="center">
             <Flex direction="column" gap={3}>
-              <Text size="sm" design={{ fontWeight: '600', color: 'color.primary' }}>
+              <Text size="sm" design={{ fontWeight: 'var(--typography-fontWeight-semibold)', color: 'color.primary' }}>
                 Ответ на: {replyTo.senderName}
               </Text>
               <Text 
@@ -190,7 +190,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               >
                 <Flex gap={2} align="center">
                   <MessageSquare size={16} style={{ color: 'var(--color-primary)' }} />
-                  <Text design={{ fontWeight: '600' }} size="sm">
+                  <Text design={{ fontWeight: 'var(--typography-fontWeight-semibold)' }} size="sm">
                     Быстрые ответы
                   </Text>
                 </Flex>
@@ -217,7 +217,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                     >
                       <Flex direction="column" gap={3}>
                         <Flex align="center" gap={3} justify="space-between">
-                          <Text design={{ fontWeight: '600', color: 'color.text.primary' }} size="sm">
+                          <Text design={{ fontWeight: 'var(--typography-fontWeight-semibold)', color: 'color.text.primary' }} size="sm">
                             {template.name}
                           </Text>
                           {template.shortcut && (

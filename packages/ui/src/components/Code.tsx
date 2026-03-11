@@ -30,7 +30,7 @@ export const Code: React.FC<CodeProps> = ({
     ? {
         display: "block",
         padding: 3,
-        borderRadius: 2,
+        borderRadius: 'var(--radius-sm)',
         backgroundColor: "#f5f5f5",
         fontFamily: "monospace",
         fontSize: "14px",
@@ -41,7 +41,7 @@ export const Code: React.FC<CodeProps> = ({
     : {
         display: "inline",
         padding: "2px 4px",
-        borderRadius: 1,
+        borderRadius: 'var(--radius-sm)',
         backgroundColor: "#f5f5f5",
         fontFamily: "monospace",
         fontSize: "0.9em",

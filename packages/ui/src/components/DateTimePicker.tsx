@@ -506,7 +506,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         <Button preset="ghost" onClick={onPrevMonth} design={{ width: '32px', height: '32px', padding: 1 }}>
           <ChevronLeft size={18} />
         </Button>
-        <Text design={{ fontWeight: '600', fontSize: 'typography.fontSize.md' }}>
+        <Text design={{ fontWeight: 'var(--typography-fontWeight-semibold)', fontSize: 'typography.fontSize.md' }}>
           {monthNames[month]} {year}
         </Text>
         <Button preset="ghost" onClick={onNextMonth} design={{ width: '32px', height: '32px', padding: 1 }}>
@@ -516,7 +516,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
       <Grid columns="repeat(7, 1fr)" gap="4px">
         {weekDays.map((day) => (
-          <Text key={day} design={{ textAlign: 'center', fontSize: '0.75rem', fontWeight: '600', opacity: 0.6, padding: 1 }}>
+          <Text key={day} design={{ textAlign: 'center', fontSize: '0.75rem', fontWeight: 'var(--typography-fontWeight-semibold)', opacity: 0.6, padding: 1 }}>
             {day}
           </Text>
         ))}
@@ -579,7 +579,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 gap: 1,
               }}
             >
-              <Text design={{ fontSize: '0.7rem', fontWeight: '600', opacity: 0.7,  letterSpacing: '0.05em' }}>
+              <Text design={{ fontSize: '0.7rem', fontWeight: 'var(--typography-fontWeight-semibold)', opacity: 0.7,  letterSpacing: '0.05em' }}>
                 БЫСТРЫЙ ВЫБОР
               </Text>
               {isMobile ? (
@@ -659,7 +659,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 gap: 2,
               }}
             >
-              <Text design={{ fontSize: '0.7rem', fontWeight: '600', opacity: 0.7, textAlign: 'center', letterSpacing: '0.05em' }}>
+              <Text design={{ fontSize: '0.7rem', fontWeight: 'var(--typography-fontWeight-semibold)', opacity: 0.7, textAlign: 'center', letterSpacing: '0.05em' }}>
                 ВРЕМЯ
               </Text>
 

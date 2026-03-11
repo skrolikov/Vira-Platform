@@ -217,7 +217,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                   borderRadius: '4px',
                 }}
               >
-                <Text size="sm" design={{ color: isOwn ? 'white' : 'color.primary', fontWeight: '600' }}>
+                <Text size="sm" design={{ color: isOwn ? 'white' : 'color.primary', fontWeight: 'var(--typography-fontWeight-semibold)' }}>
                   {replyTo.senderName}
                 </Text>
                 <Text size="sm" design={{ color: isOwn ? 'rgba(255,255,255,0.8)' : 'color.text.secondary' }}>
@@ -275,7 +275,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                             <Text 
                               size="sm" 
                               design={{ 
-                                fontWeight: '600',
+                                fontWeight: 'var(--typography-fontWeight-semibold)',
                                 color: isOwn ? 'white' : 'color.text.primary',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',

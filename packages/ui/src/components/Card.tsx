@@ -1,6 +1,6 @@
 import React from "react";
 import { DesignProps } from "../types";
-import { mergeDesign, getDesignClass, applyDesignClass } from "../utils/design-utils";
+import { mergeDesign, getDesignClass, applyDesignClass, getDataDesignAttribute } from "../utils/design-utils";
 import { presets, PresetName } from "../presets";
 
 export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "as"> {
@@ -45,7 +45,7 @@ export const Card: React.FC<CardProps> = ({
   return (
     <Component 
       className={finalClassName}
-      {...(finalDesign && { "data-design": JSON.stringify(finalDesign) })}
+      {...(getDataDesignAttribute(finalDesign!) && { "data-design": getDataDesignAttribute(finalDesign!) })}
       {...(preset && { "data-preset": preset })}
       {...(props as any)}
     >

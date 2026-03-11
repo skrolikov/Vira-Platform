@@ -214,7 +214,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                   <Flex justify="space-between" align="center">
                     <Text 
                       design={{ 
-                        fontWeight: '600',
+                        fontWeight: 'var(--typography-fontWeight-semibold)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',

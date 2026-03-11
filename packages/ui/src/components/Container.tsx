@@ -1,6 +1,6 @@
 import React from "react";
 import { DesignProps } from "../types";
-import { mergeDesign, getDesignClass, applyDesignClass } from "../utils/design-utils";
+import { mergeDesign, getDesignClass, applyDesignClass, getDataDesignAttribute } from "../utils/design-utils";
 import { Flex } from "./Flex";
 
 export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
