@@ -133,7 +133,7 @@ function OrderForm() {
     <Form>
       <Input 
         {...amount} 
-        type="number"
+        
         label="Сумма заказа"
       />
       {amountValidator.error && (

@@ -77,7 +77,7 @@ pnpm changeset
 
 # 2. Закоммитьте изменения
 git add .
-git commit -m "chore: initial release setup"
+git commit -m "chore: update"
 
 # 3. Запушьте в main
 git push origin main

@@ -282,19 +282,19 @@ export const Input: React.FC<InputProps> = ({
       <>
         {/* Скрываем стандартные стрелки браузера */}
         <style>{`
-          input[type="number"]::-webkit-inner-spin-button,
-          input[type="number"]::-webkit-outer-spin-button {
+          input[]::-webkit-inner-spin-button,
+          input[]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
           }
-          input[type="number"] {
+          input[] {
             -moz-appearance: textfield;
           }
         `}</style>
         <div className={containerClass} {...(containerDesign && { "data-design": getDataDesignAttribute(containerDesign) })}>
           <input 
             ref={inputRef}
-            type="number"
+            
             className={finalInputClassName}
             {...(!runtimeControlsValue && { value: computedValue })}
             onChange={handleChange}

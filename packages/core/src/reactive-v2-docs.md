@@ -132,7 +132,7 @@ function UserProfile() {
         onChange={(e) => user.name.value = e.target.value} 
       />
       <input 
-        type="number"
+        
         value={age} 
         onChange={(e) => user.age.value = Number(e.target.value)} 
       />

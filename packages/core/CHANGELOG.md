@@ -1,5 +1,11 @@
 # @vira-ui/core
 
+## 18.0.0
+
+### Major Changes
+
+- fix
+
 ## 17.0.0
 
 ### Major Changes

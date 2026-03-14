@@ -1,13 +1,13 @@
 import type { Message } from "./types";
 
 export interface ViraReconnectOptions {
-  /** Base delay before reconnect (ms). Default: 1000 (reconnect storm protection) */
+  /** Base delay before reconnect (ms). Default: 400 */
   baseDelayMs?: number;
-  /** Max delay before reconnect (ms). Default: 30000 */
+  /** Max delay before reconnect (ms). Default: 15000 */
   maxDelayMs?: number;
-  /** Random jitter added to delay (ms). Default: 2000 (spreads 200 clients over ~2s) */
+  /** Random jitter added to delay (ms). Default: 800 */
   jitterMs?: number;
-  /** Debounce window for reconnect scheduling (ms). Default: 500 */
+  /** Debounce window for reconnect scheduling (ms). Default: 200 */
   debounceMs?: number;
 }
 
@@ -73,13 +73,14 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
     handshakeData,
   } = options;
 
-  // Reconnect storm protection: при 200+ клиентах все переподключаются разом (nginx restart).
-  // Большой jitter (1–3s) размазывает reconnect во времени. Exponential backoff до 30s.
+  // Reconnect storm: jitter размазывает 200+ клиентов по времени.
+  // baseDelayMs=100 — быстрый reconnect для обычного пользователя.
+  // jitterMs=800 — остаётся высоким для защиты от reconnect storm (200+ клиентов).
   const reconnectOpts: Required<ViraReconnectOptions> = {
-    baseDelayMs: reconnect?.baseDelayMs ?? 1000,
-    maxDelayMs: reconnect?.maxDelayMs ?? 30000,
-    jitterMs: reconnect?.jitterMs ?? 2000,
-    debounceMs: reconnect?.debounceMs ?? 500,
+    baseDelayMs: reconnect?.baseDelayMs ?? 100,
+    maxDelayMs: reconnect?.maxDelayMs ?? 15000,
+    jitterMs: reconnect?.jitterMs ?? 800,
+    debounceMs: reconnect?.debounceMs ?? 100,
   };
 
   const url = normalizeWsUrl(urlOption);
