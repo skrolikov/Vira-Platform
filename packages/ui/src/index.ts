@@ -205,5 +205,11 @@ export type { NavbarProps, NavItem, NavItemRenderCtx } from "./components/Navbar
 export { Layout } from "./components/Layout";
 export type { LayoutProps } from "./components/Layout";
 
-// Re-export showcase components for convenience
+// Glass Engine — система стеклянного UI
+export { GlassRoot } from "./components/GlassRoot";
+export type { GlassRootProps } from "./components/GlassRoot";
+export { GlassCard } from "./components/GlassCard";
+export type { GlassCardProps, GlassCardVariant } from "./components/GlassCard";
+export { GlassPanel } from "./components/GlassPanel";
+export type { GlassPanelProps, GlassPanelPlacement } from "./components/GlassPanel";
 

@@ -5,6 +5,17 @@ export interface Theme {
   color?: Record<string, any>;
   radius?: Record<string, string>;
   shadow?: Record<string, string>;
+  /** Elevation-тени (depth.1 .. depth.4) */
+  depth?: Record<string, string>;
+  /** Glass tokens (bg, border, blur, highlight…) */
+  glass?: Record<string, string>;
+  /** Blur-радиусы (blur.sm .. blur.xl) */
+  blur?: Record<string, string>;
+  /** Motion-токены (duration.fast, ease.spring …) */
+  motion?: {
+    duration?: Record<string, string>;
+    ease?: Record<string, string>;
+  };
   spacing?: Record<string | number, string>;
   space?: Record<string | number, string>; // Альтернативное название для spacing
   typography?: {
@@ -334,6 +345,138 @@ export function generateThemeCSSVariables(theme: Theme): string {
     });
   }
   
+  // Glass system variables
+  if (theme.glass) {
+    Object.entries(theme.glass).forEach(([key, value]) => {
+      const varName = `--glass-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  // Дополняем glass из foundation
+  Object.entries(foundationTokens.glass).forEach(([key, value]) => {
+    const varName = `--glass-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+  // Shorthand glass aliases
+  const glassAliases: Record<string, string> = {
+    "--vi-glass-bg":           "var(--glass-bg)",
+    "--vi-glass-border":       "var(--glass-border)",
+    "--vi-glass-highlight":    "var(--glass-highlight)",
+    "--vi-glass-noise":        "var(--glass-noise-opacity)",
+    "--vi-glass-blur":         "var(--glass-blur)",
+    "--vi-glass-popup-bg":     "var(--glass-popup-bg)",
+    "--vi-glass-popup-border": "var(--glass-popup-border)",
+    "--vi-glass-popup-blur":   "var(--glass-popup-blur)",
+  };
+  Object.entries(glassAliases).forEach(([varName, value]) => {
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+
+  // Blur variables
+  if (theme.blur) {
+    Object.entries(theme.blur).forEach(([key, value]) => {
+      const varName = `--blur-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  // Дополняем blur из foundation
+  Object.entries(foundationTokens.blur).forEach(([key, value]) => {
+    const varName = `--blur-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+
+  // Depth variables
+  if (theme.depth) {
+    Object.entries(theme.depth).forEach(([key, value]) => {
+      const varName = `--depth-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  // Дополняем depth из foundation
+  Object.entries(foundationTokens.depth).forEach(([key, value]) => {
+    const varName = `--depth-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+
+  // Motion variables
+  if (theme.motion?.duration) {
+    Object.entries(theme.motion.duration).forEach(([key, value]) => {
+      const varName = `--motion-duration-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  if (theme.motion?.ease) {
+    Object.entries(theme.motion.ease).forEach(([key, value]) => {
+      const varName = `--motion-ease-${key}`;
+      if (!addedVars.has(varName)) {
+        rules.push(`  ${varName}: ${value};`);
+        addedVars.add(varName);
+      }
+    });
+  }
+  // Дополняем motion из foundation
+  Object.entries(foundationTokens.motion.duration).forEach(([key, value]) => {
+    const varName = `--motion-duration-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+  Object.entries(foundationTokens.motion.ease).forEach(([key, value]) => {
+    const varName = `--motion-ease-${key}`;
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+
+  // Shorthand aliases (всегда добавляем — они ссылаются на var())
+  const shorthandAliases: Record<string, string> = {
+    "--vi-ease":            "var(--motion-ease-default)",
+    "--vi-ease-spring":     "var(--motion-ease-spring)",
+    "--vi-duration-fast":   "var(--motion-duration-fast)",
+    "--vi-duration-normal": "var(--motion-duration-normal)",
+    "--vi-duration-slow":   "var(--motion-duration-slow)",
+    "--vi-blur-sm":         "var(--blur-sm)",
+    "--vi-blur-md":         "var(--blur-md)",
+    "--vi-blur-lg":         "var(--blur-lg)",
+    "--vi-blur-xl":         "var(--blur-xl)",
+    "--vi-depth-1":         "var(--depth-1)",
+    "--vi-depth-2":         "var(--depth-2)",
+    "--vi-depth-3":         "var(--depth-3)",
+    "--vi-depth-4":         "var(--depth-4)",
+  };
+  Object.entries(shorthandAliases).forEach(([varName, value]) => {
+    if (!addedVars.has(varName)) {
+      rules.push(`  ${varName}: ${value};`);
+      addedVars.add(varName);
+    }
+  });
+
   // Объединяем основные правила и правила для пресетов
   const allRules = [...rules, ...presetRules];
   return `:root {\n${allRules.join("\n")}\n}`;

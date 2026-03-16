@@ -76,7 +76,53 @@ export function generateCSSVariables(): string {
       });
     }
   });
-  
+
+  // Glass system variables
+  Object.entries(foundationTokens.glass).forEach(([key, value]) => {
+    rules.push(`  --glass-${key}: ${value};`);
+  });
+  // Shorthand glass aliases
+  rules.push(`  --vi-glass-bg: var(--glass-bg);`);
+  rules.push(`  --vi-glass-border: var(--glass-border);`);
+  rules.push(`  --vi-glass-highlight: var(--glass-highlight);`);
+  rules.push(`  --vi-glass-noise: var(--glass-noise-opacity);`);
+  rules.push(`  --vi-glass-blur: var(--glass-blur);`);
+  rules.push(`  --vi-glass-popup-bg: var(--glass-popup-bg);`);
+  rules.push(`  --vi-glass-popup-border: var(--glass-popup-border);`);
+  rules.push(`  --vi-glass-popup-blur: var(--glass-popup-blur);`);
+
+  // Blur variables
+  Object.entries(foundationTokens.blur).forEach(([key, value]) => {
+    rules.push(`  --blur-${key}: ${value};`);
+  });
+
+  // Depth variables (elevation shadows)
+  Object.entries(foundationTokens.depth).forEach(([key, value]) => {
+    rules.push(`  --depth-${key}: ${value};`);
+  });
+
+  // Motion variables (duration + easing)
+  Object.entries(foundationTokens.motion.duration).forEach(([key, value]) => {
+    rules.push(`  --motion-duration-${key}: ${value};`);
+  });
+  Object.entries(foundationTokens.motion.ease).forEach(([key, value]) => {
+    rules.push(`  --motion-ease-${key}: ${value};`);
+  });
+  // Shorthand aliases
+  rules.push(`  --vi-ease: var(--motion-ease-default);`);
+  rules.push(`  --vi-ease-spring: var(--motion-ease-spring);`);
+  rules.push(`  --vi-duration-fast: var(--motion-duration-fast);`);
+  rules.push(`  --vi-duration-normal: var(--motion-duration-normal);`);
+  rules.push(`  --vi-duration-slow: var(--motion-duration-slow);`);
+  rules.push(`  --vi-blur-sm: var(--blur-sm);`);
+  rules.push(`  --vi-blur-md: var(--blur-md);`);
+  rules.push(`  --vi-blur-lg: var(--blur-lg);`);
+  rules.push(`  --vi-blur-xl: var(--blur-xl);`);
+  rules.push(`  --vi-depth-1: var(--depth-1);`);
+  rules.push(`  --vi-depth-2: var(--depth-2);`);
+  rules.push(`  --vi-depth-3: var(--depth-3);`);
+  rules.push(`  --vi-depth-4: var(--depth-4);`);
+
   return `:root {\n${rules.join("\n")}\n}`;
 }
 

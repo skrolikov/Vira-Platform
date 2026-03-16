@@ -35,6 +35,23 @@ export const apple = {
     md: "0 5px 5px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)",
     lg: "0 8px 32px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.12)",
   },
+  /**
+   * glass токены — используются GlassCard, GlassRoot, EffectCard автоматически.
+   * CSS переменные: --glass-bg, --glass-border, --glass-blur и т.д.
+   */
+  glass: {
+    bg: "rgba(255, 255, 255, 0.72)",
+    border: "rgba(255, 255, 255, 0.35)",
+    highlight: "rgba(255, 255, 255, 0.45)",
+    "noise-opacity": "0.03",
+    blur: "blur(20px) saturate(180%)",
+    "dark-bg": "rgba(30, 30, 40, 0.75)",
+    "dark-border": "rgba(255, 255, 255, 0.12)",
+    /** Popup/dropdown — чуть плотнее для читаемости */
+    "popup-bg": "rgba(255, 255, 255, 0.82)",
+    "popup-border": "rgba(255, 255, 255, 0.4)",
+    "popup-blur": "blur(28px) saturate(200%)",
+  },
   effect: {
     glass: {
       background: "rgba(255,255,255,0.7)",
