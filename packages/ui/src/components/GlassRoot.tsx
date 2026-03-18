@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, CSSProperties } from "react";
+import React, { useEffect, useRef } from "react";
+import { Box } from "./Box";
+import { DesignProps } from "../types";
 
 export interface GlassRootProps {
   children: React.ReactNode;
@@ -14,8 +16,9 @@ export interface GlassRootProps {
   reactiveHighlight?: boolean;
   /** Множитель сдвига блика при скролле. Default: 0.15 */
   highlightParallax?: number;
+  /** Дополнительные design-пропы для контейнера */
+  design?: DesignProps;
   className?: string;
-  style?: CSSProperties;
   as?: keyof JSX.IntrinsicElements;
 }
 
@@ -29,6 +32,10 @@ export interface GlassRootProps {
  * Дополнительно: при скролле световой блик слегка смещается, создавая
  * иллюзию рефракции настоящего стекла (трюк из Apple visionOS UI).
  *
+ * Highlight background содержит CSS-переменную --_hl-y которую мы меняем
+ * через style.setProperty при скролле. design-хэш вычисляется ОДИН раз
+ * (строка стабильна), браузер резолвит переменную сам на каждый paint.
+ *
  * @example
  * <GlassRoot>
  *   <GlassCard>...</GlassCard>
@@ -41,21 +48,18 @@ export const GlassRoot = React.forwardRef<HTMLDivElement, GlassRootProps>(({
   saturate = 180,
   reactiveHighlight = true,
   highlightParallax = 0.15,
+  design,
   className,
-  style,
-  as: Tag = "div",
+  as = "div",
 }, ref) => {
   const highlightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!reactiveHighlight) return;
-
     const handleScroll = () => {
       if (!highlightRef.current) return;
-      const y = window.scrollY * highlightParallax;
-      highlightRef.current.style.setProperty("--_hl-y", `${y}px`);
+      highlightRef.current.style.setProperty("--_hl-y", `${window.scrollY * highlightParallax}px`);
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [reactiveHighlight, highlightParallax]);
@@ -65,64 +69,55 @@ export const GlassRoot = React.forwardRef<HTMLDivElement, GlassRootProps>(({
     ? (typeof blur === "number" ? `blur(${blur}px) saturate(${saturate}%)` : blur)
     : "var(--vi-glass-blur, none)";
 
-  // Highlight opacity тоже из темы
-  const highlightStop = "var(--vi-glass-highlight, rgba(255,255,255,0.22))";
-
-  const Element = Tag as any;
-
   return (
-    <Element
+    <Box
+      as={as}
       ref={ref}
       className={className}
-      style={{
-        position: "relative",
-        isolation: "isolate",
-        ...style,
-      }}
+      design={{ position: "relative", isolation: "isolate", ...design }}
     >
       {/* Слой 1: единый backdrop-filter на весь контейнер.
           В default теме: none (fake-glass).
-          В apple теме: blur(20px) saturate(180%). */}
-      <div
+          В apple теме: blur(20px) saturate(180%).
+          getDesignClass() вычислит хэш один раз и закэширует. */}
+      <Box
         aria-hidden
-        style={{
+        design={{
           position: "absolute",
           inset: 0,
           backdropFilter: backdropValue,
-          WebkitBackdropFilter: backdropValue,
           pointerEvents: "none",
           zIndex: 0,
           borderRadius: "inherit",
         }}
       />
 
-      {/* Слой 2: scroll-reactive highlight — имитирует преломление.
-          Когда контент скроллится — блик смещается → иллюзия рефракции. */}
+      {/* Слой 2: scroll-reactive highlight.
+          background содержит var(--_hl-y, 0px) — CSS переменная, которую
+          мы меняем через ref.style.setProperty при скролле.
+          design-хэш стабилен (строка не меняется) → CSS класс создаётся один раз.
+          Браузер сам пересчитывает gradient при изменении --_hl-y без React. */}
       {reactiveHighlight && (
-        <div
+        <Box
           ref={highlightRef}
           aria-hidden
-          style={{
+          design={{
             position: "absolute",
             inset: 0,
-            background: `radial-gradient(
-              ellipse 80% 60% at 50% calc(-20% + var(--_hl-y, 0px)),
-              ${highlightStop} 0%,
-              transparent 70%
-            )`,
+            background: "radial-gradient(ellipse 80% 60% at 50% calc(-20% + var(--_hl-y, 0px)), var(--vi-glass-highlight, rgba(255,255,255,0.22)) 0%, transparent 70%)",
             pointerEvents: "none",
             zIndex: 1,
             borderRadius: "inherit",
             mixBlendMode: "overlay",
-          } as CSSProperties}
+          }}
         />
       )}
 
       {/* Слой 3: контент */}
-      <div style={{ position: "relative", zIndex: 2 }}>
+      <Box design={{ position: "relative", zIndex: 2 }}>
         {children}
-      </div>
-    </Element>
+      </Box>
+    </Box>
   );
 });
 

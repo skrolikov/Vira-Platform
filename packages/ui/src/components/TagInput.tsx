@@ -4,64 +4,22 @@ import { Flex } from './Flex';
 import { Input } from './Input';
 import { Tag } from './Tag';
 import { Text } from './Text';
-import { Card } from './Card';
 import { Button } from './Button';
 
 export interface TagInputProps {
-  /**
-   * Текущее значение (для single mode - строка, для multiple - массив строк)
-   */
   value: string | string[];
-  
-  /**
-   * Callback при изменении значения
-   */
   onChange: (value: string | string[]) => void;
-  
-  /**
-   * Режим: single (один тег) или multiple (несколько тегов)
-   */
   mode?: 'single' | 'multiple';
-  
-  /**
-   * Placeholder
-   */
   placeholder?: string;
-  
-  /**
-   * Список предложений для автодополнения
-   */
   suggestions?: string[];
-  
-  /**
-   * Callback для сохранения нового значения в БД
-   */
   onCreateNew?: (value: string) => Promise<void> | void;
-  
-  /**
-   * Разделитель для множественных тегов (по умолчанию запятая)
-   */
   separator?: string;
-  
-  /**
-   * Автоматически добавлять разделитель при нажатии Enter (только для multiple mode)
-   */
   autoSeparator?: boolean;
-  
-  /**
-   * Disabled state
-   */
   disabled?: boolean;
-  
-  /**
-   * CSS класс
-   */
   className?: string;
-  
-  /**
-   * Design props для кастомизации
-   */
   design?: any;
+  maxSuggestions?: number;
+  showSuggestionsOnFocus?: boolean;
 }
 
 export const TagInput: React.FC<TagInputProps> = ({
@@ -76,15 +34,33 @@ export const TagInput: React.FC<TagInputProps> = ({
   disabled = false,
   className = '',
   design,
+  maxSuggestions = 10,
+  showSuggestionsOnFocus = true,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const suggestionsListRef = useRef<HTMLDivElement>(null);
   const suggestionItemRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const isClickingSuggestionRef = useRef(false);
+  const blurTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // 👇 ВАЖНО: используем useRef для хранения ссылки на input
+  // Но мы не можем напрямую передать его в Input, потому что Input ожидает ref
+  // Вместо этого мы будем использовать функцию обратного вызова
+  const inputRefCallback = useCallback((node: HTMLInputElement | null) => {
+    // Сохраняем ссылку для внутреннего использования
+    (inputRefCallback as any).current = node;
+  }, []);
+  
+  // Получаем текущий input элемент
+  const getInputElement = useCallback(() => {
+    return (inputRefCallback as any).current as HTMLInputElement | null;
+  }, []);
 
   // Нормализуем value к массиву для удобства работы
   const tags = useMemo(() => {
@@ -94,29 +70,36 @@ export const TagInput: React.FC<TagInputProps> = ({
     return value ? [value as string] : [];
   }, [mode, value]);
 
-  // Фильтруем suggestions при изменении input
+  // Фильтруем suggestions при изменении input или внешних suggestions
   useEffect(() => {
+    const tagsArray = mode === 'multiple' 
+      ? (Array.isArray(value) ? value : value ? [value] : [])
+      : (value ? [value as string] : []);
+    
+    let filtered: string[];
+    
     if (inputValue.trim()) {
-      const tagsArray = mode === 'multiple' 
-        ? (Array.isArray(value) ? value : value ? [value] : [])
-        : (value ? [value as string] : []);
-      
-      const filtered = suggestions.filter(s =>
+      // Если есть ввод, фильтруем по нему
+      filtered = suggestions.filter(s =>
         s.toLowerCase().includes(inputValue.toLowerCase()) &&
         !tagsArray.includes(s)
       );
-      setFilteredSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
-      setSelectedIndex(-1); // Сбрасываем выбор при изменении фильтра
-      // Очищаем и инициализируем refs для новых элементов
-      suggestionItemRefs.current = new Array(filtered.length).fill(null);
     } else {
-      setFilteredSuggestions([]);
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-      suggestionItemRefs.current = [];
+      // Если ввод пустой, показываем все suggestions (кроме уже выбранных)
+      filtered = suggestions.filter(s => !tagsArray.includes(s));
     }
-  }, [inputValue, suggestions, mode, value]);
+    
+    // Ограничиваем количество
+    filtered = filtered.slice(0, maxSuggestions);
+    
+    setFilteredSuggestions(filtered);
+    suggestionItemRefs.current = new Array(filtered.length).fill(null);
+    
+    // Сбрасываем выбранный индекс, если он выходит за пределы
+    if (selectedIndex >= filtered.length) {
+      setSelectedIndex(-1);
+    }
+  }, [inputValue, suggestions, mode, value, maxSuggestions, selectedIndex]);
 
   // Скроллим к выбранному элементу
   useEffect(() => {
@@ -150,7 +133,16 @@ export const TagInput: React.FC<TagInputProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const addTag = async (tag: string) => {
+  // Очищаем таймаут при размонтировании
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const addTag = useCallback(async (tag: string, shouldCloseSuggestions = true) => {
     const trimmedTag = tag.trim();
     if (!trimmedTag) return;
 
@@ -158,8 +150,13 @@ export const TagInput: React.FC<TagInputProps> = ({
     const isExisting = suggestions.includes(trimmedTag);
     
     // Если тега нет в suggestions, сохраняем в БД
-    if (!isExisting && onCreateNew) {
-      await onCreateNew(trimmedTag);
+    if (!isExisting && onCreateNew && !isCreatingNew) {
+      setIsCreatingNew(true);
+      try {
+        await onCreateNew(trimmedTag);
+      } finally {
+        setIsCreatingNew(false);
+      }
     }
 
     if (mode === 'single') {
@@ -171,20 +168,37 @@ export const TagInput: React.FC<TagInputProps> = ({
     }
 
     setInputValue('');
-    setShowSuggestions(false);
+    if (shouldCloseSuggestions) {
+      setShowSuggestions(false);
+    }
     setSelectedIndex(-1);
-  };
+    
+    // Фокус на инпут после добавления
+    setTimeout(() => {
+      getInputElement()?.focus();
+    }, 0);
+  }, [mode, tags, onChange, onCreateNew, suggestions, isCreatingNew, getInputElement]);
 
-  const removeTag = (indexToRemove: number) => {
+  const removeTag = useCallback((indexToRemove: number) => {
     if (mode === 'single') {
       onChange('');
     } else {
       const newTags = tags.filter((_, index) => index !== indexToRemove);
       onChange(newTags);
     }
-  };
+    
+    // Фокус на инпут после удаления
+    setTimeout(() => {
+      getInputElement()?.focus();
+    }, 0);
+  }, [mode, tags, onChange, getInputElement]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Предотвращаем поведение по умолчанию для Tab, чтобы не уходить с поля
+    if (e.key === 'Tab') {
+      e.preventDefault();
+    }
+
     if (e.key === 'Enter' || e.key === 'Tab') {
       e.preventDefault();
       
@@ -194,40 +208,33 @@ export const TagInput: React.FC<TagInputProps> = ({
       } else if (inputValue.trim()) {
         // Добавляем введенное значение
         addTag(inputValue);
-        
-        // Автоматически добавляем разделитель для multiple mode
-        if (mode === 'multiple' && autoSeparator) {
-          setTimeout(() => {
-            setInputValue('');
-          }, 0);
-        }
+      } else if (e.key === 'Tab' && filteredSuggestions.length > 0) {
+        // Если Tab при пустом вводе и есть suggestions, выбираем первый
+        addTag(filteredSuggestions[0]);
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (showSuggestions && filteredSuggestions.length > 0) {
-        setSelectedIndex(prev => 
-          prev < filteredSuggestions.length - 1 ? prev + 1 : prev
-        );
-      } else if (inputValue.trim() && suggestions.length > 0) {
+      
+      if (!showSuggestions && filteredSuggestions.length > 0) {
         // Показываем suggestions при первом нажатии стрелки вниз
-        const tagsArray = mode === 'multiple' 
-          ? (Array.isArray(value) ? value : value ? [value] : [])
-          : (value ? [value as string] : []);
-        
-        const filtered = suggestions.filter(s =>
-          s.toLowerCase().includes(inputValue.toLowerCase()) &&
-          !tagsArray.includes(s)
-        );
-        if (filtered.length > 0) {
-          setFilteredSuggestions(filtered);
-          setShowSuggestions(true);
-          setSelectedIndex(0);
-        }
+        setShowSuggestions(true);
+        setSelectedIndex(0);
+      } else if (showSuggestions && filteredSuggestions.length > 0) {
+        // Перемещаемся вниз по списку
+        setSelectedIndex(prev => {
+          const next = prev + 1;
+          return next < filteredSuggestions.length ? next : 0; // Зацикливаем
+        });
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
+      
       if (showSuggestions && filteredSuggestions.length > 0) {
-        setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
+        // Перемещаемся вверх по списку
+        setSelectedIndex(prev => {
+          const next = prev - 1;
+          return next >= 0 ? next : filteredSuggestions.length - 1; // Зацикливаем
+        });
       }
     } else if (e.key === 'Home' && showSuggestions && filteredSuggestions.length > 0) {
       e.preventDefault();
@@ -237,39 +244,51 @@ export const TagInput: React.FC<TagInputProps> = ({
       setSelectedIndex(filteredSuggestions.length - 1);
     } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
       // Удаляем последний тег при Backspace, если input пустой
+      e.preventDefault();
       removeTag(tags.length - 1);
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
       setSelectedIndex(-1);
-      const input = containerRef.current?.querySelector('input');
-      input?.blur();
+      getInputElement()?.blur();
     }
-  };
+  }, [selectedIndex, filteredSuggestions, inputValue, addTag, showSuggestions, tags.length, removeTag, getInputElement]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    
-    // Убираем автоматическое разделение по запятой
-    // Пользователь может вводить запятые как часть значения
     setInputValue(newValue);
     setSelectedIndex(-1);
-  };
+    
+    // Показываем suggestions при вводе
+    if (newValue.trim() || showSuggestionsOnFocus) {
+      setShowSuggestions(true);
+    }
+  }, [showSuggestionsOnFocus]);
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleInputFocus = useCallback(() => {
+    if (showSuggestionsOnFocus && (inputValue.trim() || filteredSuggestions.length > 0)) {
+      setShowSuggestions(true);
+    }
+  }, [showSuggestionsOnFocus, inputValue, filteredSuggestions.length]);
+
+  const handleSuggestionClick = useCallback((suggestion: string) => {
     isClickingSuggestionRef.current = true;
     addTag(suggestion);
-    const input = containerRef.current?.querySelector('input');
-    input?.focus();
+    
+    // Очищаем флаг через некоторое время
     setTimeout(() => {
       isClickingSuggestionRef.current = false;
     }, 300);
-  };
+  }, [addTag]);
 
-  // Автоматически добавляем тег при потере фокуса, если есть введенное значение
   const handleBlur = useCallback(() => {
+    // Очищаем предыдущий таймаут
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+    }
+    
     // Небольшая задержка, чтобы onClick на suggestion успел сработать
-    setTimeout(async () => {
-      // Если был клик на suggestion, не добавляем тег при blur
+    blurTimeoutRef.current = setTimeout(() => {
+      // Если был клик на suggestion, не закрываем поповер и не добавляем тег
       if (isClickingSuggestionRef.current) {
         return;
       }
@@ -277,52 +296,20 @@ export const TagInput: React.FC<TagInputProps> = ({
       const trimmedValue = inputValue.trim();
       
       if (trimmedValue) {
-        // Получаем актуальные теги
-        const currentTags = mode === 'multiple'
-          ? (Array.isArray(value) ? value : value ? [value] : [])
-          : (value ? [value as string] : []);
-        
-        // Проверяем, есть ли точное совпадение в suggestions
-        const exactMatch = suggestions.find(
-          s => s.toLowerCase() === trimmedValue.toLowerCase()
-        );
-        
-        if (exactMatch && !currentTags.includes(exactMatch)) {
-          // Если есть точное совпадение, используем его
-          const isExisting = suggestions.includes(exactMatch);
-          if (!isExisting && onCreateNew) {
-            await onCreateNew(exactMatch);
-          }
-          
-          if (mode === 'single') {
-            onChange(exactMatch);
-          } else {
-            onChange([...currentTags, exactMatch]);
-          }
-          setInputValue('');
-        } else if (!currentTags.includes(trimmedValue)) {
-          // Если нет точного совпадения, добавляем как есть
-          const isExisting = suggestions.includes(trimmedValue);
-          if (!isExisting && onCreateNew) {
-            await onCreateNew(trimmedValue);
-          }
-          
-          if (mode === 'single') {
-            onChange(trimmedValue);
-          } else {
-            onChange([...currentTags, trimmedValue]);
-          }
-          setInputValue('');
-        } else {
-          // Если тег уже существует, просто очищаем input
-          setInputValue('');
-        }
+        // Добавляем введенное значение при потере фокуса
+        addTag(trimmedValue);
       }
       
       setShowSuggestions(false);
       setSelectedIndex(-1);
     }, 200);
-  }, [inputValue, suggestions, mode, value, onChange, onCreateNew]);
+  }, [inputValue, addTag]);
+
+  // Показываем подсказку "Новый элемент" если введенного значения нет в suggestions
+  const showCreateNew = inputValue.trim() && 
+                       !filteredSuggestions.includes(inputValue.trim()) && 
+                       !tags.includes(inputValue.trim()) &&
+                       onCreateNew;
 
   return (
     <Box
@@ -334,23 +321,44 @@ export const TagInput: React.FC<TagInputProps> = ({
         ...design,
       }}
     >
-      <Flex wrap
+      <Flex
+        wrap
+        align="center"
+        gap={2}
+        design={{
+          minHeight: '36px',
+          padding: '4px',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--color-border)',
+          backgroundColor: disabled ? 'var(--color-bg-tertiary)' : 'var(--color-bg-primary)',
+          cursor: disabled ? 'not-allowed' : 'text',
+          transition: 'border-color 0.15s',
+          '&:hover': disabled ? {} : {
+            borderColor: 'var(--color-primary)',
+          },
+          '&:focus-within': {
+            borderColor: 'var(--color-primary)',
+            boxShadow: '0 0 0 2px var(--color-primary-alpha)',
+          },
+        }}
         onClick={() => {
           if (!disabled) {
-            const input = containerRef.current?.querySelector('input');
-            input?.focus();
+            getInputElement()?.focus();
           }
         }}
       >
         {/* Отображаем теги */}
         {tags.map((tag, index) => (
           <Tag
-            key={index}
+            key={`${tag}-${index}`}
             color="primary"
             variant="soft"
             size="sm"
             closable={!disabled}
             onClose={() => removeTag(index)}
+            design={{
+              margin: '2px',
+            }}
           >
             {tag}
           </Tag>
@@ -365,67 +373,137 @@ export const TagInput: React.FC<TagInputProps> = ({
             }}
           >
             <Input
+              // 👇 Используем callback ref вместо RefObject
+              ref={inputRefCallback}
               type="text"
               value={inputValue}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              onFocus={() => {
-                if (inputValue.trim() && filteredSuggestions.length > 0) {
-                  setShowSuggestions(true);
-                }
-              }}
+              onFocus={handleInputFocus}
               onBlur={handleBlur}
               placeholder={tags.length === 0 ? placeholder : ''}
               disabled={disabled}
+              design={{
+                border: 'none',
+                padding: '4px 8px',
+                height: 'auto',
+                minHeight: '28px',
+                backgroundColor: 'transparent',
+                boxShadow: 'none',
+                '&:focus': {
+                  boxShadow: 'none',
+                },
+              }}
             />
           </Box>
         )}
       </Flex>
 
       {/* Popover с suggestions */}
-      {showSuggestions && filteredSuggestions.length > 0 && (
+      {showSuggestions && !disabled && (filteredSuggestions.length > 0 || showCreateNew) && (
         <Box
           ref={suggestionsListRef}
           design={{
             position: 'absolute',
-            top: 'calc(100% + 0.25rem)',
+            top: 'calc(100% + 4px)',
             left: 0,
             right: 0,
-            zIndex: 50,
-            maxHeight: '200px',
+            zIndex: 9999,
+            maxHeight: '250px',
             overflowY: 'auto',
-            padding: 3,
-            radius: "radius.md",
-            bg: "color.bg.primary",
-            effect: 'glassHeavy',
+            padding: '4px',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: 'var(--color-bg-primary)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+            border: '1px solid var(--color-border)',
           }}
         >
+          {/* Существующие suggestions */}
           {filteredSuggestions.map((suggestion, index) => (
             <Button
-              preset='ghost'
-              key={index}
+              key={suggestion}
               ref={(el: HTMLButtonElement | null) => {
                 suggestionItemRefs.current[index] = el;
               }}
               onClick={() => handleSuggestionClick(suggestion)}
               onMouseEnter={() => setSelectedIndex(index)}
               design={{
-                width: "100%",
+                width: '100%',
                 justifyContent: 'flex-start',
-                backgroundColor: selectedIndex === index ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
-                transition: 'background-color 0.15s ease',
+                padding: '8px 12px',
+                backgroundColor: selectedIndex === index ? 'var(--color-bg-tertiary)' : 'transparent',
+                color: selectedIndex === index ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                fontWeight: selectedIndex === index ? '600' : '400',
+                borderRadius: 'var(--radius-sm)',
+                transition: 'all 0.15s',
+                '&:hover': {
+                  backgroundColor: 'var(--color-bg-tertiary)',
+                },
               }}
             >
               <Text
                 design={{
-                  fontWeight: selectedIndex === index ? '600' : '400',
-                  color: selectedIndex === index ? 'var(--color-primary, #0066cc)' : 'inherit',
+                  fontSize: '13px',
                 }}
               >
                 {suggestion}
               </Text>
             </Button>
           ))}
+
+          {/* Опция создания нового */}
+          {showCreateNew && (
+            <>
+              {filteredSuggestions.length > 0 && (
+                <Box
+                  design={{
+                    height: '1px',
+                    backgroundColor: 'var(--color-border)',
+                    margin: '4px 0',
+                  }}
+                />
+              )}
+              <Button
+                onClick={() => addTag(inputValue.trim())}
+                onMouseEnter={() => setSelectedIndex(-1)}
+                design={{
+                  width: '100%',
+                  justifyContent: 'flex-start',
+                  padding: '8px 12px',
+                  backgroundColor: 'transparent',
+                  color: 'var(--color-primary)',
+                  fontWeight: '600',
+                  borderRadius: 'var(--radius-sm)',
+                  gap: '8px',
+                  '&:hover': {
+                    backgroundColor: 'var(--color-bg-tertiary)',
+                  },
+                }}
+              >
+                <svg 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 16 16" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    d="M8 3V13M3 8H13" 
+                    stroke="currentColor" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <Text
+                  design={{
+                    fontSize: '13px',
+                  }}
+                >
+                  Создать: «{inputValue.trim()}»
+                </Text>
+              </Button>
+            </>
+          )}
         </Box>
       )}
     </Box>

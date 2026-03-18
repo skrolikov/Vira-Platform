@@ -1,27 +1,8 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, forwardRef } from "react";
 import { DesignProps } from "../types";
 import { mergeDesign, getDesignClass, applyDesignClass, getDataDesignAttribute } from "../utils/design-utils";
 import { presets, PresetName } from "../presets";
 import { ChevronUp, ChevronDown } from "lucide-react";
-
-/**
- * Input - Универсальный компонент ввода
- * 
- * Поддерживает:
- * - design prop для стилей
- * - preset для предустановленных стилей
- * - controlled/uncontrolled режим
- * 
- * @example
- * // Обычное использование
- * <Input preset="input" placeholder="Enter text..." />
- * 
- * // Controlled
- * <Input value={value} onChange={(e) => setValue(e.target.value)} />
- * 
- * // Uncontrolled
- * <Input defaultValue="initial" />
- */
 
 export interface InputProps 
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -31,7 +12,7 @@ export interface InputProps
   onUpdateModelValue?: (value: string) => void;
 }
 
-export const Input: React.FC<InputProps> = ({ 
+export const Input = forwardRef<HTMLInputElement, InputProps>(({ 
   design, 
   preset,
   modelValue,
@@ -45,7 +26,7 @@ export const Input: React.FC<InputProps> = ({
   max,
   step = 1,
   ...props 
-}) => {
+}, ref) => {
 
   // If this input is bound via BindingRuntime using data-model, we should NOT render it as
   // React-controlled (value=...) unless the caller explicitly controls it (modelValue/value).
@@ -60,6 +41,21 @@ export const Input: React.FC<InputProps> = ({
   const [internalValue, setInternalValue] = useState<string>(
     defaultValue ? String(defaultValue) : ""
   );
+
+  // Внутренний ref для number input
+  const internalInputRef = useRef<HTMLInputElement>(null);
+  
+  // Объединяем переданный ref с внутренним
+  const combinedRef = (node: HTMLInputElement) => {
+    // Обновляем переданный ref
+    if (typeof ref === 'function') {
+      ref(node);
+    } else if (ref) {
+      ref.current = node;
+    }
+    // Обновляем внутренний ref
+    (internalInputRef as any).current = node;
+  };
 
   // ============================================
   // COMPUTED VALUE
@@ -155,7 +151,6 @@ export const Input: React.FC<InputProps> = ({
   const finalClassName = applyDesignClass(className, designClass);
   
   const isNumberInput = type === "number";
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const setNativeInputValue = useCallback((el: HTMLInputElement, next: string) => {
     // Use native setter so React's internal value tracker (when present) can observe changes.
@@ -167,10 +162,10 @@ export const Input: React.FC<InputProps> = ({
   
   // Обработчики для кнопок увеличения/уменьшения
   const handleStepUp = useCallback(() => {
-    if (!isNumberInput || !inputRef.current) return;
+    if (!isNumberInput || !internalInputRef.current) return;
     
     const currentValue = runtimeControlsValue
-      ? (parseFloat(inputRef.current.value) || 0)
+      ? (parseFloat(internalInputRef.current.value) || 0)
       : (parseFloat(computedValue) || 0);
     const stepValue = typeof step === "string" ? parseFloat(step) : (step || 1);
     let newValue = currentValue + stepValue;
@@ -181,9 +176,9 @@ export const Input: React.FC<InputProps> = ({
     }
     
     if (runtimeControlsValue) {
-      setNativeInputValue(inputRef.current, String(newValue));
-      inputRef.current.dispatchEvent(new Event("input", { bubbles: true }));
-      inputRef.current.focus();
+      setNativeInputValue(internalInputRef.current, String(newValue));
+      internalInputRef.current.dispatchEvent(new Event("input", { bubbles: true }));
+      internalInputRef.current.focus();
       return;
     }
 
@@ -193,14 +188,14 @@ export const Input: React.FC<InputProps> = ({
     } as React.ChangeEvent<HTMLInputElement>;
     
     handleChange(syntheticEvent);
-    inputRef.current?.focus();
+    internalInputRef.current?.focus();
   }, [isNumberInput, runtimeControlsValue, computedValue, step, max, handleChange, setNativeInputValue]);
   
   const handleStepDown = useCallback(() => {
-    if (!isNumberInput || !inputRef.current) return;
+    if (!isNumberInput || !internalInputRef.current) return;
     
     const currentValue = runtimeControlsValue
-      ? (parseFloat(inputRef.current.value) || 0)
+      ? (parseFloat(internalInputRef.current.value) || 0)
       : (parseFloat(computedValue) || 0);
     const stepValue = typeof step === "string" ? parseFloat(step) : (step || 1);
     let newValue = currentValue - stepValue;
@@ -211,9 +206,9 @@ export const Input: React.FC<InputProps> = ({
     }
     
     if (runtimeControlsValue) {
-      setNativeInputValue(inputRef.current, String(newValue));
-      inputRef.current.dispatchEvent(new Event("input", { bubbles: true }));
-      inputRef.current.focus();
+      setNativeInputValue(internalInputRef.current, String(newValue));
+      internalInputRef.current.dispatchEvent(new Event("input", { bubbles: true }));
+      internalInputRef.current.focus();
       return;
     }
 
@@ -223,7 +218,7 @@ export const Input: React.FC<InputProps> = ({
     } as React.ChangeEvent<HTMLInputElement>;
     
     handleChange(syntheticEvent);
-    inputRef.current?.focus();
+    internalInputRef.current?.focus();
   }, [isNumberInput, runtimeControlsValue, computedValue, step, min, handleChange, setNativeInputValue]);
   
   // Если это number input, оборачиваем в контейнер со стрелками
@@ -282,25 +277,25 @@ export const Input: React.FC<InputProps> = ({
       <>
         {/* Скрываем стандартные стрелки браузера */}
         <style>{`
-          input[]::-webkit-inner-spin-button,
-          input[]::-webkit-outer-spin-button {
+          input[type="number"]::-webkit-inner-spin-button,
+          input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
           }
-          input[] {
+          input[type="number"] {
             -moz-appearance: textfield;
           }
         `}</style>
         <div className={containerClass} {...(containerDesign && { "data-design": getDataDesignAttribute(containerDesign) })}>
           <input 
-            ref={inputRef}
-            
+            ref={combinedRef}
             className={finalInputClassName}
             {...(!runtimeControlsValue && { value: computedValue })}
             onChange={handleChange}
             min={min}
             max={max}
             step={step}
+            type="number"
             {...(inputWithArrowsDesign && getDataDesignAttribute(inputWithArrowsDesign) && { "data-design": getDataDesignAttribute(inputWithArrowsDesign) })}
             {...(preset && { "data-preset": preset })}
             {...props}
@@ -335,7 +330,7 @@ export const Input: React.FC<InputProps> = ({
   // Обычный input без стрелок
   return (
     <input 
-      ref={inputRef}
+      ref={combinedRef}
       type={type}
       className={finalClassName}
       {...(!runtimeControlsValue && { value: computedValue })}
@@ -345,4 +340,6 @@ export const Input: React.FC<InputProps> = ({
       {...props}
     />
   );
-};
+});
+
+Input.displayName = 'Input';

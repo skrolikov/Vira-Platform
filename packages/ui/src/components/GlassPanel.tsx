@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, CSSProperties } from "react";
+import { Box } from "./Box";
+import { DesignProps } from "../types";
 
 export type GlassPanelPlacement = "left" | "right";
 
@@ -14,6 +16,8 @@ export interface GlassPanelProps {
   closeOnEscape?: boolean;
   /** Показывать полупрозрачный backdrop. Default: false */
   backdrop?: boolean;
+  /** Дополнительные design-пропы для панели */
+  design?: DesignProps;
   className?: string;
   style?: CSSProperties;
   /** z-index. Default: 400 */
@@ -31,8 +35,7 @@ export interface GlassPanelProps {
  * React больше не монтирует 200 дочерних элементов при клике — они уже готовы.
  *
  * Анимация идёт только по transform и opacity → только compositing, без layout/paint.
- *
- * Паттерн: `contain: layout paint` изолирует панель от остального layout.
+ * design-хэш вычисляется ДВА раза (open=true и open=false) и оба закэшируются.
  *
  * @example
  * const [open, setOpen] = useState(false)
@@ -49,13 +52,14 @@ export const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(({
   children,
   closeOnEscape = true,
   backdrop = false,
+  design,
   className,
   style,
   zIndex = 400,
 }, ref) => {
   const hasOpenedOnce = useRef(false);
 
-  // Запоминаем, что панель хоть раз открывалась — чтобы не рендерить пустышку при старте
+  // Lazy mount: не рендерим ничего до первого открытия
   if (open && !hasOpenedOnce.current) {
     hasOpenedOnce.current = true;
   }
@@ -67,12 +71,13 @@ export const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(({
     return () => window.removeEventListener("keydown", handle);
   }, [open, closeOnEscape, onClose]);
 
-  const widthValue = typeof width === "number" ? `${width}px` : width;
+  if (!hasOpenedOnce.current) return null;
 
-  const translateOpen = "translateX(0)";
+  const widthValue = typeof width === "number" ? `${width}px` : width;
   const translateClosed = placement === "right" ? "translateX(100%)" : "translateX(-100%)";
 
-  const panelStyle: CSSProperties = {
+  // 2 стабильных значения transform → getDesignClass вычислит 2 хэша и закэширует оба
+  const panelDesign: DesignProps = {
     position: "fixed",
     top: 0,
     bottom: 0,
@@ -80,57 +85,47 @@ export const GlassPanel = React.forwardRef<HTMLDivElement, GlassPanelProps>(({
     width: widthValue,
     maxWidth: "90vw",
     zIndex,
-    // GPU-only transition — никакого layout reflow
-    transform: open ? translateOpen : translateClosed,
+    transform: open ? "translateX(0)" : translateClosed,
     opacity: open ? 1 : 0,
-    transition: [
-      `transform var(--vi-duration-normal, 240ms) var(--vi-ease-spring, cubic-bezier(0.16, 1, 0.3, 1))`,
-      `opacity var(--vi-duration-fast, 120ms) var(--vi-ease-out, cubic-bezier(0,0,0.2,1))`,
-    ].join(", "),
+    transition: "transform var(--vi-duration-normal, 240ms) var(--vi-ease-spring, cubic-bezier(0.16, 1, 0.3, 1)), opacity var(--vi-duration-fast, 120ms) var(--vi-ease-out, cubic-bezier(0,0,0.2,1))",
     willChange: "transform",
-    // Изолируем панель от остального layout — браузер не пересчитывает остальное
     contain: "layout paint",
     overflow: "hidden",
-    // Когда панель скрыта — не перехватывает клики
     pointerEvents: open ? "auto" : "none",
-    ...style,
+    ...design,
   };
 
-  // Backdrop
-  const backdropStyle: CSSProperties = {
+  const backdropDesign: DesignProps = {
     position: "fixed",
     inset: 0,
     zIndex: zIndex - 1,
-    background: "rgba(0,0,0,0.3)",
+    bg: "rgba(0,0,0,0.3)",
     opacity: open ? 1 : 0,
     pointerEvents: open ? "auto" : "none",
-    transition: `opacity var(--vi-duration-fast, 120ms) var(--vi-ease-out, cubic-bezier(0,0,0.2,1))`,
+    transition: "opacity var(--vi-duration-fast, 120ms) var(--vi-ease-out, cubic-bezier(0,0,0.2,1))",
   };
-
-  // Не рендерим ничего до первого открытия
-  if (!hasOpenedOnce.current) return null;
 
   return (
     <>
       {backdrop && (
-        <div
+        <Box
           aria-hidden
-          style={backdropStyle}
+          design={backdropDesign}
           onClick={onClose}
         />
       )}
-      <div
+      <Box
         ref={ref}
         role="dialog"
         aria-modal={open}
         aria-hidden={!open}
         className={className}
-        style={panelStyle}
-        // inert через data-attr + CSS pointer-events когда панель закрыта
+        style={style}
+        design={panelDesign}
         {...(!open && { "data-inert": "" })}
       >
         {children}
-      </div>
+      </Box>
     </>
   );
 });

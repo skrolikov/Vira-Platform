@@ -1,6 +1,6 @@
-import React, { CSSProperties } from "react";
+import React from "react";
+import { Box } from "./Box";
 import { DesignProps } from "../types";
-import { mergeDesign, getDesignClass, applyDesignClass } from "../utils/design-utils";
 
 // SVG-noise как data URI — имитирует текстуру матового стекла.
 // Noise ломает идеальную прозрачность → мозг читает как реальное матовое стекло.
@@ -9,7 +9,7 @@ const NOISE_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 
 export type GlassCardVariant = "light" | "dark" | "tinted";
 
-export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface GlassCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "color"> {
   /**
    * Вариант стекла:
    * - `light`  — использует --vi-glass-bg/border (светлое стекло)
@@ -69,15 +69,9 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(({
   design,
   className,
   children,
-  style,
   ...props
 }, ref) => {
-  const baseDesign: DesignProps = {};
-  const finalDesign = design ? mergeDesign(baseDesign, design) : baseDesign;
-  const designClass = Object.keys(finalDesign).length > 0 ? getDesignClass(finalDesign) : "";
-  const finalClassName = applyDesignClass(className, designClass);
-
-  // Фон, граница и blur берутся из CSS переменных темы.
+  // Фон и граница берутся из CSS переменных темы.
   // Default тема → rgba с opacity ~0.06, blur = none (fake-glass).
   // Apple тема   → rgba(255,255,255,0.72), blur = "blur(20px) saturate(180%)".
   const bgVar = variant === "dark"
@@ -90,62 +84,48 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(({
     ? "var(--vi-glass-dark-border, rgba(255,255,255,0.08))"
     : "var(--vi-glass-border, rgba(255,255,255,0.14))";
 
-  const containerStyle: CSSProperties = {
+  const containerDesign: DesignProps = {
     position: "relative",
     borderRadius: radius,
-    background: bgVar,
+    bg: bgVar,
     border: "1px solid",
     borderColor: borderVar,
-    boxShadow: [
-      "var(--vi-depth-2, 0 6px 20px rgba(0,0,0,0.15))",
-      "inset 0 1px 0 rgba(255,255,255,0.2)",
-    ].join(", "),
+    boxShadow: "var(--vi-depth-2, 0 6px 20px rgba(0,0,0,0.15)), inset 0 1px 0 rgba(255,255,255,0.2)",
     overflow: "hidden",
-    // blur — "none" в default теме, реальный blur в apple теме
     backdropFilter: "var(--vi-glass-blur, none)",
-    WebkitBackdropFilter: "var(--vi-glass-blur, none)",
-    ...style,
+    ...design,
   };
 
   return (
-    <div
-      ref={ref}
-      className={finalClassName}
-      style={containerStyle}
-      {...props}
-    >
+    <Box ref={ref} className={className} design={containerDesign} {...props}>
       {/* Noise текстура — главный секрет матового стекла.
-          opacity берётся из --vi-glass-noise (0.04 default, 0.03 apple) */}
+          opacity через CSS-переменную — нельзя в design (typed как number),
+          поэтому передаём через style. */}
       {noise && (
-        <div
+        <Box
           aria-hidden
-          style={{
+          design={{
             position: "absolute",
             inset: 0,
             backgroundImage: NOISE_SVG,
             backgroundRepeat: "repeat",
             backgroundSize: "200px 200px",
-            opacity: "var(--vi-glass-noise, 0.04)" as any,
             pointerEvents: "none",
             zIndex: 0,
             borderRadius: "inherit",
           }}
+          style={{ opacity: "var(--vi-glass-noise, 0.04)" as unknown as number }}
         />
       )}
 
-      {/* Световой градиент сверху — симулирует освещение сверху */}
+      {/* Световой градиент сверху — симулирует освещение */}
       {highlight && (
-        <div
+        <Box
           aria-hidden
-          style={{
+          design={{
             position: "absolute",
             inset: 0,
-            background: `linear-gradient(
-              180deg,
-              var(--vi-glass-highlight, rgba(255,255,255,0.22)) 0%,
-              rgba(255,255,255,0.04) 40%,
-              transparent 100%
-            )`,
+            background: "linear-gradient(180deg, var(--vi-glass-highlight, rgba(255,255,255,0.22)) 0%, rgba(255,255,255,0.04) 40%, transparent 100%)",
             pointerEvents: "none",
             zIndex: 0,
             borderRadius: "inherit",
@@ -154,10 +134,10 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(({
       )}
 
       {/* Контент поверх слоёв */}
-      <div style={{ position: "relative", zIndex: 1 }}>
+      <Box design={{ position: "relative", zIndex: 1 }}>
         {children}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 });
 
