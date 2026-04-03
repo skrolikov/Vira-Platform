@@ -153,6 +153,9 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
     if (token) {
       return hasCompany;
     }
+    // Pre-auth flows (login/register/restore) legitimately use auth:* without tenant context.
+    // Allow WS only when there is an explicit auth:* active subscription.
+    if (this.channelRefCount.get("auth:")) return true;
     return hasCompany;
   }
 
