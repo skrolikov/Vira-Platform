@@ -41,12 +41,14 @@ export const cyberpunk = {
   },
   typography: {
     fontSize: {
-      xs: "12px",
-      sm: "14px",
-      md: "16px",
+      xs: "10px",
+      sm: "12px",
+      md: "14px",
       lg: "18px",
       xl: "20px",
       "2xl": "24px",
+      "3xl": "30px",
+      "4xl": "36px",
     },
     fontWeight: {
       normal: "400",

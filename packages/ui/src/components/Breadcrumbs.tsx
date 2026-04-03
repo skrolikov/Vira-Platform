@@ -45,10 +45,10 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
 
   const mergedDesign = mergeDesign(containerDesign, design);
   const designClass = getDesignClass(mergedDesign);
-  const defaultSeparator = separator || <ChevronRight size={16} color="#9ca3af" />;
+  const defaultSeparator = separator || <ChevronRight size={20} color="#9ca3af" />;
 
   const allItems = showHome
-    ? [{ label: "Главная", href: homeHref, icon: <Home size={16} /> }, ...items]
+    ? [{ label: "Главная", href: homeHref, icon: <Home size={20} /> }, ...items]
     : items;
 
   return (

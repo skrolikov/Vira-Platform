@@ -1,5 +1,87 @@
 import type { Message } from "./types";
 
+enum OpCode {
+  HELLO = 0,
+  AUTH = 1,
+  READY = 2,
+  EVENT = 3,
+  ERROR = 4,
+  HEARTBEAT = 5,
+}
+
+type WireMessage = Record<string, any>;
+
+function typeToOp(type: string): OpCode | undefined {
+  switch (type) {
+    case "handshake":
+      return OpCode.AUTH;
+    case "ack":
+      return OpCode.READY;
+    case "event":
+    case "update":
+    case "diff":
+      return OpCode.EVENT;
+    case "error":
+      return OpCode.ERROR;
+    case "ping":
+    case "pong":
+      return OpCode.HEARTBEAT;
+    default:
+      return undefined;
+  }
+}
+
+function opToType(msg: WireMessage): string | undefined {
+  if (typeof msg.type === "string" && msg.type) return msg.type;
+  switch (msg.op) {
+    case OpCode.AUTH:
+      return "handshake";
+    case OpCode.READY:
+      return "ack";
+    case OpCode.ERROR:
+      return "error";
+    case OpCode.HEARTBEAT:
+      // HEARTBEAT is multiplexed, detect by legacy fallback
+      if (msg.kind === "pong") return "pong";
+      return "ping";
+    case OpCode.EVENT:
+      // EVENT can carry domain event or state payloads.
+      // Prefer explicit legacy `type`, otherwise infer by payload shape.
+      if (typeof msg.name === "string" && msg.name) return "event";
+      if (msg.patch !== undefined) return "diff";
+      if (msg.channel !== undefined && msg.d !== undefined) return "update";
+      return "event";
+    default:
+      return undefined;
+  }
+}
+
+function encodeWire(msg: WireMessage): WireMessage {
+  const out: WireMessage = { ...msg };
+  const op = typeToOp(String(msg.type || ""));
+  if (op !== undefined) out.op = op;
+  if (op === OpCode.EVENT && typeof msg.name === "string" && msg.name) {
+    out.t = msg.name;
+    out.d = msg.data;
+  } else if (msg.data !== undefined) {
+    out.d = msg.data;
+  }
+  return out;
+}
+
+function decodeWire(raw: WireMessage): Message {
+  const type = opToType(raw);
+  if (!type) return raw as Message;
+  const msg: WireMessage = { ...raw, type };
+  if (msg.data === undefined && msg.d !== undefined) {
+    msg.data = msg.d;
+  }
+  if (!msg.name && typeof msg.t === "string") {
+    msg.name = msg.t;
+  }
+  return msg as Message;
+}
+
 export interface ViraReconnectOptions {
   /** Base delay before reconnect (ms). Default: 400 */
   baseDelayMs?: number;
@@ -96,11 +178,9 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
   // Subscriptions we want to keep (re-applied after reconnect)
   const desiredChannels = new Set<string>();
 
-  // Outbound buffer while not ready/open
+  // Outbound buffer while not ready/open (bounded — backpressure)
+  const OUTBOX_MAX = 1000;
   const outbox: string[] = [];
-
-  // Client-local message counter (server ignores it; used only to satisfy Message schema)
-  let clientMsgNo = 0;
 
   // reconnect state
   let attempt = 0;
@@ -139,22 +219,32 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
       }
     }
     outbox.push(raw);
+    while (outbox.length > OUTBOX_MAX) {
+      outbox.shift();
+    }
   };
 
   const sendMsg = (msg: Omit<Message, "ts"> & { ts?: number }) => {
     // Ensure ts exists
     const full = { ...msg, ts: msg.ts ?? nowMs() } as any;
-    sendRaw(JSON.stringify(full));
+    sendRaw(JSON.stringify(encodeWire(full)));
   };
 
   const scheduleReconnect = (reason: string, event?: CloseEvent) => {
     if (aborted) return;
+    attempt += 1;
+    if (attempt > 10) {
+      aborted = true;
+      onError?.(new Error("VRP: max reconnect attempts exceeded"));
+      log("reconnect aborted (max attempts)", { attempt });
+      return;
+    }
     if (reconnectTimeoutId) {
       clearTimeout(reconnectTimeoutId);
       reconnectTimeoutId = null;
     }
 
-    const base = Math.min(reconnectOpts.baseDelayMs * Math.pow(2, attempt), reconnectOpts.maxDelayMs);
+    const base = Math.min(reconnectOpts.baseDelayMs * Math.pow(2, attempt - 1), reconnectOpts.maxDelayMs);
     const jitter = Math.floor(Math.random() * reconnectOpts.jitterMs);
     const delay = base + jitter;
 
@@ -169,8 +259,6 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
       reconnectTimeoutId = null;
       if (!aborted) connect();
     }, finalDelay);
-
-    attempt = Math.min(attempt + 1, 10);
   };
 
   const applySubscriptions = () => {
@@ -178,7 +266,7 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
     if (desiredChannels.size === 0) return;
     const channels = Array.from(desiredChannels).filter(Boolean);
     if (channels.length === 0) return;
-    ws.send(JSON.stringify({ type: "sub", channels }));
+    ws.send(JSON.stringify(encodeWire({ type: "sub", channels })));
     log("sub ->", channels);
   };
 
@@ -222,14 +310,14 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
         handshakeMsg.data = handshakeData;
       }
       
-      newWs.send(JSON.stringify(handshakeMsg));
+      newWs.send(JSON.stringify(encodeWire(handshakeMsg)));
 
       onConnect?.();
     };
 
     newWs.onmessage = (evt) => {
       try {
-        const msg = JSON.parse(evt.data as string) as Message;
+        const msg = decodeWire(JSON.parse(evt.data as string) as WireMessage);
 
         switch (msg.type) {
           case "ack": {
@@ -249,7 +337,7 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
               clearInterval(pingIntervalId);
               pingIntervalId = setInterval(() => {
                 if (ws?.readyState === WebSocket.OPEN) {
-                  ws.send(JSON.stringify({ type: "ping", ts: nowMs() }));
+                  ws.send(JSON.stringify(encodeWire({ type: "ping", ts: nowMs() })));
                 }
               }, (msg as any).interval);
             }
@@ -259,7 +347,7 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
             break;
           }
           case "ping":
-            ws?.send(JSON.stringify({ type: "pong", ts: nowMs() }));
+            ws?.send(JSON.stringify(encodeWire({ type: "pong", ts: nowMs() })));
             break;
           case "error":
             onError?.(new Error(msg.message || "VRP error"));
@@ -325,7 +413,7 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
       if (!ch) return;
       desiredChannels.add(ch);
       if (ws?.readyState === WebSocket.OPEN && ready) {
-        ws.send(JSON.stringify({ type: "sub", channels: [ch] }));
+        ws.send(JSON.stringify(encodeWire({ type: "sub", channels: [ch] })));
         log("sub +", ch);
       }
     },
@@ -334,27 +422,25 @@ export function createViraConnection(options: ViraConnectionOptions): ViraConnec
       if (!ch) return;
       desiredChannels.delete(ch);
       if (ws?.readyState === WebSocket.OPEN && ready) {
-        ws.send(JSON.stringify({ type: "unsub", channels: [ch] }));
+        ws.send(JSON.stringify(encodeWire({ type: "unsub", channels: [ch] })));
         log("unsub -", ch);
       }
     },
     sendEvent: (channel: string, name: string, payload: any, msgId?: string) => {
       const ch = ensureChannel(channel);
       if (!ch) return;
-      clientMsgNo += 1;
-      sendMsg({ type: "event", name, channel: ch, data: payload, versionNo: clientMsgNo, msgId } as any);
+      // versionNo задаёт только сервер; клиент шлёт msgId для идемпотентности
+      sendMsg({ type: "event", name, channel: ch, data: payload, msgId } as any);
     },
     sendUpdate: (channel: string, payload: any, msgId?: string) => {
       const ch = ensureChannel(channel);
       if (!ch) return;
-      clientMsgNo += 1;
-      sendMsg({ type: "update", channel: ch, data: payload, versionNo: clientMsgNo, msgId } as any);
+      sendMsg({ type: "update", channel: ch, data: payload, msgId } as any);
     },
     sendDiff: (channel: string, patch: any, msgId?: string) => {
       const ch = ensureChannel(channel);
       if (!ch) return;
-      clientMsgNo += 1;
-      sendMsg({ type: "diff", channel: ch, patch, versionNo: clientMsgNo, msgId } as any);
+      sendMsg({ type: "diff", channel: ch, patch, msgId } as any);
     },
     close: () => {
       aborted = true;

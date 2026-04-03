@@ -136,7 +136,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             </Flex>
             {onCancelReply && (
               <Button preset="ghost" onClick={onCancelReply} design={{ flexShrink: 0, padding: '4px' }}>
-                <X size={16} />
+                <X size={20} />
               </Button>
             )}
           </Flex>
@@ -189,7 +189,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 }}
               >
                 <Flex gap={2} align="center">
-                  <MessageSquare size={16} style={{ color: 'var(--color-primary)' }} />
+                  <MessageSquare size={20} style={{ color: 'var(--color-primary)' }} />
                   <Text design={{ fontWeight: 'var(--typography-fontWeight-semibold)' }} size="sm">
                     Быстрые ответы
                   </Text>
@@ -252,7 +252,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 padding: '8px',
               }}
             >
-              <MessageSquare size={18} />
+              <MessageSquare size={20} />
             </Button>
           </Popover>
         )}
@@ -263,7 +263,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
         >
-          <Paperclip size={18} />
+          <Paperclip size={20} />
         </Button>
         <input
           ref={fileInputRef}
@@ -290,7 +290,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           onClick={handleSend}
           disabled={disabled || (!message.trim() && attachments.length === 0)}
         >
-          <Send size={18} />
+          <Send size={20} />
         </Button>
       </Flex>
 

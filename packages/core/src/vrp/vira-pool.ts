@@ -1,6 +1,48 @@
 import type { Message } from "./types";
 import { createViraConnection, type ViraConnection, type ViraReconnectOptions } from "./vira-connection";
 
+/** Должен совпадать с frontend/src/utils/wsConfig LAST_EVENT_ID_KEY */
+const LAST_EVENT_ID_KEY = "vrp_last_event_id";
+
+/** FNV-1a 32-bit — для pool key без хранения JWT в строке ключа/логах */
+function fnv1aHash32(input: string): string {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h.toString(16);
+}
+
+/** Обновляет last_event_id для resume на reconnect (канал event_log и явное event_id). */
+function tryPersistLastEventId(msg: any): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    const ch = msg?.channel;
+    const t = msg?.type;
+    let id: string | null = null;
+
+    if (typeof ch === "string" && (ch === "event_log:" || ch.startsWith("event_log"))) {
+      if (t === "replay" && Array.isArray(msg.data) && msg.data.length > 0) {
+        const last = msg.data[msg.data.length - 1];
+        if (last && typeof last.id === "string") id = last.id;
+      } else if (msg.data != null && typeof msg.data === "object" && !Array.isArray(msg.data)) {
+        const row = msg.data as Record<string, unknown>;
+        if (typeof row.id === "string") id = row.id;
+        else if (typeof row.event_id === "string") id = row.event_id;
+      }
+    }
+
+    if (typeof msg.event_id === "string") id = msg.event_id;
+
+    if (id && id.length > 0) {
+      localStorage.setItem(LAST_EVENT_ID_KEY, id);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 export interface ViraPoolStatus {
   connected: boolean;
   error: Error | null;
@@ -14,7 +56,7 @@ export interface ViraPoolOptions {
   url: string;
   authToken?: string;
   debug?: boolean;
-  /** Close underlying socket after this idle time when there are no listeners. Default: 15000ms */
+  /** Close underlying socket after this idle time when there are no listeners. Default: 60000ms */
   idleCloseMs?: number;
   reconnect?: ViraReconnectOptions;
   /** Additional data to send in handshake (e.g., company_id, location_id) */
@@ -66,12 +108,14 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
   private passiveListeners = new Map<string, Set<ViraChannelListener>>();
 
   private idleTimer: any = null;
+  /** Защита от двойного ensureConn в одном тике / при реентерах */
+  private connecting = false;
 
   constructor(opts: ViraPoolOptions) {
     this.url = opts.url;
     this.authToken = opts.authToken || "";
     this.debug = Boolean(opts.debug);
-    this.idleCloseMs = opts.idleCloseMs ?? 15000;
+    this.idleCloseMs = opts.idleCloseMs ?? 60_000;
     this.reconnect = opts.reconnect;
     this.handshakeData = opts.handshakeData;
   }
@@ -93,74 +137,115 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
     });
   }
 
+  /**
+   * Не открываем «пустой» сокет: с JWT нужен tenant (company_id) в handshake.
+   * Публичный VRP: явный handshakeData === {} (usePublicSubscriptionPlans и т.п.).
+   * Без JWT не поднимаем WS без company_id — убирает handshake без данных в логах.
+   */
+  private canConnect(): boolean {
+    const h = this.handshakeData;
+    const token = this.authToken;
+    const isPublicExplicit = h !== undefined && Object.keys(h).length === 0;
+    if (isPublicExplicit) return true;
+
+    const cid = h && (h as any).company_id;
+    const hasCompany = typeof cid === "string" && cid.length > 0;
+    if (token) {
+      return hasCompany;
+    }
+    return hasCompany;
+  }
+
   private ensureConn() {
     if (this.conn) return;
-    this.log("create connection", { url: this.url });
+    if (this.connecting) return;
+    if (!this.canConnect()) {
+      this.log("skip connect until JWT + company_id in handshake (or public {})", {
+        url: this.url,
+        hasToken: Boolean(this.authToken),
+      });
+      return;
+    }
+    this.connecting = true;
+    try {
+      this.log("create connection", { url: this.url });
 
-    this.conn = createViraConnection({
-      url: this.url,
-      authToken: this.authToken,
-      session: this.session,
-      debug: this.debug,
-      reconnect: this.reconnect,
-      handshakeData: this.handshakeData,
-      onConnect: () => {
-        // Note: connect fires on WS open; "ready" happens after ack, but for UI it's fine.
-        this.connected = true;
-        this.error = null;
-        this.notifyStatus();
-      },
-      onDisconnect: () => {
-        this.connected = false;
-        this.notifyStatus();
-      },
-      onError: (err) => {
-        this.error = err;
-        this.notifyStatus();
-      },
-      onSessionChange: (s) => {
-        this.session = s;
-        this.notifyStatus();
-      },
-      onMessage: (msg) => {
-        // route only channel-bearing messages
-        const anyMsg: any = msg as any;
-        const ch = anyMsg.channel;
-        if (this.debug && ch) {
-          this.log('routing message', { type: msg.type, channel: ch, hasListeners: this.channelListeners.has(ch), listenerCount: this.channelListeners.get(ch)?.size || 0 });
-        }
-        if (!ch) return;
-        const set = this.channelListeners.get(ch);
-        if (!set || set.size === 0) {
-          if (this.debug) {
-            this.log('no listeners for channel', ch);
+      this.conn = createViraConnection({
+        url: this.url,
+        authToken: this.authToken,
+        session: this.session,
+        debug: this.debug,
+        reconnect: this.reconnect,
+        handshakeData: this.handshakeData,
+        onConnect: () => {
+          // Note: connect fires on WS open; "ready" happens after ack, but for UI it's fine.
+          this.connected = true;
+          this.error = null;
+          this.notifyStatus();
+        },
+        onDisconnect: () => {
+          this.connected = false;
+          this.notifyStatus();
+        },
+        onError: (err) => {
+          this.error = err;
+          this.notifyStatus();
+        },
+        onSessionChange: (s) => {
+          this.session = s;
+          this.notifyStatus();
+        },
+        onMessage: (msg) => {
+          tryPersistLastEventId(msg as any);
+          // route only channel-bearing messages
+          const anyMsg: any = msg as any;
+          const ch = anyMsg.channel;
+          if (this.debug && ch) {
+            this.log('routing message', { type: msg.type, channel: ch, hasListeners: this.channelListeners.has(ch), listenerCount: this.channelListeners.get(ch)?.size || 0 });
           }
-          // Still deliver to passive listeners even when no active subscribers
+          if (!ch) return;
+          const set = this.channelListeners.get(ch);
+          if (!set || set.size === 0) {
+            if (this.debug) {
+              this.log('no listeners for channel', ch);
+            }
+            // Passive: сообщения без активного refcount — только локальные observer'ы;
+            // серверная подписка идёт через активные subscribe() на том же канале.
+            const passiveSet = this.passiveListeners.get(ch);
+            if (passiveSet && passiveSet.size > 0) {
+              passiveSet.forEach((listener) => { try { listener(msg); } catch { /* ignore */ } });
+            }
+            return;
+          }
+          set.forEach((listener) => {
+            try {
+              listener(msg);
+            } catch {
+              // ignore user listener errors
+            }
+          });
           const passiveSet = this.passiveListeners.get(ch);
           if (passiveSet && passiveSet.size > 0) {
             passiveSet.forEach((listener) => { try { listener(msg); } catch { /* ignore */ } });
           }
-          return;
-        }
-        set.forEach((listener) => {
-          try {
-            listener(msg);
-          } catch {
-            // ignore user listener errors
-          }
-        });
-        // Also deliver to passive listeners
-        const passiveSet = this.passiveListeners.get(ch);
-        if (passiveSet && passiveSet.size > 0) {
-          passiveSet.forEach((listener) => { try { listener(msg); } catch { /* ignore */ } });
-        }
-      },
-    });
+        },
+      });
+    } finally {
+      this.connecting = false;
+    }
 
     // Apply current wanted subscriptions
     for (const ch of this.channelRefCount.keys()) {
-      this.conn.subscribe(ch);
+      this.conn!.subscribe(ch);
     }
+  }
+
+  /** Не открывать сокет ради send*, если никто не подписан — иначе idleClose и дёргание */
+  private hasActiveSubscriptions(): boolean {
+    for (const n of this.channelRefCount.values()) {
+      if (n > 0) return true;
+    }
+    return false;
   }
 
   private cancelIdleClose() {
@@ -273,6 +358,10 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
   sendEvent(channel: string, name: string, payload: any, msgId?: string) {
     const ch = String(channel || "").trim();
     if (!ch) return;
+    if (!this.hasActiveSubscriptions()) {
+      this.log("sendEvent skipped: no active subscribers on pool", { channel: ch, name });
+      return;
+    }
     this.ensureConn();
     this.conn?.sendEvent(ch, name, payload, msgId);
   }
@@ -280,6 +369,10 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
   sendUpdate(channel: string, payload: any, msgId?: string) {
     const ch = String(channel || "").trim();
     if (!ch) return;
+    if (!this.hasActiveSubscriptions()) {
+      this.log("sendUpdate skipped: no active subscribers on pool", { channel: ch });
+      return;
+    }
     this.ensureConn();
     this.conn?.sendUpdate(ch, payload, msgId);
   }
@@ -287,6 +380,10 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
   sendDiff(channel: string, patch: any, msgId?: string) {
     const ch = String(channel || "").trim();
     if (!ch) return;
+    if (!this.hasActiveSubscriptions()) {
+      this.log("sendDiff skipped: no active subscribers on pool", { channel: ch });
+      return;
+    }
     this.ensureConn();
     this.conn?.sendDiff(ch, patch, msgId);
   }
@@ -314,6 +411,7 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
       }
       this.conn = null;
     }
+    this.connecting = false;
     this.connected = false;
     this.session = null;
     this.error = null;
@@ -322,35 +420,68 @@ class ViraConnectionPoolImpl implements ViraConnectionPool {
 
 const pools = new Map<string, ViraConnectionPoolImpl>();
 
-function poolKey(url: string, authToken?: string) {
-  // Simplified key - we now always read handshakeData from localStorage
-  return `${url}::${authToken || ""}`;
+/**
+ * Tenant scope only — used for pool identity (not last_event_id / resume tokens).
+ * Otherwise resume metadata changes would fork multiple sockets per user.
+ */
+function tenantFingerprint(h?: Record<string, any>): string {
+  if (!h || Object.keys(h).length === 0) return '';
+  const c = h.company_id != null ? String(h.company_id) : '';
+  const e = h.employee_id != null ? String(h.employee_id) : '';
+  const l = h.location_id != null ? String(h.location_id) : '';
+  if (!c && !e && !l) return '';
+  return `${c}|${e}|${l}`;
+}
+
+function poolKey(url: string, authToken: string | undefined, fp: string) {
+  const tok = authToken ? fnv1aHash32(authToken) : "";
+  return `${url}::${tok}::${fp}`;
 }
 
 function getHandshakeDataFromStorage(): Record<string, any> | undefined {
-  // Try to read user data from localStorage (same logic as getCurrentUser)
+  // Должно совпадать с актуальным JWT/сессией: приложение обязано обновлять `user` при setAuthData/refresh.
+  // Иначе риск рассинхрона company_id (см. auth.ts + login flow).
   try {
     const userStr = (typeof localStorage !== 'undefined') ? localStorage.getItem('user') : null;
     if (!userStr) return undefined;
     const user = JSON.parse(userStr);
     if (!user || !user.company_id) return undefined;
-    return {
+    const base: Record<string, any> = {
       company_id: user.company_id,
       location_id: user.location_id,
       employee_id: user.employee_id,
     };
+    const lastEventId =
+      typeof localStorage !== 'undefined' ? localStorage.getItem(LAST_EVENT_ID_KEY) : null;
+    if (lastEventId) {
+      base.last_event_id = lastEventId;
+    }
+    return base;
   } catch {
     return undefined;
   }
 }
 
-/** Global singleton pool per (url, authToken). handshakeData is always read from localStorage. */
+/**
+ * Merge explicit handshake with persisted user + last_event_id.
+ * Explicit `{}` = public / no tenant (do not merge storage or events resume).
+ */
+function resolveHandshakeData(options: ViraPoolOptions): Record<string, any> | undefined {
+  if (options.handshakeData !== undefined) {
+    if (Object.keys(options.handshakeData).length === 0) {
+      return options.handshakeData;
+    }
+    const fromStorage = getHandshakeDataFromStorage();
+    return { ...(fromStorage || {}), ...options.handshakeData };
+  }
+  return getHandshakeDataFromStorage();
+}
+
+/** Global singleton pool per (url, authToken, tenant). handshake is merged from storage + options. */
 export function getViraConnectionPool(options: ViraPoolOptions): ViraConnectionPool {
-  // Always try to get handshakeData from localStorage first
-  const handshakeData = options.handshakeData || getHandshakeDataFromStorage();
-  const key = poolKey(options.url, options.authToken);
-  
-  
+  const handshakeData = resolveHandshakeData(options);
+  const key = poolKey(options.url, options.authToken, tenantFingerprint(handshakeData));
+
   const existing = pools.get(key);
   if (existing) {
     return existing;

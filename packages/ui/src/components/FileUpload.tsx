@@ -342,7 +342,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   design={{ padding: 1, minWidth: "auto" }}
                   aria-label="Удалить файл"
                 >
-                  <X size={16} />
+                  <X size={20} />
                 </Button>
               </Flex>
             </Flex>

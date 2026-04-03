@@ -258,7 +258,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                           )}
                         </Flex>
                         {isSelected && (
-                          <ArrowRight size={16} color="#9ca3af" />
+                          <ArrowRight size={20} color="#9ca3af" />
                         )}
                       </Flex>
                     </Card>

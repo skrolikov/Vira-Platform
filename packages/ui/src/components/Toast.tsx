@@ -112,7 +112,7 @@ export const Toast: React.FC<ToastProps> = ({ toast, onClose, design }) => {
           }}
           onClick={() => onClose(toast.id)}
         >
-          <X size={16} />
+          <X size={20} />
         </Button>
       </Flex>
     </Card>

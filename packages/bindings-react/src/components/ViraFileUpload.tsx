@@ -339,7 +339,7 @@ export const ViraFileUpload: React.FC<ViraFileUploadProps> = ({
                   design={{ padding: 1, minWidth: "auto" }}
                   aria-label="Удалить файл"
                 >
-                  <X size={16} />
+                  <X size={20} />
                 </Button>
               </Flex>
             </Flex>

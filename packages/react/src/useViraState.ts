@@ -127,32 +127,37 @@ export function useViraState<T = any, C extends string = string>(
   const wasConnectedRef = useRef(false);
   const lastErrorRef = useRef<Error | null>(null);
 
-  // Use provided apiUrl or fallback to env or relative path
-  // Note: import.meta is only available in ESM, so we check safely
-  // IMPORTANT: Auto-detect protocol based on current page (wss:// for HTTPS, ws:// for HTTP)
+  // Use provided apiUrl or fallback — must match app getApiUrl() / getWebSocketUrl() so all
+  // useViraState callers share one VRP pool (same url string, same socket).
   const apiUrl = useMemo(() => {
-    let url = apiUrlOption;
-    
-    // Try to get from env if not provided
-    if (!url) {
+    if (apiUrlOption) return apiUrlOption;
+
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const env = (globalThis as any).import?.meta?.env || (globalThis as any).process?.env;
-        url = env?.VITE_API_URL;
-    } catch {
-      // Ignore if import.meta is not available
-    }
-    }
-    // Default: use current origin with /ws path (works for same-origin deployments)
-    if (!url) {
-      if (typeof window !== 'undefined' && window.location) {
+      const viteDev = env?.DEV === true;
+      if (typeof window !== 'undefined' && window.location && viteDev) {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         return `${protocol}//${window.location.host}/ws`;
       }
-      // Server-side or unknown environment: use relative path
-      return '/ws';
+      const envUrl = String(env?.VITE_API_URL || '');
+      if (typeof window !== 'undefined' && window.location) {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        if (envUrl) {
+          const host = envUrl
+            .replace(/^wss?:\/\//, '')
+            .replace(/^https?:\/\//, '')
+            .split('/')[0];
+          let h = host;
+          if (h === 'localhost' && !h.includes(':')) h = 'localhost:8080';
+          return `${protocol}//${h}/ws`;
+        }
+        return `${protocol}//${window.location.hostname}/ws`;
+      }
+    } catch {
+      // ignore
     }
-    return url;
+    return '/ws';
   }, [apiUrlOption]);
 
   // Get authToken from options or try to get from env

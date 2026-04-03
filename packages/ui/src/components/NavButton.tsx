@@ -64,7 +64,7 @@ export const NavButton: React.FC<NavButtonProps> = ({
           
           {hasChildren && (
             <Flex design={navItemDesign.chevron(expanded)}>
-              <ChevronRight size={16} />
+              <ChevronRight size={20} />
             </Flex>
           )}
           

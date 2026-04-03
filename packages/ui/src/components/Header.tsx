@@ -576,7 +576,7 @@ const DesktopSearch: React.FC<{
                 }}
                 title="Очистить"
               >
-                <X size={16} />
+                <X size={20} />
               </Button>
             )}
           </Flex>
@@ -757,7 +757,7 @@ const DesktopSearch: React.FC<{
                                     flexShrink: 0,
                                   }}
                                 >
-                                  <ChevronRight size={16} />
+                                  <ChevronRight size={20} />
                                 </Box>
                               </Flex>
                             );

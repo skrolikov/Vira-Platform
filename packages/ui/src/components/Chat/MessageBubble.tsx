@@ -269,7 +269,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                               bg: isOwn ? 'rgba(255,255,255,0.1)' : 'color.bg.tertiary',
                             }}
                           >
-                            <Paperclip size={16} style={{ color: isOwn ? 'rgba(255,255,255,0.9)' : 'var(--color-text-secondary)' }} />
+                            <Paperclip size={20} style={{ color: isOwn ? 'rgba(255,255,255,0.9)' : 'var(--color-text-secondary)' }} />
                           </Box>
                           <Flex direction="column" gap={3} design={{ flex: 1, minWidth: 0 }}>
                             <Text 

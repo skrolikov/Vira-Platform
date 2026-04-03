@@ -504,13 +504,13 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     <Card design={{ flex: 1, padding: isMobile ? 2 : 3, flexDirection: 'column', gap: 2, minWidth: isMobile ? '100%' : '280px' }}>
       <Flex design={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Button preset="ghost" onClick={onPrevMonth} design={{ width: '32px', height: '32px', padding: 1 }}>
-          <ChevronLeft size={18} />
+          <ChevronLeft size={20} />
         </Button>
         <Text design={{ fontWeight: 'var(--typography-fontWeight-semibold)', fontSize: 'typography.fontSize.md' }}>
           {monthNames[month]} {year}
         </Text>
         <Button preset="ghost" onClick={onNextMonth} design={{ width: '32px', height: '32px', padding: 1 }}>
-          <ChevronRight size={18} />
+          <ChevronRight size={20} />
         </Button>
       </Flex>
 
@@ -795,10 +795,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
               }}
               onClick={handleClear}
             >
-              <X size={16} />
+              <X size={20} />
             </Flex>
           )}
-          {time || mode === 'datetime' ? <Clock size={18} /> : <CalendarIcon size={18} />}
+          {time || mode === 'datetime' ? <Clock size={20} /> : <CalendarIcon size={20} />}
         </Flex>
       </Flex>
     </Popover>

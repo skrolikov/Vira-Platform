@@ -181,7 +181,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           <Flex gap={2} align="center">
             {onClose && (
               <Button preset="ghost" onClick={onClose} design={{ padding: '8px' }}>
-                <X size={18} />
+                <X size={20} />
               </Button>
             )}
           </Flex>
@@ -208,7 +208,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           <Flex justify="center" design={{ padding: '16px 0' }}>
             {loading ? (
               <Flex gap={2} align="center" design={{ color: 'color.text.secondary' }}>
-                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} />
                 <Text design={{ color: 'color.text.secondary' }}>Загрузка...</Text>
               </Flex>
             ) : (
@@ -232,7 +232,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               as="div"
               design={{
                 padding: '24px',
-                borderRadius: '50%',
+                borderRadius: 'var(--radius-full)',
                 bg: 'color.bg.tertiary',
                 display: 'flex',
                 alignItems: 'center',
@@ -275,7 +275,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                   design={{
                     width: '8px',
                     height: '8px',
-                    borderRadius: '50%',
+                    borderRadius: 'var(--radius-full)',
                     bg: 'color.text.secondary',
                     animation: 'typing 1.4s infinite',
                     opacity: 0.6,
@@ -286,7 +286,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                   design={{
                     width: '8px',
                     height: '8px',
-                    borderRadius: '50%',
+                    borderRadius: 'var(--radius-full)',
                     bg: 'color.text.secondary',
                     animation: 'typing 1.4s infinite 0.2s',
                     opacity: 0.6,
@@ -297,7 +297,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                   design={{
                     width: '8px',
                     height: '8px',
-                    borderRadius: '50%',
+                    borderRadius: 'var(--radius-full)',
                     bg: 'color.text.secondary',
                     animation: 'typing 1.4s infinite 0.4s',
                     opacity: 0.6,

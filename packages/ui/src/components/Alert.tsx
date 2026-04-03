@@ -135,7 +135,7 @@ export const Alert: React.FC<AlertProps> = ({
             }}
             onClick={onClose}
           >
-            <X size={16} color={colors.icon} />
+            <X size={20} color={colors.icon} />
           </Button>
         )}
       </Flex>

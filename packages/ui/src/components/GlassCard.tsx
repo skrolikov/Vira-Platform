@@ -23,7 +23,7 @@ export interface GlassCardProps extends Omit<React.HTMLAttributes<HTMLDivElement
   noise?: boolean;
   /**
    * Border-radius. Default: var(--radius-lg)
-   * Можно передать строку CSS: "var(--radius-xl)", "24px", etc.
+   * Можно передать строку CSS: "var(--radius-md)", "24px", etc.
    */
   radius?: string;
   /** Дополнительные design props */
@@ -52,7 +52,7 @@ export interface GlassCardProps extends Omit<React.HTMLAttributes<HTMLDivElement
  * <GlassCard>Контент</GlassCard>
  *
  * // Тёмный вариант
- * <GlassCard variant="dark" radius="var(--radius-xl)">
+ * <GlassCard variant="dark" radius="var(--radius-md)">
  *   <p>Тёмное стекло</p>
  * </GlassCard>
  *

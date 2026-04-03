@@ -188,7 +188,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                       right: '-2px',
                       width: '22px',
                       height: '22px',
-                      borderRadius: '50%',
+                      borderRadius: 'var(--radius-full)',
                       bg: 'color.bg.primary',
                       display: 'flex',
                       alignItems: 'center',

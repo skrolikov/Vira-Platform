@@ -31,11 +31,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check
-        run: pnpm typecheck
-
+      # Workspace-пакеты указывают types на ./dist — без сборки tsc не видит @vira-ui/core и др.
       - name: Build packages
         run: pnpm build
+
+      - name: Type check
+        run: pnpm typecheck
 
       - name: Run tests
         run: pnpm test

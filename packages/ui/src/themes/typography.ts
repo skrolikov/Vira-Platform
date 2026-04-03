@@ -46,12 +46,12 @@ export const typography = {
     fontSize: {
       xs: "10px",
       sm: "12px",
-      md: "16px",
-      lg: "24px",
-      xl: "32px",
-      "2xl": "48px",
-      "3xl": "64px",
-      "4xl": "96px",
+      md: "14px",
+      lg: "18px",
+      xl: "20px",
+      "2xl": "24px",
+      "3xl": "30px",
+      "4xl": "36px",
     },
     fontWeight: {
       normal: "400",

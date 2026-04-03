@@ -309,7 +309,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
               aria-label="Увеличить"
               tabIndex={-1}
             >
-              <ChevronUp size={16} />
+              <ChevronUp size={20} />
             </button>
             <button
               type="button"
@@ -319,7 +319,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
               aria-label="Уменьшить"
               tabIndex={-1}
             >
-              <ChevronDown size={16} />
+              <ChevronDown size={20} />
             </button>
           </div>
         </div>

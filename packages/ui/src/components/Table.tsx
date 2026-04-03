@@ -630,7 +630,7 @@ function TableComponent<T extends Record<string, any>>({
                         }}
                         design={{ padding: 1 }}
                       >
-                        {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                        {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                       </Button>
                     </Flex>
                   )}

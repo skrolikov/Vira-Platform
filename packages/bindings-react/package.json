@@ -1,6 +1,6 @@
 {
   "name": "@vira-ui/bindings-react",
-  "version": "11.0.5",
+  "version": "12.0.0",
   "description": "Vira Framework - React bindings with auto-binding for UI components",
   "author": "Vira Team",
   "license": "MIT",

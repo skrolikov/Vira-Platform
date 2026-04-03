@@ -101,7 +101,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             padding: "8px",
           }}
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft size={20} />
         </Button>
       )}
 
@@ -117,7 +117,7 @@ export const Pagination: React.FC<PaginationProps> = ({
                 height: "40px",
               }}
             >
-              <MoreHorizontal size={16} color="#9ca3af" />
+              <MoreHorizontal size={20} color="#9ca3af" />
             </Flex>
           );
         }
@@ -148,7 +148,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             padding: "8px",
           }}
         >
-          <ChevronRight size={16} />
+          <ChevronRight size={20} />
         </Button>
       )}
 

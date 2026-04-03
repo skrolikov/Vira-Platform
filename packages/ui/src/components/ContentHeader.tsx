@@ -162,7 +162,7 @@ export const ContentHeader: React.FC<ContentHeaderProps> = ({
               {String(computedBadge)}
             </Badge>
           )}
-          {loading && <Spinner size={16} />}
+          {loading && <Spinner size={20} />}
         </Flex>
         {description && (
           <Text design={{ 
