@@ -234,7 +234,7 @@
 - Updated dependencies
 - Updated dependencies
 - Updated dependencies
-- Updated dependencies
+- Updated dependencies 
   - @vira-ui/ui@2.0.0
   - @vira-ui/core@2.0.0
  
