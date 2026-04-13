@@ -4,7 +4,7 @@ import { mergeDesign, getDesignClass, applyDesignClass, getDataDesignAttribute }
 import { presets, PresetName } from "../presets";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
-export interface InputProps 
+export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   preset?: PresetName;
   design?: DesignProps;
@@ -12,8 +12,8 @@ export interface InputProps
   onUpdateModelValue?: (value: string) => void;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ 
-  design, 
+export const Input = forwardRef<HTMLInputElement, InputProps>(({
+  design,
   preset,
   modelValue,
   onUpdateModelValue,
@@ -25,7 +25,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   min,
   max,
   step = 1,
-  ...props 
+  ...props
 }, ref) => {
 
   // If this input is bound via BindingRuntime using data-model, we should NOT render it as
@@ -44,7 +44,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
 
   // Внутренний ref для number input
   const internalInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Объединяем переданный ref с внутренним
   const combinedRef = (node: HTMLInputElement) => {
     // Обновляем переданный ref
@@ -101,20 +101,20 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     soft: "inputSoft",
     outline: "inputOutline",
   };
-  
-  const mappedPreset = preset && presetMapping[preset as string] 
-    ? presetMapping[preset as string] 
+
+  const mappedPreset = preset && presetMapping[preset as string]
+    ? presetMapping[preset as string]
     : preset;
-  
+
   const presetDesign = mappedPreset ? presets[mappedPreset] : undefined;
-  
+
   // Красивые стили по умолчанию (как у SearchInput)
   const defaultDesign: DesignProps = {
-    padding: 3,
+    padding: 2,
     bg: "color.bg.tertiary",
     border: "1px solid",
-    borderColor: "color.bg.tertiary",
-    radius: "radius.md",
+    borderColor: "color.bg.primary",
+    radius: "radius.sm",
     color: "color.text.primary",
     fontSize: "typography.fontSize.md",
     transition: "all 0.2s ease",
@@ -130,26 +130,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       shadow: "shadow.sm",
     },
   };
-  
+
   // Если preset не указан, используем defaultDesign
   // Если preset указан, используем его, но мержим с defaultDesign как базой (если нужно)
   let mergedDesign: DesignProps | undefined;
-  
+
   if (presetDesign) {
     // Если есть preset, используем его
-    mergedDesign = presetDesign && design 
-      ? mergeDesign(presetDesign, design) 
+    mergedDesign = presetDesign && design
+      ? mergeDesign(presetDesign, design)
       : (presetDesign || design);
   } else {
     // Если preset нет, используем defaultDesign как основу
-    mergedDesign = design 
-      ? mergeDesign(defaultDesign, design) 
+    mergedDesign = design
+      ? mergeDesign(defaultDesign, design)
       : defaultDesign;
   }
-  
+
   const designClass = mergedDesign ? getDesignClass(mergedDesign) : "";
   const finalClassName = applyDesignClass(className, designClass);
-  
+
   const isNumberInput = type === "number";
 
   const setNativeInputValue = useCallback((el: HTMLInputElement, next: string) => {
@@ -159,22 +159,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     if (setter) setter.call(el, next);
     else el.value = next;
   }, []);
-  
+
   // Обработчики для кнопок увеличения/уменьшения
   const handleStepUp = useCallback(() => {
     if (!isNumberInput || !internalInputRef.current) return;
-    
+
     const currentValue = runtimeControlsValue
       ? (parseFloat(internalInputRef.current.value) || 0)
       : (parseFloat(computedValue) || 0);
     const stepValue = typeof step === "string" ? parseFloat(step) : (step || 1);
     let newValue = currentValue + stepValue;
-    
+
     if (max !== undefined) {
       const maxValue = typeof max === "string" ? parseFloat(max) : max;
       newValue = Math.min(newValue, maxValue);
     }
-    
+
     if (runtimeControlsValue) {
       setNativeInputValue(internalInputRef.current, String(newValue));
       internalInputRef.current.dispatchEvent(new Event("input", { bubbles: true }));
@@ -186,25 +186,25 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     const syntheticEvent = {
       target: { value: String(newValue) },
     } as React.ChangeEvent<HTMLInputElement>;
-    
+
     handleChange(syntheticEvent);
     internalInputRef.current?.focus();
   }, [isNumberInput, runtimeControlsValue, computedValue, step, max, handleChange, setNativeInputValue]);
-  
+
   const handleStepDown = useCallback(() => {
     if (!isNumberInput || !internalInputRef.current) return;
-    
+
     const currentValue = runtimeControlsValue
       ? (parseFloat(internalInputRef.current.value) || 0)
       : (parseFloat(computedValue) || 0);
     const stepValue = typeof step === "string" ? parseFloat(step) : (step || 1);
     let newValue = currentValue - stepValue;
-    
+
     if (min !== undefined) {
       const minValue = typeof min === "string" ? parseFloat(min) : min;
       newValue = Math.max(newValue, minValue);
     }
-    
+
     if (runtimeControlsValue) {
       setNativeInputValue(internalInputRef.current, String(newValue));
       internalInputRef.current.dispatchEvent(new Event("input", { bubbles: true }));
@@ -216,11 +216,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     const syntheticEvent = {
       target: { value: String(newValue) },
     } as React.ChangeEvent<HTMLInputElement>;
-    
+
     handleChange(syntheticEvent);
     internalInputRef.current?.focus();
   }, [isNumberInput, runtimeControlsValue, computedValue, step, min, handleChange, setNativeInputValue]);
-  
+
   // Если это number input, оборачиваем в контейнер со стрелками
   if (isNumberInput) {
     // Стили для контейнера
@@ -230,16 +230,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       alignItems: "stretch",
       width: "100%",
     };
-    
+
     // Стили для input (добавляем padding справа для стрелок)
     const inputWithArrowsDesign: DesignProps = mergeDesign(mergedDesign || {}, {
       paddingRight: "40px", // Место для стрелок
     });
-    
+
     const containerClass = getDesignClass(containerDesign);
     const inputWithArrowsClass = getDesignClass(inputWithArrowsDesign);
     const finalInputClassName = applyDesignClass(className, inputWithArrowsClass);
-    
+
     // Стили для кнопок стрелок
     const arrowButtonsDesign: DesignProps = {
       position: "absolute",
@@ -251,7 +251,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       gap: 0,
       zIndex: 1,
     };
-    
+
     const arrowButtonDesign: DesignProps = {
       display: "flex",
       alignItems: "center",
@@ -270,9 +270,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         outline: "none",
       },
     };
-    
+
     const arrowButtonsClass = getDesignClass(arrowButtonsDesign);
-    
+
     return (
       <>
         {/* Скрываем стандартные стрелки браузера */}
@@ -287,7 +287,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
           }
         `}</style>
         <div className={containerClass} {...(containerDesign && { "data-design": getDataDesignAttribute(containerDesign) })}>
-          <input 
+          <input
             ref={combinedRef}
             className={finalInputClassName}
             {...(!runtimeControlsValue && { value: computedValue })}
@@ -326,10 +326,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       </>
     );
   }
-  
+
   // Обычный input без стрелок
   return (
-    <input 
+    <input
       ref={combinedRef}
       type={type}
       className={finalClassName}
