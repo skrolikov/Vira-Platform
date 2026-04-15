@@ -8,6 +8,7 @@ export const buttonPrimary: DesignProps = {
   fontWeight: "medium",
   cursor: "pointer",
   transition: "all 0.2s",
+  whitespace: "nowrap",
   hover: {
     opacity: 0.9,
   },

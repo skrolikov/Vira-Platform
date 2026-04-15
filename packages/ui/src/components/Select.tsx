@@ -70,7 +70,7 @@ export const Select: React.FC<SelectProps> = ({
   const defaultDesign: DesignProps = {
     display: "block",
     width: "100%",
-    padding: 3,
+    padding: 2,
     bg: "color.bg.tertiary",
     border: "1px solid",
     borderColor: "color.bg.tertiary",

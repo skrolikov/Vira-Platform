@@ -26,7 +26,7 @@ import { mergeVariant, ComponentBase } from "../utils/variants";
  * <Button as="a" href="/page">Link</Button>
  */
 
-export interface ButtonProps 
+export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "as"> {
   preset?: PresetName;
   loading?: boolean;
@@ -36,18 +36,18 @@ export interface ButtonProps
   as?: keyof JSX.IntrinsicElements;
 }
 
-export const Button = React.forwardRef<HTMLElement, ButtonProps>(({ 
-  design, 
+export const Button = React.forwardRef<HTMLElement, ButtonProps>(({
+  design,
   preset,
   base,
   variant,
   as,
   loading,
-  children, 
+  children,
   className,
   onClick,
   disabled,
-  ...props 
+  ...props
 }, ref) => {
 
   // ============================================
@@ -55,10 +55,10 @@ export const Button = React.forwardRef<HTMLElement, ButtonProps>(({
   // ============================================
   // Применяем пресет только если указан явно
   const presetDesign = preset ? presets[preset] : undefined;
-  
+
   // Применяем variant только если указан base
   const variantDesign = variant && base ? mergeVariant(base, variant) : undefined;
-  
+
   // Объединяем: preset -> variant -> design (design имеет наивысший приоритет)
   let mergedDesign = presetDesign;
   if (variantDesign) {
@@ -67,20 +67,20 @@ export const Button = React.forwardRef<HTMLElement, ButtonProps>(({
   if (design) {
     mergedDesign = mergedDesign ? mergeDesign(mergedDesign, design) : design;
   }
-  
+
   // Добавляем position: relative для loading анимации, если нужно
   if (loading && mergedDesign) {
     mergedDesign = mergeDesign(mergedDesign, { position: "relative" });
   } else if (loading) {
     mergedDesign = { position: "relative" };
   }
-  
+
   const designClass = mergedDesign ? getDesignClass(mergedDesign) : "";
   const finalClassName = applyDesignClass(className, designClass);
-  
+
   const Component = (as || "button") as keyof JSX.IntrinsicElements;
   const isDisabled = disabled || loading;
-  
+
   return (
     <>
       {React.createElement(

@@ -73,6 +73,7 @@ export const docsPresets = {
     fontSize: "14px",
     fontWeight: "500",
     transition: "all 0.2s",
+    whitespace: "nowrap",
     hover: {
       bg: "#374151",
       color: "#ffffff",
@@ -94,6 +95,7 @@ export const docsPresets = {
     fontSize: "14px",
     fontWeight: "600",
     transition: "all 0.2s",
+    whitespace: "nowrap",
     hover: {
       bg: "#2563eb",
       color: "#ffffff",
@@ -106,8 +108,6 @@ export const docsPresets = {
     bg: "#1f2937",
     padding: 0,
     radius: "12px",
-    
-    
     overflow: "hidden",
     border: "1px solid #374151",
   } as DesignProps,
