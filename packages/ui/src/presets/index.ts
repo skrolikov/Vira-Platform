@@ -10,7 +10,7 @@ export const presets = {
   // ===== БАЗОВЫЕ =====
   default: {
     padding: 2,
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     radius: "radius.md",
     transition: "all 0.2s",
   } as DesignProps,
@@ -36,7 +36,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -62,7 +62,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -88,7 +88,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -139,7 +139,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -192,7 +192,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -226,7 +226,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -260,7 +260,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -327,7 +327,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -361,7 +361,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -389,7 +389,7 @@ export const presets = {
     padding: 2,
     radius: "radius.sm",
     border: "none",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
@@ -421,7 +421,7 @@ export const presets = {
     padding: 2,
     radius: "radius.sm",
     border: "none",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
@@ -453,7 +453,7 @@ export const presets = {
     padding: 2,
     radius: "radius.sm",
     border: "none",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
@@ -516,7 +516,7 @@ export const presets = {
     padding: 2,
     radius: "radius.sm",
     border: "none",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
@@ -552,7 +552,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     hover: {
       bg: "rgb(255 255 255 / 20%)",
@@ -585,7 +585,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.lg",
     hover: {
@@ -615,7 +615,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.lg",
     hover: {
@@ -643,7 +643,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.sm",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.md",
     hover: {
@@ -669,7 +669,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.bold",
     fontSize: "typography.fontSize.lg",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.lg",
     hover: {
@@ -695,7 +695,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.bold",
     fontSize: "typography.fontSize.lg",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.lg",
     hover: {
@@ -723,7 +723,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.bold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "0 0 20px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.3)",
     hover: {
@@ -750,7 +750,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.bold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "0 0 20px rgba(255, 0, 153, 0.6), inset 0 0 10px rgba(0, 234, 255, 0.3)",
     hover: {
@@ -777,7 +777,7 @@ export const presets = {
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.md",
     cursor: "pointer",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     shadow: "shadow.lg",
     hover: {
@@ -803,7 +803,7 @@ export const presets = {
     borderRadius: "radius.md",
     bg: "transparent",
     color: "color.text.secondary",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     fontWeight: "typography.fontWeight.medium",
     fontSize: "typography.fontSize.sm",
     minHeight: "44px",
@@ -826,7 +826,7 @@ export const presets = {
     borderRadius: "radius.md",
     bg: "color.primary",
     color: "color.text.inverse",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     fontWeight: "typography.fontWeight.semibold",
     fontSize: "typography.fontSize.sm",
     minHeight: "44px",

@@ -73,7 +73,7 @@ export const docsPresets = {
     fontSize: "14px",
     fontWeight: "500",
     transition: "all 0.2s",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     hover: {
       bg: "#374151",
       color: "#ffffff",
@@ -95,7 +95,7 @@ export const docsPresets = {
     fontSize: "14px",
     fontWeight: "600",
     transition: "all 0.2s",
-    whitespace: "nowrap",
+    whiteSpace: "nowrap",
     hover: {
       bg: "#2563eb",
       color: "#ffffff",
