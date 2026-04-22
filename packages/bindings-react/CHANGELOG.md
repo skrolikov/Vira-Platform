@@ -1,5 +1,12 @@
 # @vira-ui/bindings-react
 
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @vira-ui/ui@21.0.0
+
 ## 12.0.4
 
 ### Patch Changes

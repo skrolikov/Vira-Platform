@@ -2,18 +2,13 @@ import React, { createContext, useContext, useEffect } from "react";
 import { cyberpunk } from "../themes/cyberpunk";
 import { aurora } from "../themes/luxury";
 import { material } from "../themes/material";
-import { retro } from "../themes/retro";
 import { midnight } from "../themes/midnight";
 import { synthwave } from "../themes/synthwave";
-import { neomorph } from "../themes/neomorph";
 import { apple } from "../themes/apple";
-import { eightbit } from "../themes/eightbit";
 import { vintage } from "../themes/vintage";
-import { swiss } from "../themes/swiss";
-import { typography } from "../themes/typography";
-import { memphis } from "../themes/memphis";
-import { threed } from "../themes/threed";
 import { monochrome } from "../themes/monochrome";
+import { virstakdark } from "../themes/virstakdark";
+import { virstaklight } from "../themes/virstaklight";
 import { foundationTokens } from "../tokens/foundation";
 import { generateCSSVariables } from "../utils/css-variables";
 import { generateRuntimeStyles } from "../utils/runtime-styles";
@@ -59,7 +54,7 @@ function resolveColorToken(path: string, theme: Theme): string | null {
   return typeof current === "string" ? current : null;
 }
 
-export type ThemeName = "default" | "monochrome" | "cyberpunk" | "aurora" | "material" | "retro" | "midnight" | "synthwave" | "apple" | "neomorph" | "eightbit" | "vintage" | "swiss" | "typography" | "memphis" | "threed";
+export type ThemeName = "default" | "monochrome" | "cyberpunk" | "aurora" | "material" | "retro" | "midnight" | "synthwave" | "apple" | "neomorph" | "eightbit" | "vintage" | "swiss" | "typography" | "memphis" | "threed" | "virstakdark" | "virstaklight";
 
 export interface ViraProviderProps {
   theme?: ThemeName;
@@ -98,17 +93,12 @@ export const ViraProvider: React.FC<ViraProviderProps> = ({
       cyberpunk: cyberpunk as Theme,
       aurora: aurora as Theme,
       material: material as Theme,
-      retro: retro as Theme,
       midnight: midnight as Theme,
       synthwave: synthwave as Theme,
-      neomorph: neomorph as Theme,
       apple: apple as Theme,
-      eightbit: eightbit as Theme,
       vintage: vintage as Theme,
-      swiss: swiss as Theme,
-      typography: typography as Theme,
-      memphis: memphis as Theme,
-      threed: threed as Theme,
+      virstakdark: virstakdark as Theme,
+      virstaklight: virstaklight as Theme,
     };
     
     const selectedTheme = themeMap[theme];
