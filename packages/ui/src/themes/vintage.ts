@@ -41,7 +41,7 @@ export const vintage = {
     paper: "background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 69, 19, 0.03) 2px, rgba(139, 69, 19, 0.03) 4px)",
     vintage: "box-shadow: inset 0 0 20px rgba(139, 69, 19, 0.1), 0 0 10px rgba(139, 69, 19, 0.2)",
     worn: "background: linear-gradient(135deg, rgba(139, 69, 19, 0.05) 25%, transparent 25%, transparent 50%, rgba(139, 69, 19, 0.05) 50%, rgba(139, 69, 19, 0.05) 75%, transparent 75%)",
-  },
+  }, 
   typography: {
     fontFamily: {
       base: "'PT Serif', serif",
