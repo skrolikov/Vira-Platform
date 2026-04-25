@@ -115,8 +115,6 @@ export type { Tab, TabsProps } from "./components/Tabs";
 export { tokens } from "./tokens/default";
 export { foundationTokens } from "./tokens/foundation";
 export { cyberpunk } from "./themes/cyberpunk";
-export { aurora } from "./themes/luxury";
-export type { AuroraTheme } from "./themes/luxury";
 export { material } from "./themes/material";
 export type { MaterialTheme } from "./themes/material";
 export { midnight } from "./themes/midnight";

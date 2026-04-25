@@ -1,5 +1,11 @@
 # @vira-ui/ui
 
+## 23.0.0
+
+### Major Changes
+
+- update
+
 ## 22.0.0
 
 ### Major Changes

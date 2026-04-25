@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect } from "react";
 import { cyberpunk } from "../themes/cyberpunk";
-import { aurora } from "../themes/luxury";
 import { material } from "../themes/material";
 import { midnight } from "../themes/midnight";
 import { synthwave } from "../themes/synthwave";
@@ -54,7 +53,7 @@ function resolveColorToken(path: string, theme: Theme): string | null {
   return typeof current === "string" ? current : null;
 }
 
-export type ThemeName = "default" | "monochrome" | "cyberpunk" | "aurora" | "material" | "retro" | "midnight" | "synthwave" | "apple" | "neomorph" | "eightbit" | "vintage" | "swiss" | "typography" | "memphis" | "threed" | "virstakdark" | "virstaklight";
+export type ThemeName = "default" | "monochrome" | "cyberpunk" | "material" | "midnight" | "synthwave" | "apple" | "vintage" | "virstakdark" | "virstaklight";
 
 export interface ViraProviderProps {
   theme?: ThemeName;
@@ -91,7 +90,6 @@ export const ViraProvider: React.FC<ViraProviderProps> = ({
       default: {} as Theme, // Пустая тема = используем только foundation
       monochrome: monochrome as Theme,
       cyberpunk: cyberpunk as Theme,
-      aurora: aurora as Theme,
       material: material as Theme,
       midnight: midnight as Theme,
       synthwave: synthwave as Theme,
