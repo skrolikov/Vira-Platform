@@ -43,6 +43,11 @@ export const vintage = {
     worn: "background: linear-gradient(135deg, rgba(139, 69, 19, 0.05) 25%, transparent 25%, transparent 50%, rgba(139, 69, 19, 0.05) 50%, rgba(139, 69, 19, 0.05) 75%, transparent 75%)",
   },
   typography: {
+    fontFamily: {
+      base: "'PT Serif', serif",
+      heading: "'Cormorant Garamond', serif",
+      mono: "JetBrains Mono, monospace",
+    },
     fontSize: {
       xs: "10px",
       sm: "12px",

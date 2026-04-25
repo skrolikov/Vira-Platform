@@ -1,26 +1,26 @@
 export const cyberpunk = {
   color: {
-    primary: "#ff0099",
-    secondary: "#00eaff",
-    danger: "#ff0066",
-    success: "#00ff88",
-    warning: "#ffaa00",
+    primary: "#ed1e79",
+    secondary: "#0cffe1",
+    danger: "#ed1e79",
+    success: "#0cffe1",
+    warning: "#ed1e79",
     text: {
-      primary: "#e0e0e0",
-      secondary: "#a0a0a0",
-      inverse: "#0d0221",
+      primary: "#f5f5f5",
+      secondary: "#e0e0e0",
+      inverse: "#181818",
     },
     bg: {
-      primary: "#0d0221",
-      secondary: "#1a0442",
-      tertiary: "#2a0663",
+      primary: "#181818",
+      secondary: "#2a2a2a",
+      tertiary: "#3a3a3a",
     },
   },
   radius: {
-    sm: "4px",
-    md: "8px",
-    lg: "12px",
-    full: "9999px",
+    sm: "0px",
+    md: "0px",
+    lg: "0px",
+    full: "999px",
   },
   space: {
     1: "4px",
@@ -40,6 +40,11 @@ export const cyberpunk = {
     neon: "0 0 4px #00eaff",
   },
   typography: {
+    fontFamily: {
+      base: "'Exo 2', sans-serif",
+      heading: "'Russo One', sans-serif",
+      mono: "JetBrains Mono, monospace",
+    },
     fontSize: {
       xs: "10px",
       sm: "12px",

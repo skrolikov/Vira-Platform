@@ -59,7 +59,8 @@ export const monochrome = {
 
   typography: {
     fontFamily: {
-      base: "Inter, system-ui, sans-serif",
+      base: "'PT Sans', sans-serif",
+      heading: "'PT Sans', sans-serif",
       mono: "JetBrains Mono, monospace",
     },
     fontSize: {

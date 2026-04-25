@@ -106,6 +106,11 @@ export const foundationTokens = {
     10: "64px",
   },
   typography: {
+    fontFamily: {
+      base: "Inter, system-ui, sans-serif",
+      heading: "Inter, system-ui, sans-serif",
+      mono: "JetBrains Mono, monospace",
+    },
     xs: "10px",
     sm: "12px",
     md: "14px",

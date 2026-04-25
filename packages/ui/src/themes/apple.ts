@@ -96,6 +96,11 @@ export const apple = {
     },
   },
   typography: {
+    fontFamily: {
+      base: "'Inter', sans-serif",
+      heading: "'Inter', sans-serif",
+      mono: "JetBrains Mono, monospace",
+    },
     fontSize: {
       xs: "10px",
       sm: "12px",

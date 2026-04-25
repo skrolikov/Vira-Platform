@@ -1,25 +1,25 @@
 export const virstaklight = {
   color: {
-    primary: "#b6811a",
-    secondary: "#a67a1d",
-    danger: "#9c4a2b",
-    success: "#8c6430",
-    warning: "#a67a1d",
+    primary: "#9a6e141f",
+    secondary: "#f7f4ee",
+    danger: "#c43a3a",
+    success: "#2c6e42",
+    warning: "#c4922a",
     text: {
-      primary: "#3f2d1f",
-      secondary: "#8c6430",
-      inverse: "#f9f2e4",
+      primary: "#1c1a14",
+      secondary: "#aca090",
+      inverse: "#e5e6eb",
     },
     bg: {
-      primary: "#f7ebd9",
-      secondary: "#eed8b8",
-      tertiary: "#e2bf8f",
+      primary: "#faf8f4",
+      secondary: "#f7f4ee",
+      tertiary: "#f2efe8",
     },
   },
   radius: {
-    sm: "8px",
-    md: "12px",
-    lg: "18px",
+    sm: "0px",
+    md: "0px",
+    lg: "0px",
     full: "9999px",
   },
   space: {
@@ -31,9 +31,16 @@ export const virstaklight = {
     6: "48px",
   },
   shadow: {
-    sm: "0 2px 8px rgba(94, 67, 43, 0.12)",
-    md: "0 6px 20px rgba(94, 67, 43, 0.2)",
-    lg: "0 12px 32px rgba(94, 67, 43, 0.28)",
+    sm: "0 1px 4px rgba(26,23,16,0.08)",
+    md: "0 4px 16px rgba(26,23,16,0.1), 0 1px 4px rgba(26,23,16,0.06)",
+    lg: "0 12px 40px rgba(26,23,16,0.14), 0 4px 12px rgba(26,23,16,0.08)",
+  },
+  typography: {
+    fontFamily: {
+      base: "'Crimson Pro', serif",
+      heading: "'Cinzel', serif",
+      mono: "JetBrains Mono, monospace",
+    },
   },
 } as const;
 

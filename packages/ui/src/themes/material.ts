@@ -41,6 +41,11 @@ export const material = {
     ripple: "radial-gradient(circle, rgba(25, 118, 210, 0.3) 0%, transparent 70%)",
   },
   typography: {
+    fontFamily: {
+      base: "'Roboto', sans-serif",
+      heading: "'Roboto', sans-serif",
+      mono: "JetBrains Mono, monospace",
+    },
     fontSize: {
       xs: "10px",
       sm: "12px",

@@ -19,6 +19,7 @@ export interface Theme {
   spacing?: Record<string | number, string>;
   space?: Record<string | number, string>; // Альтернативное название для spacing
   typography?: {
+    fontFamily?: Record<string, string>;
     fontSize?: Record<string, string>;
     fontWeight?: Record<string, string>;
     // Или может быть плоская структура как в foundation
@@ -206,6 +207,15 @@ export function generateThemeCSSVariables(theme: Theme): string {
   
   // Typography variables
   if (theme.typography) {
+    if (theme.typography.fontFamily) {
+      Object.entries(theme.typography.fontFamily).forEach(([key, value]) => {
+        const varName = `--typography-fontFamily-${key}`;
+        if (!addedVars.has(varName)) {
+          rules.push(`  ${varName}: ${value};`);
+          addedVars.add(varName);
+        }
+      });
+    }
     // Если структура как в cyberpunk (fontSize и fontWeight отдельно)
     if (theme.typography.fontSize) {
       Object.entries(theme.typography.fontSize).forEach(([key, value]) => {
@@ -238,7 +248,7 @@ export function generateThemeCSSVariables(theme: Theme): string {
     
     // Если структура как в foundation (плоская с weight объектом)
     Object.entries(theme.typography).forEach(([key, value]) => {
-      if (key !== "fontSize" && key !== "fontWeight") {
+      if (key !== "fontSize" && key !== "fontWeight" && key !== "fontFamily") {
         if (typeof value === "string") {
           const varName1 = `--typography-fontSize-${key}`;
           const varName2 = `--typography-${key}`;
@@ -250,7 +260,7 @@ export function generateThemeCSSVariables(theme: Theme): string {
             rules.push(`  ${varName2}: ${value};`);
             addedVars.add(varName2);
           }
-        } else if (typeof value === "object" && value !== null) {
+        } else if (typeof value === "object" && value !== null && (key === "weight" || key === "fontWeight")) {
           // weight object
           Object.entries(value).forEach(([subKey, subValue]) => {
             const varName1 = `--typography-fontWeight-${subKey}`;
@@ -270,6 +280,19 @@ export function generateThemeCSSVariables(theme: Theme): string {
   }
   // Дополняем недостающие typography из foundation
   Object.entries(foundationTokens.typography).forEach(([key, value]) => {
+    if (key === "fontFamily" && typeof value === "object" && value !== null) {
+      Object.entries(value).forEach(([subKey, subValue]) => {
+        const existsInTheme = Boolean(theme.typography?.fontFamily?.[subKey]);
+        if (!existsInTheme) {
+          const varName = `--typography-fontFamily-${subKey}`;
+          if (!addedVars.has(varName)) {
+            rules.push(`  ${varName}: ${subValue};`);
+            addedVars.add(varName);
+          }
+        }
+      });
+      return;
+    }
     if (typeof value === "string") {
       // Проверяем, есть ли уже в теме
       const existsInTheme = 
@@ -288,7 +311,7 @@ export function generateThemeCSSVariables(theme: Theme): string {
           addedVars.add(varName2);
         }
       }
-    } else if (typeof value === "object" && value !== null) {
+    } else if (typeof value === "object" && value !== null && (key === "weight" || key === "fontWeight")) {
       // weight object
       Object.entries(value).forEach(([subKey, subValue]) => {
         const existsInTheme = 

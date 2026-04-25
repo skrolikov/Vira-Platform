@@ -64,7 +64,17 @@ export function generateCSSVariables(): string {
       // Также добавляем как typography-{key} для обратной совместимости
       const varNameAlt = tokenToCSSVariable(`typography-${key}`);
       rules.push(`  ${varNameAlt}: ${value};`);
-    } else if (typeof value === "object") {
+    } else if (typeof value === "object" && value !== null) {
+      if (key === "fontFamily") {
+        Object.entries(value).forEach(([subKey, subValue]) => {
+          const varName = tokenToCSSVariable(`typography.fontFamily.${subKey}`);
+          rules.push(`  ${varName}: ${subValue};`);
+        });
+        return;
+      }
+      if (key !== "weight" && key !== "fontWeight") {
+        return;
+      }
       // weight object
       Object.entries(value).forEach(([subKey, subValue]) => {
         // Генерируем как typography.fontWeight.{subKey} -> --typography-fontWeight-{subKey}

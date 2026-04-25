@@ -43,6 +43,11 @@ export const synthwave = {
     sunset: "linear-gradient(180deg, rgba(255, 0, 110, 0.2) 0%, rgba(0, 245, 255, 0.2) 100%)",
   },
   typography: {
+    fontFamily: {
+      base: "'Exo 2', sans-serif",
+      heading: "'Russo One', sans-serif",
+      mono: "JetBrains Mono, monospace",
+    },
     fontSize: {
       xs: "10px",
       sm: "12px",

@@ -1,25 +1,25 @@
 export const virstakdark = {
   color: {
-    primary: "#d4a843",
-    secondary: "#b8860b",
-    danger: "#8b3a1a",
-    success: "#c8a96e",
-    warning: "#b8860b",
+    primary: "#c4922a",
+    secondary: "#4a7fa5",
+    danger: "#a04040",
+    success: "#4a9e6b",
+    warning: "#c4922a",
     text: {
-      primary: "#f0e6cc",
-      secondary: "#c8a96e",
-      inverse: "#0a0804",
+      primary: "#e8e6e1",
+      secondary: "#9ea3a8",
+      inverse: "#181818",
     },
     bg: {
-      primary: "#0f0905",
-      secondary: "#1d130a",
-      tertiary: "#2a1b0f",
+      primary: "#0a0b0c",
+      secondary: "#0d0e0f",
+      tertiary: "#1e2228",
     },
   },
   radius: {
-    sm: "8px",
-    md: "12px",
-    lg: "18px",
+    sm: "0px",
+    md: "0px",
+    lg: "0px",
     full: "9999px",
   },
   space: {
@@ -34,6 +34,13 @@ export const virstakdark = {
     sm: "0 2px 8px rgba(6, 4, 2, 0.35)",
     md: "0 6px 20px rgba(6, 4, 2, 0.45)",
     lg: "0 12px 32px rgba(6, 4, 2, 0.55)",
+  },
+  typography: {
+    fontFamily: {
+      base: "'Crimson Pro', serif",
+      heading: "'Cinzel', serif",
+      mono: "JetBrains Mono, monospace",
+    },
   },
 } as const;
 

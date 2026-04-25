@@ -43,6 +43,11 @@ export const midnight = {
     glass: "rgba(255, 255, 255, 0.05) backdrop-filter: blur(10px)",
   },
   typography: {
+    fontFamily: {
+      base: "'Manrope', sans-serif",
+      heading: "'Montserrat', sans-serif",
+      mono: "JetBrains Mono, monospace",
+    },
     fontSize: {
       xs: "10px",
       sm: "12px",
